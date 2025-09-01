@@ -348,12 +348,14 @@ class EmployeeController extends Controller
         ini_set('memory_limit', '512M');
         $pdf = pdf::loadview('employees.pdf.index', ['employees' => $employees, 'timestamp' => $timestamp, 'subsidiary' => $subsidiary])
             ->setPaper('letter', 'landscape');
-        return $pdf->stream('data-karyawan-' . now()->format('d-m-Y') . '.pdf');
+        return $pdf->stream('data-karyawan-' . now()->format('d-M-Y') . '.pdf');
     }
 
     public function index_excel()
     {
-        return Excel::download(new EmployeeExport, 'data-karyawan.xlsx');
+        $tgl = now()->format('d-M-Y');
+        $namaFile = 'data-karyawan-' . $tgl . '.xlsx';
+        return Excel::download(new EmployeeExport, $namaFile);
     }
 
     public function show_pdf($id)

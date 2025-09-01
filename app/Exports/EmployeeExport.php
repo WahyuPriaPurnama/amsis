@@ -5,9 +5,12 @@ namespace App\Exports;
 use App\Models\Employee;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class EmployeeExport implements FromCollection, WithHeadings
+class EmployeeExport implements FromCollection, WithHeadings, WithColumnFormatting, WithMapping
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -34,5 +37,45 @@ class EmployeeExport implements FromCollection, WithHeadings
         } elseif ($user == 'haka-admin') {
             return $data->where('subsidiary_id', '5');
         }
+    }
+    public function map($e): array
+    {
+        return [
+            $e->nip,
+            $e->nama,
+            "'" . $e->nik, // apostrof agar dibaca sebagai teks
+            $e->divisi,
+            $e->departemen,
+            $e->seksi,
+            $e->posisi,
+            $e->status_peg,
+            $e->tgl_masuk,
+            $e->awal_kontrak,
+            $e->akhir_kontrak,
+            $e->tmpt_lahir,
+            $e->tgl_lahir,
+            $e->jenis_kelamin,
+            $e->alamat,
+            $e->no_telp,
+            $e->email,
+            $e->pend_trkhr,
+            $e->jurusan,
+            $e->thn_lulus,
+            $e->nama_ibu,
+            "'" . $e->npwp, // aman dari notasi ilmiah
+            $e->status,
+            $e->jml_ank,
+            $e->nama_kd,
+            $e->no_kd,
+            $e->hubungan,
+            $e->subsidiary_id,
+        ];
+    }
+    public function columnFormats(): array
+    {
+        return [
+            'C' => NumberFormat::FORMAT_TEXT,
+            'V' => NumberFormat::FORMAT_TEXT
+        ];
     }
 }
