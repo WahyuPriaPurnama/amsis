@@ -354,7 +354,7 @@ class EmployeeController extends Controller
     public function index_excel()
     {
         $tgl = now()->format('d-M-Y');
-        $namaFile = 'data-karyawan-' . $tgl . '.xlsx';
+        $namaFile = 'data-karyawan per ' . $tgl . '.xlsx';
         return Excel::download(new EmployeeExport, $namaFile);
     }
 
