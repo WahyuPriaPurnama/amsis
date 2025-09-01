@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 route::middleware('auth')->group(function () {
     route::resource('employees', EmployeeController::class);
     route::prefix('employee')->controller(EmployeeController::class)->group(function () {
@@ -76,9 +80,9 @@ route::middleware('auth')->group(function () {
 
 
 
-Auth::routes([
-    'register' => false
-]);
+// Auth::routes([
+//     'register' => false
+// ]);
 route::redirect('/', '/login');
 
 //e-slip

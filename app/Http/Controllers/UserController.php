@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\UsersExport;
-use App\Helpers\LogActivity;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
