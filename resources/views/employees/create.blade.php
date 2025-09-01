@@ -63,18 +63,38 @@
                         @enderror
                     </div>
                     <div class="col-12 col-sm-6 col-md-2 mb-3">
-                        <x-autocomplete-field label="Divisi" name="division" :items="$divisions" />
+                        <label for="divisi" class="form-label">Divisi</label>
+                        <input type="text" name="divisi" id="divisi"
+                            class="form-control @error('divisi') is-invalid @enderror" value="{{ old('divisi') }}">
+                        @error('divisi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <x-autocomplete-field label="Departemen" name="department" :items="$departments" />
+                        <label for="departemen" class="form-label">Departemen</label>
+                        <input type="text" name="departemen" id="departemen"
+                            class="form-control @error('departemen') is-invalid @enderror" value="{{ old('departemen') }}">
+                        @error('departemen')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <x-autocomplete-field label="Seksi" name="section" :items="$sections" />
+                        <label for="seksi" class="form-label">Seksi</label>
+                        <input type="text" name="seksi" id="seksi"
+                            class="form-control @error('seksi') is-invalid @enderror" value="{{ old('seksi') }}">
+                        @error('seksi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3 mb-3">
-                        <x-autocomplete-field label="Jabatan" name="position" :items="$positions" />
+                        <label for="posisi" class="form-label">Posisi</label>
+                        <input type="text" class="form-control @error('posisi') is-invalid @enderror"
+                            value="{{ old('posisi') }}">
+                        @error('posisi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="tgl_masuk" class="form-label">Tanggal Masuk Kerja</label>
@@ -99,8 +119,8 @@
                     {{-- Status Pegawai --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="status_peg" class="form-label">Status Pegawai</label>
-                        <select name="status_peg" id="status_peg" class="form-select @error('status_peg') is-invalid @enderror"
-                            x-model="statusPeg">
+                        <select name="status_peg" id="status_peg"
+                            class="form-select @error('status_peg') is-invalid @enderror" x-model="statusPeg">
                             <option value="">Pilih Status</option>
                             @foreach (['PKWT', 'PKWTT', '-'] as $status)
                                 <option value="{{ $status }}" @selected(old('status_peg') === $status)>
@@ -116,8 +136,9 @@
                     {{-- Awal Kontrak --}}
                     <div class="col mb-3" x-show="statusPeg === 'PKWT'">
                         <label for="awal_kontrak" class="form-label">Awal Kontrak</label>
-                        <input type="date" id="awal_kontrak" name="awal_kontrak" x-model="awalKontrak" :value="awalKontrak"
-                            class="form-control @error('awal_kontrak') is-invalid @enderror" aria-describedby="kontrakHelp">
+                        <input type="date" id="awal_kontrak" name="awal_kontrak" x-model="awalKontrak"
+                            :value="awalKontrak" class="form-control @error('awal_kontrak') is-invalid @enderror"
+                            aria-describedby="kontrakHelp">
                         @error('awal_kontrak')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

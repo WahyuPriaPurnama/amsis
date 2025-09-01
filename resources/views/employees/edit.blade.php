@@ -15,7 +15,7 @@
                         <div class="col-md-6">
                             <h4 class="fw-semibold mb-0">Organisasi</h4>
                         </div>
-                        <div class="col-md-6 text-end">
+                        <div class="col-md-6 text-center text-md-end">
                             <div class="alert alert-warning d-inline-block py-2 px-3 mb-0">
                                 <i class="bi bi-info-circle-fill"></i> hanya admin yang dapat edit Organisasi
                             </div>

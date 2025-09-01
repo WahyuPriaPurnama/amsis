@@ -164,11 +164,15 @@
                                 </form>
                                 <!-- <a class="dropdown-item" href="{ route('register') }}">Register</a>-->
                                 @if (Auth::user()->role == 'super-admin')
-                                    <a class="dropdown-item" href="{{ route('users.index') }}">User Management</a>
-                                    <a class="dropdown-item" href="{{ route('log.activity') }}">Log Activity</a>
+                                    <a class="dropdown-item" href="{{ route('users.index') }}" wire:navigate>User
+                                        Management</a>
+                                    <a class="dropdown-item" href="{{ route('log.activity') }}" wire:navigate>Log
+                                        Activity</a>
                                 @elseif(Auth::user()->role == 'employee')
-                                    <a href="{{ route('employees.show', $employeeId) }}" class="dropdown-item">Profil</a>
-                                    <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti Password</a>
+                                    <a href="{{ route('employees.show', $employeeId) }}" class="dropdown-item"
+                                        wire:navigate>Profil</a>
+                                    <a href="{{ route('password.edit') }}" class="dropdown-item" wire:navigate>Ganti
+                                        Password</a>
                                 @endif
                                 <a class="dropdown-item text-danger fw-bold" href="{{ route('logout') }}"
                                     onclick="event.preventDefault();
@@ -182,16 +186,17 @@
             </div>
         </nav>
     </div>
+
     <main class="py-4">
         @yield('content')
     </main>
+    @livewireScripts
     </div>
     <footer class="bg-dark py-4 text-white  mt-auto">
         <div class="container text-center">
             AMS Information System | © {{ date('Y') }} All rights reserved.
         </div>
     </footer>
-    @livewireScripts
 
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
