@@ -7,7 +7,7 @@
             <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
                 @can('create', App\Models\Employee::class)
                     <div class="d-flex gap-2 flex-wrap">
-                        <x-buttons.create href="{{ route('employees.create') }}"></x-buttons.create>
+                        <x-buttons.create href="{{ route('employees.create') }}" wire:navigate></x-buttons.create>
                         <x-buttons.excel href="{{ route('employees.excel') }}"></x-buttons.excel>
                     </div>
                 @endcan
@@ -38,7 +38,7 @@
                                 <td>{{ $employee->subsidiary->name }}</td>
                                 <td> {{ $employee->nip }}</td>
                                 <td><a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none"
-                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
+                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail" wire:navigate>
                                         {{ $employee->nama }}
                                     </a></td>
                                 <td>{{ $employee->posisi }}</td>
