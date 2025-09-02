@@ -32,7 +32,7 @@ class HomeController extends Controller
         $hk = Employee::where('subsidiary_id', 5)->count();
         $rmm = Employee::where('subsidiary_id', 6)->count();
 
-        return view('home', compact('ams', 'eln1', 'eln2', 'bofi', 'hk', 'rmm'));
+        return view('dashboard', compact('ams', 'eln1', 'eln2', 'bofi', 'hk', 'rmm'));
     }
 
 
