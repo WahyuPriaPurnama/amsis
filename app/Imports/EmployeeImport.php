@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class EmployeeImport implements ToCollection, WithHeadingRow
 {
@@ -34,7 +35,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            Employee::create([
+            $employee = Employee::create([
                 'nip' => $nip,
                 'nama' => $row['nama'],
                 'nik' => $nik,
@@ -64,6 +65,17 @@ class EmployeeImport implements ToCollection, WithHeadingRow
                 'hubungan' => $row['hubungan'],
                 'subsidiary_id' => $subsidiary_id ?? $row['plant'],
             ]);
+            // Cek apakah user sudah ada
+            $userExists = \App\Models\User::where('employee_id', $employee->id)->exists();
+            if (!$userExists) {
+                \App\Models\User::create([
+                    'name' => $employee->nama,
+                    'email' => $row['email'] ?? strtolower(Str::slug($employee->nama, '.')),
+                    'password' => bcrypt('Karyawan_2025'), // bisa diganti dengan random atau NIK
+                    'employee_id' => $employee->id,
+                    'role' => 'employee', // default role
+                ]);
+            }
         }
     }
 }
