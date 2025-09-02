@@ -24,7 +24,7 @@
                     <hr>
 
                     {{-- NIP --}}
-                    <div class="col-12 col-sm-6 col-md-2 mb-3">
+                    <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="nip" class="form-label">NIP</label>
                         <input type="text" id="nip" name="nip" value="{{ old('nip', $employee->nip) }}"
                             class="form-control @error('nip') is-invalid @enderror" {{ $isEmployee ? 'readonly' : '' }}
@@ -38,7 +38,7 @@
                     </div>
 
                     {{-- Nama Lengkap --}}
-                    <div class="col-12 col-sm-6 col-md-2 mb-3">
+                    <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="nama" class="form-label">Nama Lengkap</label>
                         <input type="text" id="nama" name="nama" value="{{ old('nama', $employee->nama) }}"
                             class="form-control @error('nama') is-invalid @enderror" {{ $isEmployee ? 'readonly' : '' }}
@@ -51,17 +51,7 @@
                         @enderror
                     </div>
 
-                    {{-- NIK --}}
-                    <div class="col-12 col-md-3 mb-3">
-                        <label for="nik" class="form-label">NIK</label>
-                        <input type="text" id="nik" name="nik" value="{{ old('nik', $employee->nik) }}"
-                            class="form-control @error('nik') is-invalid @enderror" {{ $isEmployee ? 'readonly' : '' }}
-                            placeholder="Contoh: 1234567890123456" maxlength="16" inputmode="numeric" pattern="\d{16}"
-                            aria-describedby="nikHelp">
-                        @error('nik')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+
 
                     {{-- Subsidiary (Plant) --}}
                     <div class="col-12 col-md-3 mb-3">
@@ -92,7 +82,7 @@
                     </div>
 
                     {{-- Divisi --}}
-                    <div class="col-12 col-md-2 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label for="divisi" class="form-label">Divisi</label>
                         <input type="text" id="divisi" name="divisi" value="{{ old('divisi', $employee->divisi) }}"
                             class="form-control @error('divisi') is-invalid @enderror" {{ $isEmployee ? 'readonly' : '' }}>
@@ -220,7 +210,17 @@
                         <h3 class="mb-2">Biodata</h3>
                         <hr>
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    {{-- NIK --}}
+                    <div class="col-12 col-md-3 mb-3">
+                        <label for="nik" class="form-label">NIK</label>
+                        <input type="text" id="nik" name="nik" value="{{ old('nik', $employee->nik) }}"
+                            class="form-control @error('nik') is-invalid @enderror" placeholder="Contoh: 1234567890123456"
+                            maxlength="16" inputmode="numeric" pattern="\d{16}" aria-describedby="nikHelp">
+                        @error('nik')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="col-12 col-md-3 mb-3">
                         <label class="form-label" for="tmpt_lahir">Tempat Lahir</label>
                         <input type="text" id="tmpt_lahir" name="tmpt_lahir"
                             value="{{ old('tmpt_lahir', $employee->tmpt_lahir) }}"
@@ -229,7 +229,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label class="form-label" for="tgl_lahir">Tanggal Lahir</label>
                         <input type="date" name="tgl_lahir" id="tgl_lahir" class="form-control"
                             value="{{ old('tgl_lahir', $employee->tgl_lahir) }}">
@@ -237,7 +237,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="col-12 col-md-4 mb-3">
+                    <div class="col-12 col-md-3 mb-3">
                         <label class="form-label">Jenis Kelamin</label>
                         <div class="form-check me-3">
                             <input class="form-check-input" type="radio" name="jenis_kelamin" id="laki_laki"

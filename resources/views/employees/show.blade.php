@@ -21,7 +21,8 @@
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <div class="btn-group d-flex gap-2 flex-wrap">
                     @can('update', $employee)
-                        <x-buttons.edit href="{{ route('employees.edit', ['employee' => $employee->id]) }}" wire:navigate></x-buttons.edit>
+                        <x-buttons.edit href="{{ route('employees.edit', ['employee' => $employee->id]) }}"
+                            wire:navigate></x-buttons.edit>
                         <x-buttons.pdf href="{{ route('employee.pdf', ['employee' => $employee->id]) }}"></x-buttons.pdf>
                     @endcan
                     @can('delete', $employee)
@@ -36,8 +37,9 @@
                             Cuti</x-buttons.create>
                     @endif --}}
                 </div>
-                <img src="{{ Storage::url('subsidiary/logo/' . $employee->subsidiary->logo) }}" class="img-fluid ms-auto me-md-3"
-                    alt="Logo {{ $employee->subsidiary->name }}" style="max-width: 200px; height: auto;">
+                <img src="{{ Storage::url('subsidiary/logo/' . $employee->subsidiary->logo) }}"
+                    class="img-fluid ms-auto me-md-3" alt="Logo {{ $employee->subsidiary->name }}"
+                    style="max-width: 200px; height: auto;">
             </div>
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
                 aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -160,13 +162,8 @@
                                                     class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
                                                     <div class="p-2">{{ $employee->nama }}</div>
                                                 </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">NIK</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->nik }}</div>
-                                                </div>
+
+
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">Perusahaan</div>
                                                 </div>
@@ -232,6 +229,13 @@
                                         <div class="tab-pane fade show" id="biodata-tab-pane" role="tabpanel"
                                             aria-labelledby="biodata-tab" tabindex="0">
                                             <div class="row g-0">
+                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
+                                                    <div class="p-2">NIK</div>
+                                                </div>
+                                                <div
+                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
+                                                    <div class="p-2">{{ $employee->nik }}</div>
+                                                </div>
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">Tempat Lahir</div>
                                                 </div>
