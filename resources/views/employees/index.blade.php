@@ -8,7 +8,8 @@
                 @can('create', App\Models\Employee::class)
                     <div class="d-flex gap-2 flex-wrap">
                         <x-buttons.create href="{{ route('employees.create') }}" wire:navigate></x-buttons.create>
-                        <x-buttons.excel href="{{ route('employees.excel') }}"></x-buttons.excel>
+                        <x-buttons.excel href="{{ route('employees.excel') }}">Export</x-buttons.excel>
+                        <x-buttons.import data-bs-original-title="import excel" data-bs-toggle="modal" data-bs-target="#importModal">Import</x-buttons.import>
                     </div>
                 @endcan
                 <x-buttons.pdf href="{{ route('employees.pdf') }}"></x-buttons.pdf>
@@ -66,22 +67,49 @@
                         @endforelse
                     </tbody>
                     <tfoot>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>PERUSAHAAN</th>
-                                <th>NIP</th>
-                                <th>NAMA</th>
-                                <th>JABATAN</th>
-                                <th>SEKSI</th>
-                                <th>DEPARTEMEN</th>
-                                <th>STATUS</th>
-                                <th>SISA KONTRAK</th>
-                            </tr>
-                        </thead>
+                        <tr>
+                            <th>#</th>
+                            <th>PERUSAHAAN</th>
+                            <th>NIP</th>
+                            <th>NAMA</th>
+                            <th>JABATAN</th>
+                            <th>SEKSI</th>
+                            <th>DEPARTEMEN</th>
+                            <th>STATUS</th>
+                            <th>SISA KONTRAK</th>
+                        </tr>
                     </tfoot>
                 </table>
             </div>
         @endcomponent
+    </div>
+    <!-- Modal Import -->
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="{{ route('employees.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importModalLabel">Import Data Karyawan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Pilih file Excel (.xlsx)</label>
+                            <input type="file" name="file" id="file"
+                                class="form-control @error('file') is-invalid @enderror" required>
+                            @error('file')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Import</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        </div>
+                    </div>
+            </form>
+        </div>
+    </div>
 
-    @endsection
+
+@endsection

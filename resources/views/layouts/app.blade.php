@@ -4,28 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ config('app.name', 'AMSIS') }} | @yield('title')</title>
-
-    <!-- Fonts -->
-
     <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
-
-    <!-- Scripts -->
-
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
-
-    <!-- load font awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
-
-    <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
     @livewireStyles
-
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -38,8 +24,6 @@
                         $isEmployee = $user->role === 'employee';
                         $employeeId = $user->employee_id ?? null;
                     @endphp
-
-                    {{-- Navbar Brand --}}
                     @if ($isEmployee && $employeeId)
                         <a class="navbar-brand" href="{{ route('employees.show', $employeeId) }}">
                             {{ config('app.name', 'AMSIS') }}
@@ -60,19 +44,14 @@
                             {{ config('app.name', 'AMSIS') }}
                         </a>
                     @endif
-
-                    {{-- Toggler --}}
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-
-                    {{-- Menu untuk non-employee --}}
                     @if (!$isEmployee)
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <ul class="navbar-nav me-auto">
-                                {{-- HRD --}}
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown">
@@ -87,8 +66,6 @@
                                                 wire:navigate>Kendaraan</a></li>
                                     </ul>
                                 </li>
-
-                                {{-- Payroll --}}
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown">
@@ -112,13 +89,10 @@
                         </div>
                     @endif
                 @endauth
-
-                {{-- Menu untuk guest --}}
                 @guest
                     <a class="navbar-brand" href="{{ url('/') }}" id="amsis-logo">
                         {{ config('app.name', 'AMSIS') }}
                     </a>
-
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav me-auto">
                             <li class="nav-item dropdown">
@@ -140,12 +114,8 @@
                             }
                         });
                     </script>
-
                 @endguest
-
-                <!-- Right Side Of Navbar -->
                 <ul class="navbar-nav ms-auto">
-                    <!-- Authentication Links -->
                     @guest
                         @if (Route::has('login'))
                             <li class="nav-item">
@@ -162,7 +132,6 @@
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                     @csrf
                                 </form>
-                                <!-- <a class="dropdown-item" href="{ route('register') }}">Register</a>-->
                                 @if (Auth::user()->role == 'super-admin')
                                     <a class="dropdown-item" href="{{ route('users.index') }}" wire:navigate>User
                                         Management</a>
@@ -186,26 +155,32 @@
             </div>
         </nav>
     </div>
-
     <main class="py-4">
         @yield('content')
     </main>
     @livewireScripts
-    </div>
     <footer class="bg-dark py-4 text-white  mt-auto">
         <div class="container text-center">
             AMS Information System | © {{ date('Y') }} All rights reserved.
         </div>
     </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script>
+        document.addEventListener("livewire:navigating", () => {
+            const tableElement = $('#table');
+            if ($.fn.DataTable.isDataTable(tableElement)) {
+                tableElement.DataTable().destroy();
+            }
+        });
 
+        document.addEventListener("livewire:navigated", () => {
+            const tableElement = $('#table');
+            if (tableElement.length) {
+                tableElement.DataTable();
+            }
+        });
+    </script>
 </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-
-<script>
-    $(document).ready(function() {
-        $('#table').DataTable();
-    });
-</script>
 
 </html>

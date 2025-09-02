@@ -6,6 +6,7 @@ use App\Exports\EmployeeExport;
 use App\Helpers\EntityResolver;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Imports\EmployeeImport;
 use App\Models\Department;
 use App\Models\Division;
 use App\Models\Employee;
@@ -18,6 +19,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -349,6 +351,22 @@ class EmployeeController extends Controller
         $pdf = pdf::loadview('employees.pdf.index', ['employees' => $employees, 'timestamp' => $timestamp, 'subsidiary' => $subsidiary])
             ->setPaper('letter', 'landscape');
         return $pdf->stream('data-karyawan-' . now()->format('d-M-Y') . '.pdf');
+    }
+
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            Excel::import(new EmployeeImport, $request->file('file'));
+
+            return back()->with('alert', 'Import berhasil. Data pegawai telah ditambahkan.');
+        } catch (\Exception $e) {
+            return back()->with('alert2', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+        }
     }
 
     public function index_excel()
