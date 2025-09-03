@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -45,18 +46,31 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public function employee()
     {
         return $this->belongsTo(Employee::class, 'employee_id');
     }
+
     public function getSubsidiaryAttribute()
     {
         return $this->employee?->subsidiary;
     }
+
     public function scopeIndex($query)
     {
         return $query->with('employee.subsidiary');
+    }
+
+    public function getJwtIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJwtCustomClaims()
+    {
+        return [];
     }
 }
