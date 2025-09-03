@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\LogoutController;
 use App\Http\Controllers\Api\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,9 +19,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-route::apiResource('/posts', PostController::class);
-route::post('/login', \App\Http\Controllers\Api\LoginController::class);
-route::post('/logout', App\Http\Controllers\Api\LogoutController::class);
+Route::apiResource('/posts', PostController::class);
+Route::post('/login', \App\Http\Controllers\Api\LoginController::class);
+Route::post('/logout', App\Http\Controllers\Api\LogoutController::class);
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });

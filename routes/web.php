@@ -25,31 +25,31 @@ use App\Http\Controllers\Auth\LoginController;
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
-route::middleware('auth')->group(function () {
-    route::resource('employees', EmployeeController::class);
-    route::prefix('employee')->controller(EmployeeController::class)->group(function () {
+Route::middleware('auth')->group(function () {
+    Route::resource('employees', EmployeeController::class);
+    Route::prefix('employee')->controller(EmployeeController::class)->group(function () {
         Route::get('foto_profil/{pp}', 'pp')->name('employee.pp');
         Route::get('KTP/{ktp}', 'ktp')->name('employee.ktp');
         Route::get('NPWP/{npwp}', 'npwp')->name('employee.npwp');
         Route::get('KK/{kk}', 'kk')->name('employee.kk');
         Route::get('BPJS-ket/{bpjs_ket}', 'bpjs_ket')->name('employee.bpjs_ket');
         Route::get('BPJS-kes/{bpjs_kes}', 'bpjs_kes')->name('employee.bpjs_kes');
-        route::post('import', [EmployeeController::class, 'import'])->name('employees.import');
-        route::get('export-pdf', [EmployeeController::class, 'index_pdf'])->name('employees.pdf');
-        route::get('export-excel', [EmployeeController::class, 'index_excel'])->name('employees.excel');
-        route::get('show-pdf/{employee}', [EmployeeController::class, 'show_pdf'])->name('employee.pdf');
+        Route::post('import', [EmployeeController::class, 'import'])->name('employees.import');
+        Route::get('export-pdf', [EmployeeController::class, 'index_pdf'])->name('employees.pdf');
+        Route::get('export-excel', [EmployeeController::class, 'index_excel'])->name('employees.excel');
+        Route::get('show-pdf/{employee}', [EmployeeController::class, 'show_pdf'])->name('employee.pdf');
     });
 
-    route::resource('subsidiaries', SubsidiaryController::class);
-    route::get('/users/export', [UserController::class, 'export'])->name('users.export');
-    route::post('/users/password', [UserController::class, 'updatePassword'])->name('password.update2');
-    route::get('/users/password', [UserController::class, 'editPassword'])->name('password.edit');
-    route::resource('users', UserController::class);
-    route::get('log-activity', [HomeController::class, 'logActivity'])->name('log.activity');
-    route::get('Log-activity/truncate', [HomeController::class, 'truncate'])->name('log.activity.truncate');
-    route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
+    Route::resource('subsidiaries', SubsidiaryController::class);
+    Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
+    Route::post('/users/password', [UserController::class, 'updatePassword'])->name('password.update2');
+    Route::get('/users/password', [UserController::class, 'editPassword'])->name('password.edit');
+    Route::resource('users', UserController::class);
+    Route::get('log-activity', [HomeController::class, 'logActivity'])->name('log.activity');
+    Route::get('Log-activity/truncate', [HomeController::class, 'truncate'])->name('log.activity.truncate');
+    Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
-    route::resource('vehicles', VehicleController::class);
+    Route::resource('vehicles', VehicleController::class);
     Route::prefix('vehicle')->controller(VehicleController::class)->group(function () {
         Route::get('foto/{foto}', 'foto')->name('vehicle.foto');
         Route::get('stnk/{stnk}', 'stnk')->name('vehicle.stnk');
@@ -61,21 +61,21 @@ route::middleware('auth')->group(function () {
         Route::get('show-pdf/{id}', 'show_pdf')->name('vehicle.pdf');
     });
 
-    route::resource('scanlog', ScanlogController::class);
-    route::prefix('scanlog')->controller(ScanlogController::class)->group(function () {
-        route::post('import', [ScanlogController::class, 'import'])->name('scanlog.import');
-        route::get('export', [ScanlogController::class, 'export'])->name('scanlog.export');
-        route::post('convert', [ScanlogController::class, 'convert'])->name('scanlog.convert');
-        route::get('truncate', [ScanlogController::class, 'truncate'])->name('scanlog.truncate');
-        route::get('proses-gaji', [ScanlogController::class, 'prosesGaji'])->name('scanlog.proses.gaji');
+    Route::resource('scanlog', ScanlogController::class);
+    Route::prefix('scanlog')->controller(ScanlogController::class)->group(function () {
+        Route::post('import', [ScanlogController::class, 'import'])->name('scanlog.import');
+        Route::get('export', [ScanlogController::class, 'export'])->name('scanlog.export');
+        Route::post('convert', [ScanlogController::class, 'convert'])->name('scanlog.convert');
+        Route::get('truncate', [ScanlogController::class, 'truncate'])->name('scanlog.truncate');
+        Route::get('proses-gaji', [ScanlogController::class, 'prosesGaji'])->name('scanlog.proses.gaji');
     });
 
-    route::resource('karyawan-harian', HarianController::class);
-    route::prefix('karyawan-harian')->controller(HarianController::class)->group(function () {
-        route::post('import', [HarianController::class, 'import'])->name('karyawan-harian.import');
-        route::get('export', [HarianController::class, 'export'])->name('karyawan-harian.export');
-        route::get('truncate', [HarianController::class, 'truncate'])->name('karyawan-harian.truncate');
-        route::post('slip/{pin}', [HarianController::class, 'cetakSlip'])->name('karyawan-cetak-slip');
+    Route::resource('karyawan-harian', HarianController::class);
+    Route::prefix('karyawan-harian')->controller(HarianController::class)->group(function () {
+        Route::post('import', [HarianController::class, 'import'])->name('karyawan-harian.import');
+        Route::get('export', [HarianController::class, 'export'])->name('karyawan-harian.export');
+        Route::get('truncate', [HarianController::class, 'truncate'])->name('karyawan-harian.truncate');
+        Route::post('slip/{pin}', [HarianController::class, 'cetakSlip'])->name('karyawan-cetak-slip');
     });
 });
 
@@ -84,25 +84,25 @@ route::middleware('auth')->group(function () {
 // Auth::routes([
 //     'register' => false
 // ]);
-route::redirect('/', '/login');
+Route::redirect('/', '/login');
 
 //e-slip
 
-route::get('/ams-malang', function () {
+Route::get('/ams-malang', function () {
     return view('e-slip.ams');
 });
-route::get('/rmm-malang', function () {
+Route::get('/rmm-malang', function () {
     return view('e-slip.rmm');
 });
-route::get('/eln-malang', function () {
+Route::get('/eln-malang', function () {
     return view('e-slip.eln1');
 });
-route::get('/eln-bwi', function () {
+Route::get('/eln-bwi', function () {
     return view('e-slip.eln2');
 });
-route::get('/haka-bwi', function () {
+Route::get('/haka-bwi', function () {
     return view('e-slip.haka');
 });
-route::get('/bofi-bwi', function () {
+Route::get('/bofi-bwi', function () {
     return view('e-slip.bofi');
 });
