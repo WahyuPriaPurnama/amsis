@@ -3,7 +3,7 @@
     <a {{ $attributes->merge([
         'class' => 'btn btn-success',
     ]) }} target="_blank" data-bs-toggle="tooltip"
-        data-bs-placement="top" data-bs-title="Simpan"><i class="bi bi-floppy-fill"></i>
+        data-bs-placement="top" data-bs-title="Simpan"><i class="bi bi-floppy-fill" wire:navigate></i>
         {{ $slot }}
     </a>
 

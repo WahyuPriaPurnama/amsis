@@ -5,13 +5,14 @@
     <div class="container-fluid mt-3">
         @component('components.card')
             <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
-                @can('create', App\Models\Employee::class)
+                @unless (auth()->user()->hasRole('employee'))
                     <div class="d-flex gap-2 flex-wrap">
                         <x-buttons.create href="{{ route('employees.create') }}" wire:navigate></x-buttons.create>
                         <x-buttons.excel href="{{ route('employees.excel') }}">Export</x-buttons.excel>
-                        <x-buttons.import data-bs-original-title="import excel" data-bs-toggle="modal" data-bs-target="#importModal">Import</x-buttons.import>
+                        <x-buttons.import data-bs-original-title="import excel" data-bs-toggle="modal"
+                            data-bs-target="#importModal">Import</x-buttons.import>
                     </div>
-                @endcan
+                @endunless
                 <x-buttons.pdf href="{{ route('employees.pdf') }}"></x-buttons.pdf>
             </div>
             @slot('header')

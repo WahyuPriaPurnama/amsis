@@ -49,7 +49,7 @@
                                     <select name="role" id="floatingSelect"
                                         class="form-select @error('role') is-invalid @enderror" aria-placeholder="level">
                                         <option value="" selected>pilih level</option>
-                                        @if (Auth::user()->role == 'super-admin')
+                                        @if (Auth::user()->hasRole('super-admin'))
                                             <option value="super-admin">
                                                 super-admin</option>
                                         @endif
@@ -58,8 +58,6 @@
                                         </option>
                                         <option value="eln-admin">
                                             eln-admin</option>
-                                        <option value="eln-sparepart">
-                                            eln-sparepart</option>
                                         <option value="eln2-admin">
                                             eln2-admin
                                         </option>
@@ -108,7 +106,7 @@
                             <th>#</th>
                             <th>NAMA</th>
                             <th>USERNAME</th>
-                            <th>LEVEL</th>
+                            <th>ROLE</th>
                             <th>PLANT</th>
                             <th>MENU</th>
                         </tr>
@@ -119,7 +117,7 @@
                                 <td> {{ $loop->iteration }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
-                                <td>{{ $user->role }}</td>
+                                <td>{{ implode(', ', $user->getRoleNames()->toArray()) }}</td>
                                 <td>{{ $user->subsidiary?->name ?? '-' }}</td>
                                 <td>
                                     <!-- Button trigger modal -->
@@ -189,8 +187,6 @@
                                                                 <option value="eln-admin" @selected($user->role == 'eln-admin')>
                                                                     eln-admin
                                                                 </option>
-                                                                <option value="eln-sparepart" @selected($user->role == 'eln-sparepart')>
-                                                                    eln-sparepart</option>
                                                                 <option value="eln2-admin" @selected($user->role == 'eln2-admin')>
                                                                     eln2-admin</option>
                                                                 <option value="haka-admin" @selected($user->role == 'haka-admin')>
@@ -216,12 +212,13 @@
                                                                 <label for="password" class="form-label">Kata Sandi
                                                                     Baru</label>
                                                                 <div class="input-group">
-                                                                    <input type="password" name="password" id="password{{$user->id}}"
+                                                                    <input type="password" name="password"
+                                                                        id="password{{ $user->id }}"
                                                                         value="{{ old('password') }}"
                                                                         class="form-control @error('password') is-invalid @enderror">
                                                                     <button type="button"
                                                                         class="input-group-text bg-white border-start-0"
-                                                                        onclick="togglePassword('password{{$user->id}}','iconNew{{ $user->id }}')"
+                                                                        onclick="togglePassword('password{{ $user->id }}','iconNew{{ $user->id }}')"
                                                                         tabindex="-1" data-bs-toggle="tooltip"
                                                                         title="Lihat Password">
                                                                         <i class="bi bi-eye"
@@ -239,11 +236,11 @@
                                                                     class="form-label">Konfirmasi Kata Sandi</label>
                                                                 <div class="input-group">
                                                                     <input type="password" name="password_confirmation"
-                                                                        id="password_confirmation{{$user->id}}"
+                                                                        id="password_confirmation{{ $user->id }}"
                                                                         class="form-control @error('password') is-invalid @enderror">
                                                                     <button type="button"
                                                                         class="input-group-text bg-white border-start-0"
-                                                                        onclick="togglePassword('password_confirmation{{$user->id}}','iconConfirm{{ $user->id }}')"
+                                                                        onclick="togglePassword('password_confirmation{{ $user->id }}','iconConfirm{{ $user->id }}')"
                                                                         tabindex="-1" data-bs-toggle="tooltip"
                                                                         title="Lihat Password">
                                                                         <i class="bi bi-eye"

@@ -1,79 +1,15 @@
 @extends('layouts.app')
-@section('title', 'Edit Perusahaan')
+
+@section('title', $isEdit ? 'Edit Perusahaan' : 'Tambah Perusahaan')
 @section('menuSubsidiaries', 'active')
+
 @section('content')
     <div class="container mt-3">
         @component('components.card')
             @slot('header')
                 {{ $isEdit ? 'Edit ' . $subsidiary->name : 'Tambah Data Perusahaan' }}
             @endslot
-            <form action="{{ $isEdit ? route('subsidiaries.update', $subsidiary->id) : route('subsidiaries.store') }}"
-                method="post" enctype="multipart/form-data">
-                @csrf
-                @if ($isEdit)
-                    @method('put')
-                @endif
-                <div class="row mb-3">
-                    <div class="col">
-                        <label class="form-label" for="name">Nama</label>
-                        <input type="text" id="name" name="name" value="{{ old('name', $subsidiary->name) }}"
-                            class="form-control @error('name') is-invalid @enderror">
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col">
-                        <label class="form-label" for="tagline">Tagline</label>
-                        <input type="text" id="tagline" name="tagline" value="{{ old('tagline', $subsidiary->tagline) }}"
-                            class="form-control @error('tagline') is-invalid @enderror">
-                        @error('tagline')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col">
-                        <label class="form-label" for="npwp">NPWP</label>
-                        <input type="text" id="npwp" name="npwp" value="{{ old('npwp', $subsidiary->npwp) }}"
-                            class="form-control @error('npwp') is-invalid @enderror">
-                        @error('npwp')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col">
-                        <label class="form-label" for="email">Email</label>
-                        <input type="email" id="email" name="email" value="{{ old('email', $subsidiary->email) }}"
-                            class="form-control @error('email') is-invalid @enderror">
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col">
-                        <label class="form-label" for="phone">Phone</label>
-                        <input type="text" id="phone" name="phone" value="{{ old('phone', $subsidiary->phone) }}"
-                            class="form-control @error('phone') is-invalid @enderror">
-                        @error('phone')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-8">
-                        <label class="form-label" for="address">Address</label>
-                        <textarea class="form-control" id="address" name="address">{{ old('address', $subsidiary->address) }}</textarea>
-                    </div>
-                    <div class="col-4">
-                        <label for="logo" class="form-label">Logo</label>
-                        <input type="file" name="logo" id="" class="form-control"
-                            accept="image/png, image/jpeg, image/jpg">
-                        @if ($isEdit)
-                            <small class="text-muted">Logo lama: {{ $subsidiary->logo }}</small>
-                        @endif
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary mb-2">{{ $isEdit ? 'Update' : 'Daftar' }}</button>
-            </form>
+            <x-form.subsidiary :subsidiary="$subsidiary" :isEdit="$isEdit" />
         @endcomponent
     </div>
 @endsection

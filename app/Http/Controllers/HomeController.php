@@ -24,7 +24,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $this->authorize('view', Employee::class);
+        
         $ams = Employee::where('subsidiary_id', 1)->count();
         $eln1 = Employee::where('subsidiary_id', 2)->count();
         $eln2 = Employee::where('subsidiary_id', 3)->count();

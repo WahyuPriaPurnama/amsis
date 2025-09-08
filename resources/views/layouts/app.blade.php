@@ -21,7 +21,7 @@
                 @auth
                     @php
                         $user = auth()->user();
-                        $isEmployee = $user->role === 'employee';
+                        $isEmployee = $user->hasRole('employee');
                         $employeeId = $user->employee_id ?? null;
                     @endphp
                     @if ($isEmployee && $employeeId)
@@ -132,12 +132,12 @@
                                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                     @csrf
                                 </form>
-                                @if (Auth::user()->role == 'super-admin')
+                                @if (Auth::user()->hasRole('super-admin'))
                                     <a class="dropdown-item" href="{{ route('users.index') }}" wire:navigate>User
                                         Management</a>
                                     <a class="dropdown-item" href="{{ route('log.activity') }}" wire:navigate>Log
                                         Activity</a>
-                                @elseif(Auth::user()->role == 'employee')
+                                @elseif(Auth::user()->hasRole('employee'))
                                     <a href="{{ route('employees.show', $employeeId) }}" class="dropdown-item"
                                         wire:navigate>Profil</a>
                                     <a href="{{ route('password.edit') }}" class="dropdown-item" wire:navigate>Ganti

@@ -3,7 +3,7 @@
 @section('menuEmployees', 'active')
 @section('content')
     <div class="container mt-3">
-        @if (Auth::check() && Auth::user()->role === 'employee' && session('feature_changes'))
+        @if (Auth::check() && Auth::user()->hasRole('employee') && session('feature_changes'))
             <div class="alert alert-info alert-dismissible fade show" role="alert">
                 <h5>🔔 Update Terbaru:</h5>
                 <ul>

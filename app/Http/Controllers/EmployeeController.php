@@ -33,8 +33,6 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $this->authorize('view', Employee::class);
-
         $user = Auth::user();
 
         // Role yang bisa melihat semua data
@@ -53,8 +51,8 @@ class EmployeeController extends Controller
         $query = Employee::Index()->latest();
 
         // Filter berdasarkan role jika bukan full access
-        if (!in_array($user->role, $fullAccessRoles)) {
-            $subsidiaryId = $roleSubsidiaryMap[$user->role] ?? null;
+        if (!in_array($user->hasRole, $fullAccessRoles)) {
+            $subsidiaryId = $roleSubsidiaryMap[$user->hasRole] ?? null;
 
             if ($subsidiaryId) {
                 $query->whereHas('subsidiary', function ($q) use ($subsidiaryId) {
@@ -76,7 +74,6 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $this->authorize('create', Employee::class);
 
         $user = Auth::user();
 
@@ -92,10 +89,10 @@ class EmployeeController extends Controller
             'rmm-admin'   => 6,
         ];
 
-        if (in_array($user->role, $fullAccessRoles)) {
+        if (in_array($user->hasRole, $fullAccessRoles)) {
             $subsidiaries = Subsidiary::all();
         } else {
-            $subsidiaryId = $roleSubsidiaryMap[$user->role] ?? null;
+            $subsidiaryId = $roleSubsidiaryMap[$user->hasRole] ?? null;
 
             if ($subsidiaryId) {
                 $subsidiaries = Subsidiary::where('id', $subsidiaryId)->get();
@@ -128,9 +125,6 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
-        $this->authorize('create', Employee::class);
-        \App\Helpers\LogActivity::addToLog();
-        dd($request->all());
         $employee = Employee::create($request->validated());
         // Handle dynamic relations
         $divisionId = EntityResolver::resolve(Division::class, $request->division_id, $request->division_name);
@@ -197,7 +191,6 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        $this->authorize('update', $employee);
         return view('employees.show', compact('employee'));
     }
 
@@ -206,10 +199,8 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        $this->authorize('update', $employee);
-        \App\Helpers\LogActivity::addToLog();
 
-        $role = Auth::user()->role;
+        $role = Auth::user()->hasRole;
 
         if (in_array($role, ['super-admin', 'holding-admin'])) {
             $subsidiaries = Subsidiary::all();
@@ -241,8 +232,7 @@ class EmployeeController extends Controller
      */
     public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-        $this->authorize('update', $employee);
-        \App\Helpers\LogActivity::addToLog();
+       
         $employee->update($request->validated());
 
         if ($request->file('pp')) {
@@ -291,8 +281,6 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        $this->authorize('delete', Employee::class);
-        \App\Helpers\LogActivity::addToLog();
         $data = Storage::disk('local');
         $data->delete('/public/foto_profil/' . $employee->pp);
         $data->delete('/public/Kartu Keluarga/' . $employee->kk);
@@ -342,7 +330,7 @@ class EmployeeController extends Controller
 
     public function index_pdf()
     {
-        $this->authorize('view', Employee::class);
+       
         $employees = Employee::all();
         $subsidiary = Subsidiary::find(1);
         $timestamp = now()->format('d/m/Y H:i:s');
@@ -379,7 +367,6 @@ class EmployeeController extends Controller
     public function show_pdf($id)
     {
         $employee = Employee::findOrFail($id);
-        $this->authorize('update', $employee);
 
         $subsidiary = Subsidiary::find($employee->subsidiary_id);
 

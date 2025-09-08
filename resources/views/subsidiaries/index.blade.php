@@ -6,8 +6,8 @@
         <!-- Modal -->
         @component('components.card')
             <div class="button-action mb-3">
-                @can('create', App\Models\Subsidiary::class)
-                    <x-buttons.create href="{{ route('subsidiaries.create') }}"></x-buttons.create>
+                @can('subsidiary.create')
+                    <x-buttons.create href="{{ route('subsidiaries.create') }}" wire:navigate></x-buttons.create>
                 @endcan
             </div>
             @slot('header')
@@ -28,13 +28,13 @@
                             <tr>
                                 <th>{{ $loop->iteration }}</th>
                                 <td>
-                                    @if (Auth::user()->role == 'super-admin' or Auth::user()->role == 'holding-admin')
+                                    @role(['super-admin', 'holding-admin'])
                                         <a href="{{ route('subsidiaries.show', $subsidiary->id) }}" class="text-decoration-none">
                                             {{ $subsidiary->name }}
                                         </a>
                                     @else
                                         {{ $subsidiary->name }}
-                                    @endif
+                                    @endrole
                                 </td>
                                 <td class="text-center">{{ $subsidiary->employees_count }} Orang</td>
                                 <td>{{ $subsidiary->address == '' ? 'N/A' : $subsidiary->address }}</td>

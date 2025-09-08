@@ -8,10 +8,10 @@
                 Data Perusahaan
             @endslot
             <div class="btn-group d-flex gap-2 flex-wrap">
-                @can('update', $subsidiary)
+                @can('subsidiary.update')
                     <x-buttons.edit href="{{ route('subsidiaries.edit', ['subsidiary' => $subsidiary->id]) }}"></x-buttons.edit>
                 @endcan
-                @can('delete', $subsidiary)
+                @can('subsidiary.delete')
                     <form action="{{ route('subsidiaries.destroy', ['subsidiary' => $subsidiary->id]) }}" id="hapus"
                         method="post">
                         @method('DELETE')
@@ -25,11 +25,10 @@
                 <div class="col-md-3 mx-auto">
                     @php
                         $logoPath = $subsidiary->logo
-                            ? Storage::url("public/subsidiary/logo/{$subsidiary->logo}")
-                            : Storage::url('public/subsidiary/logo/default.png');
+                            ? asset("storage/subsidiary/logo/{$subsidiary->logo}")
+                            : asset('storage/subsidiary/logo/default.png');
                     @endphp
-
-                    <img class="img-thumbnail" src="{{ $logoPath }}" alt="Logo {{ $subsidiary->name }}"
+                    <img class="img-thumbnail" src="{{ $logoPath }}" alt="Logo {{ $subsidiary->name }}" loading="lazy"
                         oncontextmenu="return false">
                 </div>
                 <div class="col-md-7 mx-auto">
@@ -43,32 +42,32 @@
                     </div>
                 </div>
             </div>
-                <hr>
-                <div class="table-responsive">
-                    <table class="table table-hover" id="table">
-                        <thead>
+            <hr>
+            <div class="table-responsive">
+                <table class="table table-hover" id="table">
+                    <thead>
+                        <tr>
+                            <th>NO</th>
+                            <th>NAMA KARYAWAN</th>
+                            <th>POSISI</th>
+                            <th>STATUS PEGAWAI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($subsidiary->employees as $employee)
                             <tr>
-                                <th>NO</th>
-                                <th>NAMA KARYAWAN</th>
-                                <th>POSISI</th>
-                                <th>STATUS PEGAWAI</th>
+                                <td>{{ $loop->iteration }}</td>
+                                <td><a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none"
+                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
+                                        {{ $employee->nama }}
+                                    </a></td>
+                                <td>{{ $employee->posisi }}</td>
+                                <td>{{ $employee->status_peg }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($subsidiary->employees as $employee)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td><a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none"
-                                            data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
-                                            {{ $employee->nama }}
-                                        </a></td>
-                                    <td>{{ $employee->posisi }}</td>
-                                    <td>{{ $employee->status_peg }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endcomponent
     </div>
 
