@@ -35,10 +35,7 @@ class EmployeeController extends Controller
     {
         $user = Auth::user();
 
-        // Role yang bisa melihat semua data
         $fullAccessRoles = ['super-admin', 'holding-admin'];
-
-        // Mapping role ke subsidiary_id
         $roleSubsidiaryMap = [
             'eln-admin'   => 2,
             'eln2-admin'  => 3,
@@ -47,19 +44,14 @@ class EmployeeController extends Controller
             'rmm-admin'   => 6,
         ];
 
-        // Base query
         $query = Employee::Index()->latest();
 
-        // Filter berdasarkan role jika bukan full access
-        if (!in_array($user->hasRole, $fullAccessRoles)) {
-            $subsidiaryId = $roleSubsidiaryMap[$user->hasRole] ?? null;
+        if (!(method_exists($user, 'hasAnyRole') ? $user->hasAnyRole($fullAccessRoles) : in_array($user->role, $fullAccessRoles))) {
+            $subsidiaryId = $this->getSubsidiaryIdByRole($user, $roleSubsidiaryMap);
 
             if ($subsidiaryId) {
-                $query->whereHas('subsidiary', function ($q) use ($subsidiaryId) {
-                    $q->where('id', $subsidiaryId);
-                });
+                $query->whereHas('subsidiary', fn($q) => $q->where('id', $subsidiaryId));
             } else {
-                // Jika role tidak dikenali, bisa redirect atau tampilkan kosong
                 abort(403, 'Role tidak dikenali');
             }
         }
@@ -232,7 +224,7 @@ class EmployeeController extends Controller
      */
     public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
-       
+
         $employee->update($request->validated());
 
         if ($request->file('pp')) {
@@ -330,7 +322,7 @@ class EmployeeController extends Controller
 
     public function index_pdf()
     {
-       
+
         $employees = Employee::all();
         $subsidiary = Subsidiary::find(1);
         $timestamp = now()->format('d/m/Y H:i:s');

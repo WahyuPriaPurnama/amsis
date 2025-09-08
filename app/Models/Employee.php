@@ -11,7 +11,6 @@ class Employee extends Model
     use HasFactory, HasUuids;
     protected $guarded = [];
 
-
     public function subsidiary()
     {
         return $this->belongsTo(Subsidiary::class);
@@ -35,5 +34,4 @@ class Employee extends Model
     {
         return $this->hasOne(User::class, 'employee_id');
     }
-
 }

@@ -50,13 +50,18 @@
                                 <td>
                                     @if ($employee->status_peg == 'PKWT')
                                         @php
-                                            $days = \Carbon\Carbon::now()->diffInDays($employee->akhir_kontrak, false);
+                                            $akhirKontrak = Carbon\Carbon::parse($employee->akhir_kontrak);
+                                            $days = Carbon\Carbon::now()->diffInDays($akhirKontrak, false);
+
                                         @endphp
 
                                         @if ($days < 0)
-                                            <span class="text-danger">sudah berakhir</span>
+                                            <span style="color: red;">Berakhir {{ abs($days) }} hari yang
+                                                lalu</span>
+                                        @elseif ($days === 0)
+                                            <span style="color: orange;">Berakhir hari ini</span>
                                         @else
-                                            <span class="text-success">{{ $days }} hari</span>
+                                            <span style="color: green;">{{ $days }} hari</span>
                                         @endif
                                     @else
                                         -
