@@ -66,13 +66,9 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-
         $user = Auth::user();
 
-        // Role yang bisa akses semua subsidiaries
         $fullAccessRoles = ['super-admin', 'holding-admin'];
-
-        // Mapping role ke subsidiary_id
         $roleSubsidiaryMap = [
             'eln-admin'   => 2,
             'eln2-admin'  => 3,
@@ -81,34 +77,30 @@ class EmployeeController extends Controller
             'rmm-admin'   => 6,
         ];
 
-        if (in_array($user->hasRole, $fullAccessRoles)) {
+        // Tentukan subsidiaries berdasarkan role
+        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole($fullAccessRoles)) {
             $subsidiaries = Subsidiary::all();
-        } else {
-            $subsidiaryId = $roleSubsidiaryMap[$user->hasRole] ?? null;
+        } elseif (method_exists($user, 'hasRole')) {
+            foreach ($roleSubsidiaryMap as $role => $id) {
+                if ($user->hasRole($role)) {
+                    $subsidiaries = Subsidiary::where('id', $id)->get();
+                    break;
+                }
+            }
 
-            if ($subsidiaryId) {
-                $subsidiaries = Subsidiary::where('id', $subsidiaryId)->get();
-            } else {
+            if (!isset($subsidiaries)) {
                 abort(403, 'Role tidak dikenali');
             }
+        } else {
+            // Fallback jika trait belum aktif
+            $subsidiaries = Subsidiary::where('id', 5)->get();
         }
 
-        $divisions = Division::select('name')
-            ->groupBy('name')
-            ->orderBy('name', 'asc')
-            ->get();
-        $departments = Department::select('name')
-            ->groupBy('name')
-            ->orderBy('name', 'asc')
-            ->get();
-        $sections = Section::select('name')
-            ->groupBy('name')
-            ->orderBy('name', 'asc')
-            ->get();
-        $positions = Position::select('name')
-            ->groupBy('name')
-            ->orderBy('name', 'asc')
-            ->get();
+        // Ambil data referensi
+        $divisions = Division::select('name')->groupBy('name')->orderBy('name')->get();
+        $departments = Department::select('name')->groupBy('name')->orderBy('name')->get();
+        $sections = Section::select('name')->groupBy('name')->orderBy('name')->get();
+        $positions = Position::select('name')->groupBy('name')->orderBy('name')->get();
 
         return view('employees.create', compact('subsidiaries', 'divisions', 'departments', 'sections', 'positions'));
     }
@@ -191,27 +183,44 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
+        $user = Auth::user();
 
-        $role = Auth::user()->hasRole;
+        // Subsidiary mapping by role
+        $roleSubsidiaryMap = [
+            'eln-admin'   => 2,
+            'eln2-admin'  => 3,
+            'bofi-admin'  => 4,
+            'haka-admin'  => 5,
+            'rmm-admin'   => 6,
+        ];
 
-        if (in_array($role, ['super-admin', 'holding-admin'])) {
+        // Full access roles
+        $fullAccessRoles = ['super-admin', 'holding-admin'];
+
+        // Determine subsidiaries based on role
+        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole($fullAccessRoles)) {
             $subsidiaries = Subsidiary::all();
-        } elseif ($role === 'eln-admin') {
-            $subsidiaries = Subsidiary::where('id', 2)->get();
-        } elseif ($role === 'eln2-admin') {
-            $subsidiaries = Subsidiary::where('id', 3)->get();
-        } elseif ($role === 'bofi-admin') {
-            $subsidiaries = Subsidiary::where('id', 4)->get();
-        } elseif ($role === 'rmm-admin') {
-            $subsidiaries = Subsidiary::where('id', 6)->get();
-        } elseif ($role === 'employee') {
-            // ✅ Karyawan hanya bisa lihat subsidiary miliknya sendiri
-            $subsidiaries = Subsidiary::where('id', $employee->subsidiary_id)->get();
+        } elseif (method_exists($user, 'hasRole')) {
+            foreach ($roleSubsidiaryMap as $role => $id) {
+                if ($user->hasRole($role)) {
+                    $subsidiaries = Subsidiary::where('id', $id)->get();
+                    break;
+                }
+            }
+
+            // Karyawan hanya bisa lihat subsidiary miliknya sendiri
+            if ($user->hasRole('employee')) {
+                $subsidiaries = Subsidiary::where('id', $employee->subsidiary_id)->get();
+            }
+
+            // Fallback jika tidak cocok dengan role manapun
+            if (!isset($subsidiaries)) {
+                $subsidiaries = Subsidiary::where('id', 5)->get();
+            }
         } else {
-            // fallback: hanya subsidiary default
+            // Fallback jika trait belum aktif
             $subsidiaries = Subsidiary::where('id', 5)->get();
         }
-        $user = auth()->user();
 
         // Cek apakah user adalah karyawan dan sedang edit datanya sendiri
         $isEmployee = $user->role === 'employee' && $user->employee_id === $employee->id;

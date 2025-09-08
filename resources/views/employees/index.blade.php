@@ -52,7 +52,6 @@
                                         @php
                                             $akhirKontrak = Carbon\Carbon::parse($employee->akhir_kontrak);
                                             $days = Carbon\Carbon::now()->diffInDays($akhirKontrak, false);
-
                                         @endphp
 
                                         @if ($days < 0)
