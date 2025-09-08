@@ -56,10 +56,10 @@
                                         @endphp
 
                                         @if ($days < 0)
-                                            <span style="color: red;">Berakhir {{ abs($days) }} hari yang
+                                            <span style="color: red;">{{ abs($days) }} hari yang
                                                 lalu</span>
                                         @elseif ($days === 0)
-                                            <span style="color: orange;">Berakhir hari ini</span>
+                                            <span style="color: orange;">hari ini</span>
                                         @else
                                             <span style="color: green;">{{ $days }} hari</span>
                                         @endif
