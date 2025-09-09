@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\LogActivity;
+use App\Models\Vehicle;
 
 class HomeController extends Controller
 {
@@ -33,11 +34,27 @@ class HomeController extends Controller
             'rmm' => 6,
         ];
 
-        $counts = collect($subsidiaryIds)->mapWithKeys(function ($id, $key) {
+        $employeeCounts = collect($subsidiaryIds)->mapWithKeys(function ($id, $key) {
             return [$key => Employee::where('subsidiary_id', $id)->count()];
         });
+        $vehicleCounts = collect($subsidiaryIds)->mapWithKeys(function ($id, $key) {
+            return [$key => Vehicle::where('subsidiary_id', $id)->count()];
+        });
 
-        return view('dashboard', $counts->toArray());
+        return view('dashboard', [
+            'ams' => $employeeCounts['ams'],
+            'eln1' => $employeeCounts['eln1'],
+            'eln2' => $employeeCounts['eln2'],
+            'bofi' => $employeeCounts['bofi'],
+            'hk' => $employeeCounts['hk'],
+            'rmm' => $employeeCounts['rmm'],
+            'ams_vehicles' => $vehicleCounts['ams'],
+            'eln1_vehicles' => $vehicleCounts['eln1'],
+            'eln2_vehicles' => $vehicleCounts['eln2'],
+            'bofi_vehicles' => $vehicleCounts['bofi'],
+            'hk_vehicles' => $vehicleCounts['hk'],
+            'rmm_vehicles' => $vehicleCounts['rmm'],
+        ]);
     }
 
 

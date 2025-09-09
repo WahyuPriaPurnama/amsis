@@ -14,31 +14,30 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        <div class="row">
+            <div class="col">
+                @component('components.card')
+                    @slot('header')
+                            JUMLAH KARYAWAN
+                    @endslot
 
-        @component('components.card')
-            @slot('header')
-                <div class="d-flex justify-content-between">
-                    JUMLAH KARYAWAN
-
-                    <div>
-                        @php
-                            $hour = now()->hour;
-                            $greeting = match (true) {
-                                $hour < 11 => 'Selamat Pagi',
-                                $hour < 15 => 'Selamat Siang',
-                                $hour < 18 => 'Selamat Sore',
-                                default => 'Selamat Malam',
-                            };
-                        @endphp
-                        {{ $greeting }}
+                    <div id="employee-chart" class="mt-3">
+                        <canvas id="chartCanvas"></canvas>
                     </div>
-                </div>
-            @endslot
-
-            <div id="employee-chart" class="mt-3">
-                <canvas id="chartCanvas"></canvas>
+                @endcomponent
             </div>
-        @endcomponent
+            <div class="col">
+                @component('components.card')
+                    @slot('header')
+                        JUMLAH KENDARAAN
+                    @endslot
+
+                    <div id="vehicle-chart" class="mt-3">
+                        <canvas id="vehicleCanvas"></canvas>
+                    </div>
+                @endcomponent
+            </div>
+        </div>
     </div>
 
     {{-- Chart.js --}}
@@ -62,6 +61,48 @@
                             '#dc3545', // BOFI - merah
                             '#6f42c1', // HK - ungu
                             '#20c997' // RMM - teal
+                        ],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const vehicleCtx = document.getElementById('vehicleCanvas').getContext('2d');
+            new Chart(vehicleCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['AMS', 'ELN1', 'ELN2', 'BOFI', 'HK', 'RMM'],
+                    datasets: [{
+                        label: 'Jumlah Kendaraan',
+                        data: [{{ $ams_vehicles }}, {{ $eln1_vehicles }}, {{ $eln2_vehicles }},
+                            {{ $bofi_vehicles }}, {{ $hk_vehicles }}, {{ $rmm_vehicles }}
+                        ],
+                        backgroundColor: [
+                            '#6c757d', // AMS - abu
+                            '#6610f2', // ELN1 - indigo
+                            '#fd7e14', // ELN2 - oranye
+                            '#198754', // BOFI - hijau
+                            '#0dcaf0', // HK - cyan
+                            '#d63384' // RMM - pink
                         ],
                         borderRadius: 4
                     }]

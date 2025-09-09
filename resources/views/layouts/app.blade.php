@@ -122,32 +122,45 @@
                             </li>
                         @endif
                     @else
-                        <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                {{ Auth::user()->name }}
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                    @csrf
-                                </form>
-                                @if (Auth::user()->hasRole('super-admin'))
-                                    <a class="dropdown-item" href="{{ route('users.index') }}">User
-                                        Management</a>
-                                    <a class="dropdown-item" href="{{ route('log.activity') }}">Log
-                                        Activity</a>
-                                @elseif(Auth::user()->hasRole('employee'))
-                                    <a href="{{ route('employees.show', $employeeId) }}" class="dropdown-item">Profil</a>
-                                    <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti
-                                        Password</a>
-                                @endif
-                                <a class="dropdown-item text-danger fw-bold" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                    Logout
+                        @php
+                            $hour = now()->hour;
+                            $greeting = match (true) {
+                                $hour < 11 => 'Selamat Pagi',
+                                $hour < 15 => 'Selamat Siang',
+                                $hour < 18 => 'Selamat Sore',
+                                default => 'Selamat Malam',
+                            };
+                        @endphp
+                        <div class="d-flex align-items-center gap-3">
+                            {{ $greeting }},
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                    {{ Auth::user()->name }}
                                 </a>
-                            </div>
-                        </li>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                        @csrf
+                                    </form>
+                                    @if (Auth::user()->hasRole('super-admin'))
+                                        <a class="dropdown-item" href="{{ route('users.index') }}">User
+                                            Management</a>
+                                        <a class="dropdown-item" href="{{ route('log.activity') }}">Log
+                                            Activity</a>
+                                    @elseif(Auth::user()->hasRole('employee'))
+                                        <a href="{{ route('employees.show', $employeeId) }}"
+                                            class="dropdown-item">Profil</a>
+                                        <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti
+                                            Password</a>
+                                    @endif
+                                    <a class="dropdown-item text-danger fw-bold" href="{{ route('logout') }}"
+                                        onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                        Logout
+                                    </a>
+                                </div>
+                            </li>
+                        </div>
                     @endguest
                 </ul>
             </div>
