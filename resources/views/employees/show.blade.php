@@ -28,10 +28,11 @@
                         <x-buttons.delete data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                         </x-buttons.delete>
                     @endcan
-                    @phpiy
+                    {{-- @php
                         $user = auth()->user();
                     @endphp
-                    {{-- @if ($user->employee_id && $user->role == 'employee')
+                   
+                    @if ($user->employee_id && $user->role == 'employee')
                         <x-buttons.create href="#">Pengajuan
                             Cuti</x-buttons.create>
                     @endif --}}
