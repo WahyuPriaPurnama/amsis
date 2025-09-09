@@ -22,10 +22,13 @@ use App\Http\Controllers\Auth\LoginController;
 |
 */
 
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+Route::middleware('guest')->group(function () {
+    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [LoginController::class, 'login']);
+});
+
 Route::middleware('auth')->group(function () {
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('employees', EmployeeController::class);
     Route::prefix('employee')->controller(EmployeeController::class)->group(function () {
         Route::get('foto_profil/{pp}', 'pp')->name('employee.pp');

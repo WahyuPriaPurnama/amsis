@@ -24,15 +24,20 @@ class HomeController extends Controller
      */
     public function index()
     {
-        
-        $ams = Employee::where('subsidiary_id', 1)->count();
-        $eln1 = Employee::where('subsidiary_id', 2)->count();
-        $eln2 = Employee::where('subsidiary_id', 3)->count();
-        $bofi = Employee::where('subsidiary_id', 4)->count();
-        $hk = Employee::where('subsidiary_id', 5)->count();
-        $rmm = Employee::where('subsidiary_id', 6)->count();
+        $subsidiaryIds = [
+            'ams' => 1,
+            'eln1' => 2,
+            'eln2' => 3,
+            'bofi' => 4,
+            'hk' => 5,
+            'rmm' => 6,
+        ];
 
-        return view('dashboard', compact('ams', 'eln1', 'eln2', 'bofi', 'hk', 'rmm'));
+        $counts = collect($subsidiaryIds)->mapWithKeys(function ($id, $key) {
+            return [$key => Employee::where('subsidiary_id', $id)->count()];
+        });
+
+        return view('dashboard', $counts->toArray());
     }
 
 

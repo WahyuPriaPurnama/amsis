@@ -29,15 +29,12 @@ class LoginController extends Controller
 
     public function redirectTo()
     {
-        $role = Auth::user()->role;
-        switch ($role) {
-            case 'employee':
-                return route('employees.show', Auth::user()->employee_id);
-                break;
-            default:
-                return '/home';
-                break;
-        }
+        $user = Auth::user();
+
+        return match ($user->role) {
+            'employee' => route('employees.show', $user->employee_id),
+            default => '/dashboard',
+        };
     }
     //protected $redirectTo = '/home';
 

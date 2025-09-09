@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    @livewireStyles
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -58,12 +57,12 @@
                                         HRD
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item @yield('menuEmployees')" href="{{ route('employees.index') }}"
-                                                wire:navigate>Karyawan</a></li>
+                                        <li><a class="dropdown-item @yield('menuEmployees')"
+                                                href="{{ route('employees.index') }}">Karyawan</a></li>
                                         <li><a class="dropdown-item @yield('menuSubsidiaries')"
-                                                href="{{ route('subsidiaries.index') }}" wire:navigate>Perusahaan</a></li>
-                                        <li><a class="dropdown-item @yield('menuVehicles')" href="{{ route('vehicles.index') }}"
-                                                wire:navigate>Kendaraan</a></li>
+                                                href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
+                                        <li><a class="dropdown-item @yield('menuVehicles')"
+                                                href="{{ route('vehicles.index') }}">Kendaraan</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -72,10 +71,10 @@
                                         Payroll
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item @yield('menuScanlog')" href="{{ route('scanlog.index') }}"
-                                                wire:navigate>Scanlog</a></li>
+                                        <li><a class="dropdown-item @yield('menuScanlog')"
+                                                href="{{ route('scanlog.index') }}">Scanlog</a></li>
                                         <li><a class="dropdown-item @yield('menuHarian')"
-                                                href="{{ route('karyawan-harian.index') }}" wire:navigate>Karyawan</a></li>
+                                                href="{{ route('karyawan-harian.index') }}">Karyawan</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -133,14 +132,13 @@
                                     @csrf
                                 </form>
                                 @if (Auth::user()->hasRole('super-admin'))
-                                    <a class="dropdown-item" href="{{ route('users.index') }}" wire:navigate>User
+                                    <a class="dropdown-item" href="{{ route('users.index') }}">User
                                         Management</a>
-                                    <a class="dropdown-item" href="{{ route('log.activity') }}" wire:navigate>Log
+                                    <a class="dropdown-item" href="{{ route('log.activity') }}">Log
                                         Activity</a>
                                 @elseif(Auth::user()->hasRole('employee'))
-                                    <a href="{{ route('employees.show', $employeeId) }}" class="dropdown-item"
-                                        wire:navigate>Profil</a>
-                                    <a href="{{ route('password.edit') }}" class="dropdown-item" wire:navigate>Ganti
+                                    <a href="{{ route('employees.show', $employeeId) }}" class="dropdown-item">Profil</a>
+                                    <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti
                                         Password</a>
                                 @endif
                                 <a class="dropdown-item text-danger fw-bold" href="{{ route('logout') }}"
@@ -158,7 +156,6 @@
     <main class="py-4">
         @yield('content')
     </main>
-    @livewireScripts
     <footer class="bg-dark py-4 text-white  mt-auto">
         <div class="container text-center">
             AMS Information System | © {{ date('Y') }} All rights reserved.
@@ -167,18 +164,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
     <script>
-        document.addEventListener("livewire:navigating", () => {
-            const tableElement = $('#table');
-            if ($.fn.DataTable.isDataTable(tableElement)) {
-                tableElement.DataTable().destroy();
-            }
-        });
-
-        document.addEventListener("livewire:navigated", () => {
+        document.addEventListener("DOMContentLoaded", () => {
             const tableElement = $('#table');
             if (tableElement.length) {
                 tableElement.DataTable();
             }
+        });
+
+        // Optional: reinitialize if table is dynamically replaced via AJAX
+        document.addEventListener("table:reload", () => {
+            const tableElement = $('#table');
+            if ($.fn.DataTable.isDataTable(tableElement)) {
+                tableElement.DataTable().destroy();
+            }
+            tableElement.DataTable();
         });
     </script>
 </body>

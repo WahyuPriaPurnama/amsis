@@ -3,7 +3,7 @@
     <a {{ $attributes->merge([
         'class' => 'btn btn-primary',
     ]) }} data-bs-toggle="tooltip"
-        data-bs-title="Tambah Data"><i class="bi bi-file-earmark-plus-fill" wire:navigate></i>
+        data-bs-title="Tambah Data"><i class="bi bi-file-earmark-plus-fill"></i>
         {{ $slot }}
     </a>
 </div>

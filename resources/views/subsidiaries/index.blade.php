@@ -7,7 +7,7 @@
         @component('components.card')
             <div class="button-action mb-3">
                 @can('subsidiary.create')
-                    <x-buttons.create href="{{ route('subsidiaries.create') }}" wire:navigate></x-buttons.create>
+                    <x-buttons.create href="{{ route('subsidiaries.create') }}" ></x-buttons.create>
                 @endcan
             </div>
             @slot('header')

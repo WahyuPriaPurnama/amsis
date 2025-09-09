@@ -11,7 +11,7 @@ class Employee extends Model
     use HasFactory, HasUuids;
     protected $guarded = [];
     protected $casts = [
-        'akhir_kontrak' => 'datetime',
+        'akhir_kontrak' => 'date',
     ];
 
     public function subsidiary()

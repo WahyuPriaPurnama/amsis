@@ -7,7 +7,7 @@
             <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
                 @unless (auth()->user()->hasRole('employee'))
                     <div class="d-flex gap-2 flex-wrap">
-                        <x-buttons.create href="{{ route('employees.create') }}" wire:navigate></x-buttons.create>
+                        <x-buttons.create href="{{ route('employees.create') }}"></x-buttons.create>
                         <x-buttons.excel href="{{ route('employees.excel') }}">Export</x-buttons.excel>
                         <x-buttons.import data-bs-original-title="import excel" data-bs-toggle="modal"
                             data-bs-target="#importModal">Import</x-buttons.import>
@@ -40,7 +40,7 @@
                                 <td>{{ $employee->subsidiary->name }}</td>
                                 <td> {{ $employee->nip }}</td>
                                 <td><a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none"
-                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail" wire:navigate>
+                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
                                         {{ $employee->nama }}
                                     </a></td>
                                 <td>{{ $employee->posisi }}</td>
@@ -50,8 +50,9 @@
                                 <td>
                                     @if ($employee->status_peg == 'PKWT')
                                         @php
-                                            $akhirKontrak = Carbon\Carbon::parse($employee->akhir_kontrak);
+                                            $akhirKontrak = Carbon\Carbon::parse($employee->akhir_kontrak)->startOfDay();
                                             $days = Carbon\Carbon::now()->diffInDays($akhirKontrak, false);
+                                            
                                         @endphp
 
                                         @if ($days < 0)
