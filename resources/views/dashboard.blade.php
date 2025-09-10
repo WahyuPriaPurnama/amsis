@@ -31,7 +31,6 @@
                     @slot('header')
                         JUMLAH KENDARAAN
                     @endslot
-
                     <div id="vehicle-chart" class="mt-3">
                         <canvas id="vehicleCanvas"></canvas>
                     </div>
@@ -50,7 +49,7 @@
                 data: {
                     labels: ['AMS', 'ELN1', 'ELN2', 'BOFI', 'HK', 'RMM'],
                     datasets: [{
-                        label: 'Jumlah Karyawan',
+                        label: 'Karyawan',
                         data: [{{ $ams }}, {{ $eln1 }}, {{ $eln2 }},
                             {{ $bofi }}, {{ $hk }}, {{ $rmm }}
                         ],
@@ -92,7 +91,7 @@
                 data: {
                     labels: ['AMS', 'ELN1', 'ELN2', 'BOFI', 'HK', 'RMM'],
                     datasets: [{
-                        label: 'Jumlah Kendaraan',
+                        label: 'Kendaraan',
                         data: [{{ $ams_vehicles }}, {{ $eln1_vehicles }}, {{ $eln2_vehicles }},
                             {{ $bofi_vehicles }}, {{ $hk_vehicles }}, {{ $rmm_vehicles }}
                         ],

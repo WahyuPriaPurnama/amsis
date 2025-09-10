@@ -131,7 +131,7 @@
                                 default => 'Selamat Malam',
                             };
                         @endphp
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center">
                             {{ $greeting }},
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"

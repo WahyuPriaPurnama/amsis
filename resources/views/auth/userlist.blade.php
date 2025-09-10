@@ -4,7 +4,7 @@
     <div class="container mt-3">
         @component('components.card')
             @slot('header')
-                LIST USER
+                User Management
             @endslot
             <div class="d-flex gap-2 mb-3">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUser"
@@ -28,8 +28,8 @@
                                 @csrf
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control @error('name') is-invalid @enderror"
-                                        id="floatingInput" placeholder="username" name="name">
-                                    <label for="floatingInput">username</label>
+                                        id="floatingInput" placeholder="nama lengkap" name="name">
+                                    <label for="floatingInput">nama lengkap</label>
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -39,8 +39,8 @@
                                 </div>
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control @error('email') is-invalid @enderror"
-                                        name="email" id="floatingInput" placeholder="email">
-                                    <label for="floatingInput">email</label>
+                                        name="email" id="floatingInput" placeholder="username">
+                                    <label for="floatingInput">username</label>
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -121,14 +121,14 @@
                                 <td>{{ $user->subsidiary?->name ?? '-' }}</td>
                                 <td>
                                     <!-- Button trigger modal -->
-                                    <div class="input-group">
+                                    
                                         <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                             data-bs-target="#editData{{ $user->id }}">
                                             <i class="bi bi-pencil-square" data-bs-toggle="tooltip" title="Edit Data"></i>
                                         </button>
                                         <button type="submit" class="btn btn-danger" form="delete-form{{ $user->id }}"
                                             data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash3-fill"></i></button>
-                                    </div>
+                                   
                                     <form id="delete-form{{ $user->id }}"
                                         action="{{ route('users.destroy', ['user' => $user->id]) }}" method="post">
                                         @method('DELETE')
@@ -157,8 +157,8 @@
                                                             <input type="text"
                                                                 class="form-control @error('name') is-invalid @enderror"
                                                                 id="floatingInput" value="{{ $user->name }}"
-                                                                placeholder="username" name="name">
-                                                            <label for="floatingInput">username</label>
+                                                                placeholder="nama lengkap" name="name">
+                                                            <label for="floatingInput">nama lengkap</label>
                                                             @error('name')
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
@@ -170,8 +170,8 @@
                                                             <input type="text"
                                                                 class="form-control @error('email') is-invalid @enderror"
                                                                 name="email" id="floatingInput"
-                                                                value="{{ $user->email }}" placeholder="email">
-                                                            <label for="floatingInput">email</label>
+                                                                value="{{ $user->email }}" placeholder="username">
+                                                            <label for="floatingInput">username</label>
                                                             @error('email')
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
