@@ -7,7 +7,6 @@ use App\Http\Controllers\ScanlogController;
 use App\Http\Controllers\SubsidiaryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 
