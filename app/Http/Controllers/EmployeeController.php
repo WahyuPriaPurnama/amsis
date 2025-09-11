@@ -60,6 +60,16 @@ class EmployeeController extends Controller
 
         return view('employees.index', compact('employees'));
     }
+    protected function getSubsidiaryIdByRole($user, array $roleSubsidiaryMap): ?int
+    {
+        // Gunakan Spatie jika tersedia, fallback ke properti 'role'
+        $role = method_exists($user, 'getRoleNames')
+            ? $user->getRoleNames()->first()
+            : $user->role;
+
+        return $roleSubsidiaryMap[$role] ?? null;
+    }
+
 
     /**
      * Show the form for creating a new resource.
