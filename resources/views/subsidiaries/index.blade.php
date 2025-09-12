@@ -28,7 +28,7 @@
                             <tr>
                                 <th>{{ $loop->iteration }}</th>
                                 <td>
-                                    @role(['super-admin', 'holding-admin'])
+                                    @role(['super-admin', 'holding-admin','eln-admin'])
                                         <a href="{{ route('subsidiaries.show', $subsidiary->id) }}" class="text-decoration-none">
                                             {{ $subsidiary->name }}
                                         </a>

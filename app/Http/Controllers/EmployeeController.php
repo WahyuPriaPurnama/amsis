@@ -3,15 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Exports\EmployeeExport;
-use App\Helpers\EntityResolver;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Imports\EmployeeImport;
-use App\Models\Department;
-use App\Models\Division;
 use App\Models\Employee;
-use App\Models\Position;
-use App\Models\Section;
 use App\Models\Subsidiary;
 use App\Models\User;
 use App\Traits\FileUpload;
@@ -24,6 +19,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
+use Spatie\Permission\Models\Role;
 
 class EmployeeController extends Controller
 {
@@ -33,6 +29,7 @@ class EmployeeController extends Controller
      */
     public function index()
     {
+        $role = Role::findByName('eln-admin');
         $user = Auth::user();
 
         $fullAccessRoles = ['super-admin', 'holding-admin'];
@@ -106,13 +103,7 @@ class EmployeeController extends Controller
             $subsidiaries = Subsidiary::where('id', 5)->get();
         }
 
-        // Ambil data referensi
-        $divisions = Division::select('name')->groupBy('name')->orderBy('name')->get();
-        $departments = Department::select('name')->groupBy('name')->orderBy('name')->get();
-        $sections = Section::select('name')->groupBy('name')->orderBy('name')->get();
-        $positions = Position::select('name')->groupBy('name')->orderBy('name')->get();
-
-        return view('employees.create', compact('subsidiaries', 'divisions', 'departments', 'sections', 'positions'));
+        return view('employees.create', compact('subsidiaries'));
     }
     /**
      * Store a newly created resource in storage.
@@ -120,28 +111,16 @@ class EmployeeController extends Controller
     public function store(StoreEmployeeRequest $request)
     {
         $employee = Employee::create($request->validated());
-        // Handle dynamic relations
-        $divisionId = EntityResolver::resolve(Division::class, $request->division_id, $request->division_name);
-        $departmentId = EntityResolver::resolve(Department::class, $request->department_id, $request->department_name);
-        $sectionId = EntityResolver::resolve(Section::class, $request->section_id, $request->section_name);
-        $positionId = EntityResolver::resolve(Position::class, $request->position_id, $request->position_name);
-
         $data = $request->validated();
-        $data['division_id'] = $divisionId;
-        $data['department_id'] = $departmentId;
-        $data['section_id'] = $sectionId;
-        $data['position_id'] = $positionId;
-
         $employee = Employee::create($data);
         // Buat email dari nama
-        $baseEmail = Str::slug($employee->nama, '.');
-        $email = strtolower("{$baseEmail}");
+        $fullname = Str::slug($employee->nama, '.');
+        $username = strtolower("{$fullname}");
 
         // Pastikan email unik
         $counter = 1;
-        $originalEmail = $email;
-        while (User::where('email', $email)->exists()) {
-            $email = "{$baseEmail}{$counter}";
+        while (User::where('email', $username)->exists()) {
+            $email = "{$username}{$counter}";
             $counter++;
         }
 
@@ -152,7 +131,6 @@ class EmployeeController extends Controller
                 'name' => $employee->nama,
                 'email' => $email,
                 'password' => Hash::make('Karyawan_2025'),
-                'role' => 'employee',
                 'employee_id' => $employee->id,
                 'subsidiary_id' => $employee->subsidiary_id,
             ]
@@ -233,7 +211,7 @@ class EmployeeController extends Controller
         }
 
         // Cek apakah user adalah karyawan dan sedang edit datanya sendiri
-        $isEmployee = $user->role === 'employee' && $user->employee_id === $employee->id;
+        $isEmployee = $user->hasRole('employee') && $user->employee_id === $employee->id;
 
         return view('employees.edit', compact('employee', 'subsidiaries', 'isEmployee'));
     }

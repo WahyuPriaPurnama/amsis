@@ -5,85 +5,99 @@ namespace App\Http\Controllers;
 use App\Http\Requests\SubsidiaryRequest;
 use App\Models\Subsidiary;
 use App\Traits\FileUpload;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class SubsidiaryController extends Controller
 {
     use FileUpload;
-    /**
-     * Display a listing of the resource.
-     */
+
+    public function __construct()
+    {
+        $this->authorizeResource(Subsidiary::class, 'subsidiary');
+    }
+
     public function index()
     {
-        $this->authorize('view', Subsidiary::class);
+        $user = Auth::user();
+        $fullAccessRoles = ['super-admin', 'holding-admin'];
+        $roleSubsidiaryMap = [
+            'eln-admin'   => 2,
+            'eln2-admin'  => 3,
+            'bofi-admin'  => 4,
+            'haka-admin'  => 5,
+            'rmm-admin'   => 6,
+        ];
 
-        $subsidiaries = Subsidiary::Index()->get();
+        $query = Subsidiary::Index()->latest();
+
+        if (!$user->hasAnyRole($fullAccessRoles)) {
+            $subsidiaryId = $roleSubsidiaryMap[$user->getRoleNames()->first()] ?? null;
+
+            if ($subsidiaryId) {
+                $query->where('id', $subsidiaryId);
+            } else {
+                abort(403, 'Role tidak dikenali atau tidak memiliki akses');
+            }
+        }
+
+        $subsidiaries = $query->get();
+
         return view('subsidiaries.index', compact('subsidiaries'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-
-        return view('subsidiaries.form', ['subsidiary' => new Subsidiary(), 'isEdit' => false]);
+        return view('subsidiaries.form', [
+            'subsidiary' => new Subsidiary(),
+            'isEdit' => false,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(SubsidiaryRequest $request)
     {
-        $this->authorize('create', Subsidiary::class);
-        $data = Subsidiary::create($request->validated());
-        if ($request->file('logo')) {
+        $subsidiary = Subsidiary::create($request->validated());
+
+        if ($request->hasFile('logo')) {
             $logo = $this->fileUpload($request, 'public/subsidiary/logo', 'logo');
-            $data->update(['logo' => $logo->hashName()]);
+            $subsidiary->update(['logo' => $logo->hashName()]);
         }
-        return redirect()->route('subsidiaries.index')->with('alert', "Input data berhasil");
+
+        return redirect()->route('subsidiaries.index')->with('alert', 'Input data berhasil');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Subsidiary $subsidiary)
     {
         return view('subsidiaries.show', compact('subsidiary'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Subsidiary $subsidiary)
     {
-        $this->authorize('update', Subsidiary::class);
-        return view('subsidiaries.form', ['subsidiary' => $subsidiary, 'isEdit' => true]);
+        return view('subsidiaries.form', [
+            'subsidiary' => $subsidiary,
+            'isEdit' => true,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(SubsidiaryRequest $request, Subsidiary $subsidiary)
     {
-        $this->authorize('update', Subsidiary::class);
-        $subsidiary::where('id', $subsidiary->id)->update($request->validated());
-        if ($request->file('logo')) {
-            Storage::disk('local')->delete('public/subsidiary/logo/' . $subsidiary->logo);
-            $logo = $this->fileUpload($request, 'public/subsidiary/logo/', 'logo');
+        $subsidiary->update($request->validated());
+
+        if ($request->hasFile('logo')) {
+            Storage::disk('local')->delete("public/subsidiary/logo/{$subsidiary->logo}");
+
+            $logo = $this->fileUpload($request, 'public/subsidiary/logo', 'logo');
             $subsidiary->update(['logo' => $logo->hashName()]);
         }
-        return redirect()->route('subsidiaries.index')->with('alert', "update data $subsidiary->name berhasil");
+
+        return redirect()->route('subsidiaries.index')->with('alert', "Update data {$subsidiary->name} berhasil");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Subsidiary $subsidiary)
     {
-        $this->authorize('delete', Subsidiary::class);
-        Storage::disk('local')->delete('public/subsidiary/logo/' . $subsidiary->logo);
+        Storage::disk('local')->delete("public/subsidiary/logo/{$subsidiary->logo}");
         $subsidiary->delete();
-        return redirect()->route('subsidiaries.index')->with('alert', "hapus data $subsidiary->name berhasil");
+
+        return redirect()->route('subsidiaries.index')->with('alert', "Hapus data {$subsidiary->name} berhasil");
     }
 }

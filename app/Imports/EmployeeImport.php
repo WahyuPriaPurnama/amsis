@@ -13,8 +13,8 @@ class EmployeeImport implements ToCollection, WithHeadingRow
 {
     public function collection(Collection $rows)
     {
-        $user = Auth::user()->role;
-        $subsidiary_id = match ($user) {
+        $role = Auth::user()?->roles->pluck('name')->first();
+        $subsidiary_id = match ($role) {
             'super-admin', 'holding-admin' => null, // pakai dari file
             'eln-admin' => 2,
             'eln2-admin' => 3,
@@ -27,8 +27,8 @@ class EmployeeImport implements ToCollection, WithHeadingRow
         // dd($rows);
         foreach ($rows as $row) {
             $nip = $row['nip'];
-            $nik = ltrim($row['nik'], "'");
-
+            $nik = isset($row['nik']) ? ltrim($row['nik'], "'") : null;
+            $npwp = isset($row['npwp']) ? ltrim($row['npwp'], "'") : null;
             // Skip jika nip dan nik sudah ada
             $exists = Employee::where('nip', $nip)->where('nik', $nik)->exists();
             if ($exists) {
@@ -37,7 +37,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow
 
             $employee = Employee::create([
                 'nip' => $nip,
-                'nama' => $row['nama'],
+                'nama' => Str::title($row['nama']),
                 'nik' => $nik,
                 'divisi' => $row['divisi'],
                 'departemen' => $row['departement'],
@@ -57,7 +57,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow
                 'jurusan' => $row['jurusan'],
                 'thn_lulus' => $row['tahun_lulus'],
                 'nama_ibu' => $row['nama_ibu'],
-                'npwp' => ltrim($row['npwp'], "'"),
+                'npwp' => $npwp,
                 'status' => $row['status_perkawinan'],
                 'jml_ank' => $row['jumlah_anak'],
                 'nama_kd' => $row['nama_kontak_darurat'],
@@ -68,14 +68,29 @@ class EmployeeImport implements ToCollection, WithHeadingRow
             // Cek apakah user sudah ada
             $userExists = \App\Models\User::where('employee_id', $employee->id)->exists();
             if (!$userExists) {
+                $baseEmail = $row['email'] ?? strtolower(Str::slug($employee->nama, '.'));
+                $uniqueEmail = $this->generateUniqueEmail($baseEmail);
+
                 \App\Models\User::create([
-                    'name' => $employee->nama,
-                    'email' => $row['email'] ?? strtolower(Str::slug($employee->nama, '.')),
-                    'password' => bcrypt('Karyawan_2025'), // bisa diganti dengan random atau NIK
+                    'name' => Str::title($employee->nama),
+                    'email' => $uniqueEmail,
+                    'password' => bcrypt('Karyawan_2025'),
                     'employee_id' => $employee->id,
-                    'role' => 'employee', // default role
                 ]);
+                info("Imported employee: {$employee->nama} with username{$uniqueEmail}");
             }
         }
+    }
+    private function generateUniqueEmail(string $base): string
+    {
+        $email = $base;
+        $counter = 1;
+
+        while (\App\Models\User::where('email', $email)->exists()) {
+            $email = $base . $counter;
+            $counter++;
+        }
+
+        return $email;
     }
 }

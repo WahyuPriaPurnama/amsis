@@ -8,41 +8,38 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
     use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
+     * Determine where to redirect users after login.
      *
-     * @var string
+     * @return string
      */
-
-    public function redirectTo()
+    public function redirectTo(): string
     {
         $user = Auth::user();
+        $role = $user?->getRoleNames()->first(); // Spatie returns a Collection
 
-        return match ($user->role) {
-            'employee' => route('employees.show', $user->employee_id),
+        return $this->resolveRedirectPath($role, $user->employee_id);
+    }
+
+    /**
+     * Resolve redirect path based on role.
+     *
+     * @param string|null $role
+     * @param string|null $employeeId
+     * @return string
+     */
+    protected function resolveRedirectPath(?string $role, ?string $employeeId): string
+    {
+        return match ($role) {
+            'employee' => route('employees.show', $employeeId),
             default => '/dashboard',
         };
     }
-    //protected $redirectTo = '/home';
-
 
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {

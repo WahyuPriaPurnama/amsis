@@ -12,7 +12,6 @@ class EmployeeAccountsSeeder extends Seeder
 {
     public function run()
     {
-        User::where('role', 'employee')->delete();
 
         foreach (Employee::all() as $employee) {
             // Buat email dari nama
@@ -32,7 +31,6 @@ class EmployeeAccountsSeeder extends Seeder
                 'name' => $employee->nama,
                 'email' => $email,
                 'password' => Hash::make('Karyawan_2025'),
-                'role' => 'employee',
                 'employee_id' => $employee->id,
                 'subsidiary_id' => $employee->subsidiary_id,
             ]);

@@ -26,17 +26,16 @@
                     {{-- NIP --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="nip" class="form-label">NIP</label>
+
                         <input type="text" id="nip" name="nip" value="{{ old('nip', $employee->nip) }}"
-                            class="form-control @error('nip') is-invalid @enderror" {{ $isEmployee ? 'readonly' : '' }}
+                            class="form-control @error('nip') is-invalid @enderror"{{ $isEmployee ? 'readonly' : '' }}
                             aria-describedby="nipHelp">
-                        <div id="nipHelp" class="form-text">Standarnya 9 digit</div>
                         @error('nip')
                             <div class="invalid-feedback">
                                 {{ $message }}
                             </div>
                         @enderror
                     </div>
-
                     {{-- Nama Lengkap --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="nama" class="form-label">Nama Lengkap</label>
@@ -50,8 +49,6 @@
                             </div>
                         @enderror
                     </div>
-
-
 
                     {{-- Subsidiary (Plant) --}}
                     <div class="col-12 col-md-3 mb-3">
@@ -117,12 +114,21 @@
                     {{-- Jabatan --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="posisi" class="form-label">Jabatan</label>
+                        <input type="text" id="posisi" name="posisi" value="{{ old('posisi', $employee->posisi) }}"
+                            class="form-control @error('posisi') is-invalid @enderror" {{ $isEmployee ? 'readonly' : '' }}>
+                        @error('posisi')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    {{-- <div class="col-12 col-sm-6 col-md-3 mb-3">
+                        <label for="posisi" class="form-label">Jabatan</label>
                         @if ($isEmployee)
                             <select class="form-select" disabled>
                                 <option>{{ $employee->posisi }}</option>
                             </select>
                             <input type="hidden" name="posisi" value="{{ $employee->posisi }}">
                         @else
+
                             <select name="posisi" id="posisi" class="form-select @error('posisi') is-invalid @enderror">
                                 <option value="">Pilih Jabatan</option>
                                 @foreach (['Direktur', 'Manager', 'Staff', 'Supervisor', 'Operator', 'Admin'] as $pos)
@@ -135,7 +141,7 @@
                         @error('posisi')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                    </div>
+                    </div> --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="tgl_masuk" class="form-label">Tanggal Masuk Kerja</label>
                         <input type="date" id="tgl_masuk" name="tgl_masuk"

@@ -134,13 +134,13 @@ class AdminSeeder extends Seeder
 
 
         $admins = [
-            ['name' => 'Super Admin', 'email' => 'super.admin@amsgroup.co.id', 'password' => 'SuperAdmin_1996', 'role' => 'super-admin'],
-            ['name' => 'Holding Admin', 'email' => 'holding.admin@amsgroup.co.id', 'password' => 'HoldingAdmin_9H!7', 'role' => 'holding-admin'],
-            ['name' => 'ELN Admin', 'email' => 'eln.admin@amsgroup.co.id', 'password' => 'ELNAdmin_6c\9', 'role' => 'eln-admin'],
-            ['name' => 'ELN 2 Admin', 'email' => 'eln2.admin@amsgroup.co.id', 'password' => 'ELN2Admin_tT45', 'role' => 'eln2-admin'],
-            ['name' => 'Haka Admin', 'email' => 'haka.admin@amsgroup.co.id', 'password' => 'HakaAdmin_a6^0', 'role' => 'haka-admin'],
-            ['name' => 'BOFI Admin', 'email' => 'bofi.admin@amsgroup.co.id', 'password' => 'BOFIAdmin_50U(', 'role' => 'bofi-admin'],
-            ['name' => 'RMM Admin', 'email' => 'rmm.admin@amsgroup.co.id', 'password' => 'RMMAdmin_177v', 'role' => 'rmm-admin'],
+            ['name' => 'Super Admin', 'email' => 'super.admin@amsgroup.co.id', 'password' => 'SuperAdmin_1996'],
+            ['name' => 'Holding Admin', 'email' => 'holding.admin@amsgroup.co.id', 'password' => 'HoldingAdmin_9H!7'],
+            ['name' => 'ELN Admin', 'email' => 'eln.admin@amsgroup.co.id', 'password' => 'ELNAdmin_6c\9'],
+            ['name' => 'ELN 2 Admin', 'email' => 'eln2.admin@amsgroup.co.id', 'password' => 'ELN2Admin_tT45'],
+            ['name' => 'Haka Admin', 'email' => 'haka.admin@amsgroup.co.id', 'password' => 'HakaAdmin_a6^0'],
+            ['name' => 'BOFI Admin', 'email' => 'bofi.admin@amsgroup.co.id', 'password' => 'BOFIAdmin_50U('],
+            ['name' => 'RMM Admin', 'email' => 'rmm.admin@amsgroup.co.id', 'password' => 'RMMAdmin_177v'],
         ];
 
         foreach ($admins as $admin) {
@@ -149,7 +149,6 @@ class AdminSeeder extends Seeder
                     'name' => $admin['name'],
                     'email' => $admin['email'],
                     'password' => Hash::make($admin['password']),
-                    'role' => $admin['role'],
                 ]);
             }
         }

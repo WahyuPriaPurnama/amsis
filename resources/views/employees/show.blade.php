@@ -75,12 +75,14 @@
                                         </div>
                                         <div class="card-body text-center">
                                             <div class="mb-3">
+                                                @php
+                                                    $fotoPath = $employee->pp
+                                                        ? Storage::url('public/foto_profil/' . $employee->pp)
+                                                        : Storage::url('public/foto_profil/default.png');
+                                                @endphp
+
                                                 <img class="img-thumbnail" oncontextmenu="return false"
-                                                    @if ($employee->pp == null) src="
-                                                {{ Storage::url('public/foto_profil/default.png') }}"
-                                               @else
-                                              src="  {{ Storage::url('public/foto_profil/') . $employee->pp }}" @endif
-                                                    alt="" srcset="">
+                                                    src="{{ $fotoPath }}" alt="Foto Profil" />
                                             </div>
                                             <h5 class="mb-1">{{ $employee->nama }}</h5>
                                             </b>Usia: {{ Carbon\Carbon::parse($employee->tgl_lahir)->age }} Tahun

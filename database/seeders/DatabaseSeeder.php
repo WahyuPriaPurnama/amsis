@@ -23,8 +23,6 @@ class DatabaseSeeder extends Seeder
             AssignAllRolesSeeder::class,
             EmployeeAccountsSeeder::class,
             EmployeePermissionRoleSeeder::class,
-            OrganizationalMappingSeeder::class,
-            OrganizationalSeeder::class,
             SubsidiaryPermissionRoleSeeder::class,
             UserPermissionRoleSeeder::class,
             VehiclePermissionRoleSeeder::class

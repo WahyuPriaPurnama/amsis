@@ -15,7 +15,6 @@ return new class extends Migration
             $table->uuid('id')->primary()->unique()->index();
             $table->string('nip')->unique();
             $table->string('nama');
-            $table->string('nik')->unique();
             $table->string('divisi');
             $table->string('departemen');
             $table->string('seksi');
@@ -24,6 +23,7 @@ return new class extends Migration
             $table->date('tgl_masuk');
             $table->date('awal_kontrak')->nullable();
             $table->date('akhir_kontrak')->nullable();
+            $table->string('nik')->unique()->nullable();
             $table->string('tmpt_lahir')->nullable();
             $table->date('tgl_lahir')->nullable();
             $table->string('jenis_kelamin', 1)->nullable();
