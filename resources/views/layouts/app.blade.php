@@ -143,6 +143,7 @@
                                         @csrf
                                     </form>
                                     @if (Auth::user()->hasRole('super-admin'))
+                                    <a href="{{route('roles.index')}}" class="dropdown-item">Roles & Permission</a>
                                         <a class="dropdown-item" href="{{ route('users.index') }}">User
                                             Management</a>
                                         <a class="dropdown-item" href="{{ route('log.activity') }}">Log

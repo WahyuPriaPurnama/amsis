@@ -5,7 +5,7 @@
     <div class="container py-4">
         @component('components.card')
             @slot('header')
-                <h2 class="mb-0">🔐 Role & Permission Management</h2>
+                🔐 Role & Permission Management
             @endslot
 
             <div class="row g-4">
@@ -21,12 +21,11 @@
                     </form>
                 </div>
 
-
                 {{-- Assign Permission to Role --}}
                 <div class="col-md-6">
                     <form method="POST" action="{{ route('roles.assign.permission') }}" class="card card-body shadow-sm">
                         @csrf
-                        <h5>Assign Permission to Role</h5>
+                       <h5>Assign Permission to Role</h5>
                         <div class="mb-3">
                             <select name="role" class="form-select">
                                 @foreach ($roles as $role)
@@ -72,7 +71,7 @@
                 <div class="col-12">
                     <div class="card shadow-sm">
                         <div class="card-header">
-                            <h4>Edit Role & Assign Permissions</h4>
+                            Edit Role & Assign Permissions
                         </div>
                         <div class="card-body">
                             <form method="POST" action="{{ route('roles.update', $role->id) }}">
@@ -106,8 +105,8 @@
                             </form>
                         </div>
                     </div>
-
-
+                </div>
+                <div class="col-12">
                     <div class="card shadow-sm">
                         <div class="card-header">
                             <h5 class="mb-0">Roles & Permissions</h5>
