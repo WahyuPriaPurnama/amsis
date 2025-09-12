@@ -88,6 +88,8 @@ class EmployeeController extends Controller
         if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole($fullAccessRoles)) {
             $subsidiaries = Subsidiary::all();
         } elseif (method_exists($user, 'hasRole')) {
+            $subsidiaries = collect();
+
             foreach ($roleSubsidiaryMap as $role => $id) {
                 if ($user->hasRole($role)) {
                     $subsidiaries = Subsidiary::where('id', $id)->get();
@@ -95,7 +97,7 @@ class EmployeeController extends Controller
                 }
             }
 
-            if (!isset($subsidiaries)) {
+            if ($subsidiaries->isEmpty()) {
                 abort(403, 'Role tidak dikenali');
             }
         } else {
@@ -125,7 +127,7 @@ class EmployeeController extends Controller
         }
 
         // Buat user
-        User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['employee_id' => $employee->id],
             [
                 'name' => $employee->nama,
@@ -135,6 +137,11 @@ class EmployeeController extends Controller
                 'subsidiary_id' => $employee->subsidiary_id,
             ]
         );
+
+        //assign role employee
+        if (!$user->hasRole('employee')) {
+            $user->assignRole('employee');
+        }
 
         $documents = [
             'pp' => 'public/foto_profil',

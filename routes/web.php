@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\RolePermissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,15 @@ Route::middleware('auth')->group(function () {
         Route::get('export-excel', [EmployeeController::class, 'index_excel'])->name('employees.excel');
         Route::get('show-pdf/{employee}', [EmployeeController::class, 'show_pdf'])->name('employee.pdf');
     });
+
+    Route::get('/admin/roles', [RolePermissionController::class, 'index'])->name('roles.index');
+    Route::post('/admin/roles', [RolePermissionController::class, 'storeRole'])->name('roles.store');
+    Route::post('/admin/permissions', [RolePermissionController::class, 'storePermission'])->name('permissions.store');
+    Route::post('/admin/roles/assign-permission', [RolePermissionController::class, 'assignPermissionToRole'])->name('roles.assign.permission');
+    Route::post('/admin/users/assign-role', [RolePermissionController::class, 'assignRoleToUser'])->name('users.assign.role');
+    Route::get('/admin/roles/{id}/edit', [RolePermissionController::class, 'edit'])->name('roles.edit');
+    Route::put('/admin/roles/{id}', [RolePermissionController::class, 'update'])->name('roles.update');
+    Route::delete('/admin/roles/{id}', [RolePermissionController::class, 'destroy'])->name('roles.destroy');
 
     Route::resource('subsidiaries', SubsidiaryController::class);
     Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
