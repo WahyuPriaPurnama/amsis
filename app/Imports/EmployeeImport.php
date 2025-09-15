@@ -30,8 +30,10 @@ class EmployeeImport implements ToCollection, WithHeadingRow
             $nik = isset($row['nik']) ? ltrim($row['nik'], "'") : null;
             $npwp = isset($row['npwp']) ? ltrim($row['npwp'], "'") : null;
             // Skip jika nip dan nik sudah ada
-            $exists = Employee::where('nip', $nip)->where('nik', $nik)->exists();
+            $exists = Employee::where('nip', $nip)->exists();
             if ($exists) {
+                info("⏭️ Skipped import: NIP {$nip} sudah ada di database.");
+
                 continue;
             }
 
