@@ -16,7 +16,7 @@
                 <x-buttons.pdf href="{{ route('employees.pdf') }}"></x-buttons.pdf>
             </div>
             @slot('header')
-                DATA KARYAWAN
+                🧑‍💼DATA KARYAWAN
             @endslot
             <div class="table-responsive">
                 <table class="table table-hover display" id="table">

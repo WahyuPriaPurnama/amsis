@@ -23,5 +23,8 @@ class Subsidiary extends Model
     {
         return $this->hasMany(Vehicle::class);
     }
-   
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
 }

@@ -9,27 +9,39 @@ class SubsidiaryPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('subsidiary-list');
+        return $user->hasAnyPermission([
+            'subsidiary-list',
+            'subsidiary-view',
+            'subsidiary-edit-own',
+            'subsidiary-delete-own',
+        ]);
     }
 
-    public function view(User $user): bool
+
+    public function view(User $user, Subsidiary $subsidiary)
     {
-        return $user->can('subsidiary-view');
+        return $user->can('subsidiary-view') && (
+            $user->hasRole('holding-admin') ||
+            $user->subsidiary_id === $subsidiary->id
+        );
     }
-
-    public function create(User $user): bool
+    
+    public function create(User $user)
     {
         return $user->can('subsidiary-create');
     }
 
-    public function update(User $user): bool
+    public function update(User $user, Subsidiary $subsidiary)
     {
-        return $user->can('subsidiary-edit');
+        return $user->can('subsidiary-edit-own') &&
+            $user->subsidiary_id === $subsidiary->id;
     }
 
-    public function delete(User $user): bool
+
+    public function delete(User $user, Subsidiary $subsidiary)
     {
-        return $user->can('subsidiary-delete');
+        return $user->can('subsidiary-delete-own') &&
+            $user->subsidiary_id === $subsidiary->id;
     }
 
     public function restore(User $user, Subsidiary $subsidiary): bool

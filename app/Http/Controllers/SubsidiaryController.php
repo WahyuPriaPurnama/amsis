@@ -14,35 +14,15 @@ class SubsidiaryController extends Controller
 
     public function __construct()
     {
-        $this->authorizeResource(Subsidiary::class, 'subsidiary');
+        $this->authorizeResource(Subsidiary::class, 'subsidiary', [
+            'except' => ['index']
+        ]);
     }
 
     public function index()
     {
-        $user = Auth::user();
-        $fullAccessRoles = ['super-admin', 'holding-admin'];
-        $roleSubsidiaryMap = [
-            'eln-admin'   => 2,
-            'eln2-admin'  => 3,
-            'bofi-admin'  => 4,
-            'haka-admin'  => 5,
-            'rmm-admin'   => 6,
-        ];
-
-        $query = Subsidiary::Index()->latest();
-
-        if (!$user->hasAnyRole($fullAccessRoles)) {
-            $subsidiaryId = $roleSubsidiaryMap[$user->getRoleNames()->first()] ?? null;
-
-            if ($subsidiaryId) {
-                $query->where('id', $subsidiaryId);
-            } else {
-                abort(403, 'Role tidak dikenali atau tidak memiliki akses');
-            }
-        }
-
-        $subsidiaries = $query->get();
-
+        $this->authorize('viewAny', Subsidiary::class);
+        $subsidiaries = Subsidiary::withCount('employees')->get();
         return view('subsidiaries.index', compact('subsidiaries'));
     }
 
@@ -68,8 +48,10 @@ class SubsidiaryController extends Controller
 
     public function show(Subsidiary $subsidiary)
     {
+        $this->authorize('view', $subsidiary);
         return view('subsidiaries.show', compact('subsidiary'));
     }
+
 
     public function edit(Subsidiary $subsidiary)
     {

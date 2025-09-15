@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 @section('title', "Data $subsidiary->name")
 @section('menuSubsidiaries', 'active')
@@ -8,10 +9,10 @@
                 Data Perusahaan
             @endslot
             <div class="btn-group d-flex gap-2 flex-wrap">
-                @can('subsidiary.update')
+                @can('update', $subsidiary)
                     <x-buttons.edit href="{{ route('subsidiaries.edit', ['subsidiary' => $subsidiary->id]) }}"></x-buttons.edit>
                 @endcan
-                @can('subsidiary.delete')
+                @can('delete', $subsidiary)
                     <form action="{{ route('subsidiaries.destroy', ['subsidiary' => $subsidiary->id]) }}" id="hapus"
                         method="post">
                         @method('DELETE')
