@@ -84,10 +84,14 @@
                                                 <img class="img-thumbnail" oncontextmenu="return false"
                                                     src="{{ $fotoPath }}" alt="Foto Profil" />
                                             </div>
-                                            <h5 class="mb-1">{{ $employee->nama }}</h5>
-                                            </b>Usia: {{ Carbon\Carbon::parse($employee->tgl_lahir)->age }} Tahun
-                                            <p class="text-secondary mb-4">{{ $employee->posisi }}</p>
-                                            <hr>
+                                            <div class="mb-3">
+                                                <h5 class="mb-1">👤 {{ $employee->nama }}</h5>
+                                                <span class="text-muted">📧 username: {{ $employee->user->email }}</span><br>
+                                                <span>🎂 Usia: {{ \Carbon\Carbon::parse($employee->tgl_lahir)->age }}
+                                                    Tahun</span>
+                                                <p class="text-secondary mb-4">💼 {{ $employee->posisi }}</p>
+                                                <hr>
+                                            </div>
                                             <div class="card-body text-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                                     fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
