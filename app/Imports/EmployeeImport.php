@@ -71,12 +71,14 @@ class EmployeeImport implements ToCollection, WithHeadingRow
                 $baseEmail = $row['email'] ?? strtolower(Str::slug($employee->nama, '.'));
                 $uniqueEmail = $this->generateUniqueEmail($baseEmail);
 
-                \App\Models\User::create([
+                $user = \App\Models\User::create([
                     'name' => Str::title($employee->nama),
                     'email' => $uniqueEmail,
                     'password' => bcrypt('Karyawan_2025'),
                     'employee_id' => $employee->id,
                 ]);
+
+                $user->assignRole('employee');
                 info("Imported employee: {$employee->nama} with username{$uniqueEmail}");
             }
         }

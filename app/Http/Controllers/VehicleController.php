@@ -8,6 +8,7 @@ use App\Models\Subsidiary;
 use App\Models\Vehicle;
 use App\Traits\FileUpload;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,27 +20,32 @@ class VehicleController extends Controller
      */
     public function index()
     {
-         $this->authorize('create', Vehicle::class);
         $data = Vehicle::Index()->paginate(50);
         return view('vehicles.index', compact('data'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
-        $this->authorize('create', Vehicle::class);
-        $sub = Subsidiary::all();
+        $user = Auth::user();
+
+        if ($user->hasRole('holding-admin') || $user->hasRole('super-admin')) {
+            // Tampilkan semua subsidiary
+            $sub = Subsidiary::orderBy('name')->get();
+        } else {
+            // Tampilkan hanya subsidiary milik user
+            $sub = Subsidiary::where('id', $user->subsidiary_id)->get();
+        }
+
         return view('vehicles.create', compact('sub'));
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreVehicleRequest $request)
     {
-        $this->authorize('create', Vehicle::class);
         \App\Helpers\LogActivity::addToLog();
         $data = Vehicle::create($request->validated());
         if ($request->file('foto')) {
@@ -94,7 +100,6 @@ class VehicleController extends Controller
      */
     public function update(UpdateVehicleRequest $request, Vehicle $vehicle)
     {
-        $this->authorize('update', Vehicle::class);
         $vehicle::findOrFail($vehicle->id);
         $vehicle->update($request->validated());
 
@@ -145,7 +150,6 @@ class VehicleController extends Controller
      */
     public function destroy(Vehicle $vehicle)
     {
-        $this->authorize('delete', Vehicle::class);
         $data = Storage::disk('local');
         $data->delete('/public/vehicles/foto/' . $vehicle->foto);
         $data->delete('/public/vehicles/stnk/' . $vehicle->stnk);
@@ -165,31 +169,26 @@ class VehicleController extends Controller
 
     public function foto($foto)
     {
-        $this->authorize('view', Vehicle::class);
         return Response::download('storage/vehicles/foto/' . $foto);
     }
 
     public function stnk($stnk)
     {
-        $this->authorize('view', Vehicle::class);
         return Response::download('storage/vehicles/stnk/' . $stnk);
     }
 
     public function pajak($pajak)
     {
-        $this->authorize('view', Vehicle::class);
         return Response::download('storage/vehicles/pajak/' . $pajak);
     }
 
     public function kir($kir)
     {
-        $this->authorize('view', Vehicle::class);
         return Response::download('storage/vehicles/kir/' . $kir);
     }
 
     public function qr($qr)
     {
-        $this->authorize('view', Vehicle::class);
         return Response::download('storage/vehicles/qr/' . $qr);
     }
 
@@ -200,13 +199,11 @@ class VehicleController extends Controller
     }
     public function service($service)
     {
-        $this->authorize('view', Vehicle::class);
         return Response::download('storage/vehicles/service/' . $service);
     }
 
     public function index_pdf()
     {
-        $this->authorize('view', Vehicle::class);
         $vehicles = Vehicle::all();
         $subsidiary = Subsidiary::find(1);
         $timestamp = now()->format('d/m/Y H:i:s');
@@ -219,7 +216,6 @@ class VehicleController extends Controller
 
     public function show_pdf($id)
     {
-        $this->authorize('view', Vehicle::class);
         $vehicle = Vehicle::findOrFail($id);
         $subsidiary = Subsidiary::find($vehicle->subsidiary_id);
         $timestamp = now()->format('d-m-Y H:i:s');

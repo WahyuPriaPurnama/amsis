@@ -12,16 +12,8 @@ class SubsidiaryController extends Controller
 {
     use FileUpload;
 
-    public function __construct()
-    {
-        $this->authorizeResource(Subsidiary::class, 'subsidiary', [
-            'except' => ['index']
-        ]);
-    }
-
     public function index()
     {
-        $this->authorize('viewAny', Subsidiary::class);
         $subsidiaries = Subsidiary::withCount('employees')->get();
         return view('subsidiaries.index', compact('subsidiaries'));
     }
@@ -48,7 +40,6 @@ class SubsidiaryController extends Controller
 
     public function show(Subsidiary $subsidiary)
     {
-        $this->authorize('view', $subsidiary);
         return view('subsidiaries.show', compact('subsidiary'));
     }
 

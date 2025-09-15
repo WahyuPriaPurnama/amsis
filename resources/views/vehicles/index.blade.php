@@ -8,10 +8,15 @@
                 🚗 DATA KENDARAAN
             @endslot
 
-            <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
+            <div class="button-action mb-3 d-flex flex-wrap gap-2 justify-content-between align-items-center">
                 @can('create', App\Models\Vehicle::class)
-                    <x-buttons.create href="{{ route('vehicles.create') }}"></x-buttons.create>
-                    <x-buttons.pdf href="{{ route('vehicles.pdf') }}"></x-buttons.pdf>
+                    <x-buttons.create :href="route('vehicles.create')">
+                        
+                    </x-buttons.create>
+
+                    <x-buttons.pdf :href="route('vehicles.pdf')">
+                        
+                    </x-buttons.pdf>
                 @endcan
             </div>
 
@@ -40,8 +45,7 @@
                                 <td>
                                     @can('view', $item)
                                         <a href="{{ route('vehicles.show', ['vehicle' => $item->id]) }}" class="text-decoration-none"
-                                            data-bs-toggle="tooltip" data-bs-placement="top"
-                                            data-bs-title="klik untuk melihat detail">
+                                            data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="klik untuk melihat detail">
                                             {{ $item->jenis_kendaraan }}</a>
                                     @else
                                         <span class="text-muted">

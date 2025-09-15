@@ -9,12 +9,7 @@ class SubsidiaryPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyPermission([
-            'subsidiary-list',
-            'subsidiary-view',
-            'subsidiary-edit-own',
-            'subsidiary-delete-own',
-        ]);
+        return $user->can('subsidiary-list');
     }
 
 
@@ -25,7 +20,7 @@ class SubsidiaryPolicy
             $user->subsidiary_id === $subsidiary->id
         );
     }
-    
+
     public function create(User $user)
     {
         return $user->can('subsidiary-create');

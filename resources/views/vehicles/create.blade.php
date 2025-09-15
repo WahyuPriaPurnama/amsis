@@ -39,7 +39,7 @@
                         <div class="form-floating">
                             <select class="form-select @error('subsidiary_id') is-invalid @enderror" name="subsidiary_id"
                                 id="subsidiary_id">
-                                <option value="" disabled {{ old('subsidiary_id') ? '' : 'selected' }}>Pilih Plant
+                                <option value=""{{ old('subsidiary_id') == '' ?: 'selected' }}>Pilih Plant
                                 </option>
                                 @foreach ($sub as $subsidiary)
                                     <option value="{{ $subsidiary->id }}"
