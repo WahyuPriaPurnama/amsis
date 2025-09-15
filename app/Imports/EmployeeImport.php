@@ -67,9 +67,10 @@ class EmployeeImport implements ToCollection, WithHeadingRow
                 'hubungan' => $row['hubungan'],
                 'subsidiary_id' => $subsidiary_id ?? $row['plant'],
             ]);
-            // Cek apakah user sudah ada
+            $nikExists = Employee::where('nik', $nik)->exists();
             $userExists = \App\Models\User::where('employee_id', $employee->id)->exists();
-            if (!$userExists) {
+
+            if (!$nikExists && !$userExists) {
                 $baseEmail = $row['email'] ?? strtolower(Str::slug($employee->nama, '.'));
                 $uniqueEmail = $this->generateUniqueEmail($baseEmail);
 
@@ -81,7 +82,9 @@ class EmployeeImport implements ToCollection, WithHeadingRow
                 ]);
 
                 $user->assignRole('employee');
-                info("Imported employee: {$employee->nama} with username{$uniqueEmail}");
+                info("👤 User dibuat untuk {$employee->nama} | Email: {$uniqueEmail}");
+            } else {
+                info("⏭️ Skip user: NIK {$nik} sudah ada atau user sudah terhubung.");
             }
         }
     }
