@@ -76,6 +76,8 @@
                             <th>KATEGORI</th>
                             <th>PLANT</th>
                             <th>NOPOL</th>
+                            <th>SERVICE</th>
+                            <th>KM</th>
                             <th>STNK</th>
                             <th>PAJAK</th>
                             <th>KIR</th>

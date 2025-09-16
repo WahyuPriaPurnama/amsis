@@ -3,11 +3,15 @@
 namespace App\Imports;
 
 use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+
+HeadingRowFormatter::default('none');
 
 class EmployeeImport implements ToCollection, WithHeadingRow
 {
@@ -15,7 +19,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow
     {
         $role = Auth::user()?->roles->pluck('name')->first();
         $subsidiary_id = match ($role) {
-            'super-admin', 'holding-admin' => null, // pakai dari file
+            'super-admin', 'holding-admin' => null,
             'eln-admin' => 2,
             'eln2-admin' => 3,
             'bofi-admin' => 4,
@@ -24,80 +28,88 @@ class EmployeeImport implements ToCollection, WithHeadingRow
             default => null,
         };
 
-        // dd($rows);
         foreach ($rows as $row) {
-            $nip = $row['nip'];
-            $nik = isset($row['nik']) ? ltrim($row['nik'], "'") : null;
-            $npwp = isset($row['npwp']) ? ltrim($row['npwp'], "'") : null;
-            // Skip jika nip dan nik sudah ada
-            $exists = Employee::where('nip', $nip)->exists();
-            if ($exists) {
-                info("⏭️ Skipped import: NIP {$nip} sudah ada di database.");
+            $nip = $row['NIP'] ?? null;
+            $nik = isset($row['NIK']) ? ltrim($row['NIK'], "'") : null;
+            $npwp = isset($row['NPWP']) ? ltrim($row['NPWP'], "'") : null;
 
+            if ($this->isDuplicate($nip, $nik)) {
+                info("⏭️ Skipped import: NIP {$nip} atau NIK {$nik} sudah ada di database.");
                 continue;
             }
 
             $employee = Employee::create([
                 'nip' => $nip,
-                'nama' => Str::title($row['nama']),
+                'nama' => Str::title($row['NAMA']),
                 'nik' => $nik,
-                'divisi' => $row['divisi'],
-                'departemen' => $row['departement'],
-                'seksi' => $row['seksi'],
-                'posisi' => $row['posisi'],
-                'status_peg' => $row['status_pegawai'],
-                'tgl_masuk' => $row['tanggal_masuk'],
-                'awal_kontrak' => $row['awal_kontrak'],
-                'akhir_kontrak' => $row['akhir_kontrak'],
-                'tmpt_lahir' => $row['tempat_lahir'],
-                'tgl_lahir' => $row['tanggal_lahir'],
-                'jenis_kelamin' => $row['jenis_kelamin'],
-                'alamat' => $row['alamat'],
-                'no_telp' => $row['no_telp'],
-                'email' => $row['email'],
-                'pend_trkhr' => $row['pendidikan_terakhir'],
-                'jurusan' => $row['jurusan'],
-                'thn_lulus' => $row['tahun_lulus'],
-                'nama_ibu' => $row['nama_ibu'],
+                'divisi' => $row['DIVISI'],
+                'departemen' => $row['DEPARTEMEN'],
+                'seksi' => $row['SEKSI'],
+                'posisi' => $row['POSISI'],
+                'status_peg' => $row['STATUS PEGAWAI'],
+                'tgl_masuk' => $row['TANGGAL MASUK'],
+                'awal_kontrak' => $row['AWAL KONTRAK'],
+                'akhir_kontrak' => $row['AKHIR KONTRAK'],
+                'tmpt_lahir' => $row['TEMPAT LAHIR'],
+                'tgl_lahir' => $row['TANGGAL LAHIR'],
+                'jenis_kelamin' => $row['L/P'],
+                'alamat' => $row['ALAMAT'],
+                'no_telp' => $row['NO. TELP'],
+                'email' => $row['EMAIL'],
+                'pend_trkhr' => $row['PENDIDIKAN TERAKHIR'],
+                'jurusan' => $row['JURUSAN'],
+                'thn_lulus' => $row['TAHUN LULUS'],
+                'nama_ibu' => $row['NAMA IBU'],
                 'npwp' => $npwp,
-                'status' => $row['status_perkawinan'],
-                'jml_ank' => $row['jumlah_anak'],
-                'nama_kd' => $row['nama_kontak_darurat'],
-                'no_kd' => $row['nomor_kontak_darurat'],
-                'hubungan' => $row['hubungan'],
-                'subsidiary_id' => $subsidiary_id ?? $row['plant'],
+                'status' => $row['STATUS PERKAWINAN'],
+                'jml_ank' => $row['JUMLAH ANAK'],
+                'nama_kd' => $row['NAMA KONTAK DARURAT'],
+                'no_kd' => $row['NOMOR KONTAK DARURAT'],
+                'hubungan' => $row['HUBUNGAN'],
+                'subsidiary_id' => $subsidiary_id ?? $row['PLANT'],
             ]);
-            $nikExists = Employee::where('nik', $nik)->exists();
-            $userExists = \App\Models\User::where('employee_id', $employee->id)->exists();
 
-            if (!$nikExists && !$userExists) {
-                $baseEmail = $row['email'] ?? strtolower(Str::slug($employee->nama, '.'));
+            if (!User::where('employee_id', $employee->id)->exists()) {
+                $baseEmail = $row['EMAIL'] ?? strtolower(Str::slug($employee->nama, '.'));
                 $uniqueEmail = $this->generateUniqueEmail($baseEmail);
 
-                $user = \App\Models\User::create([
+                $user = User::create([
                     'name' => Str::title($employee->nama),
                     'email' => $uniqueEmail,
                     'password' => bcrypt('Karyawan_2025'),
                     'employee_id' => $employee->id,
+                    'subsidiary_id' => $employee->subsidiary_id,
                 ]);
 
                 $user->assignRole('employee');
                 info("👤 User dibuat untuk {$employee->nama} | Email: {$uniqueEmail}");
             } else {
-                info("⏭️ Skip user: NIK {$nik} sudah ada atau user sudah terhubung.");
+                info("⏭️ Skip user: Employee {$employee->nama} sudah memiliki akun.");
             }
         }
     }
+
+    private function isDuplicate(?string $nip, ?string $nik): bool
+    {
+        return ($nip && Employee::where('nip', $nip)->exists()) ||
+            ($nik && Employee::where('nik', $nik)->exists());
+    }
+
     private function generateUniqueEmail(string $base): string
     {
         $email = $base;
         $counter = 1;
 
-        while (\App\Models\User::where('email', $email)->exists()) {
+        while (User::where('email', $email)->exists()) {
             $email = $base . $counter;
             $counter++;
         }
 
         return $email;
+    }
+
+    public function headingRow(): int
+    {
+        return 1;
     }
 }

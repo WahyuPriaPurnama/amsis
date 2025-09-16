@@ -23,16 +23,16 @@ class EmployeePolicy
         return $user->can('employee-create');
     }
 
-    public function update(User $authUser, Employee $targetUser): bool
+    public function update(User $user, Employee $employee): bool
     {
         // Admin bisa update siapa saja
-        if ($authUser->can('employee-edit-all')) {
+        if ($user->can('employee-edit-all')) {
             return true;
         }
 
         // Karyawan hanya bisa update dirinya sendiri
-        if ($authUser->can('employee-edit-own')) {
-            return $authUser->employee_id === $targetUser->id;
+        if ($user->can('employee-edit-own')) {
+            return $user->employee_id === $employee->id;
         }
 
         return false;

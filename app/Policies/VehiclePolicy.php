@@ -25,6 +25,9 @@ class VehiclePolicy
 
     public function update(User $user, Vehicle $vehicle)
     {
+        if ($user->can('vehicle-edit-all')) {
+            return true;
+        }
         return $user->can('vehicle-edit-own') &&
             $user->subsidiary_id === $vehicle->subsidiary_id;
     }

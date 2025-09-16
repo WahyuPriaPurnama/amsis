@@ -28,6 +28,9 @@ class SubsidiaryPolicy
 
     public function update(User $user, Subsidiary $subsidiary)
     {
+        if ($user->can('subsidiary-edit-all')) {
+            return true;
+        }
         return $user->can('subsidiary-edit-own') &&
             $user->subsidiary_id === $subsidiary->id;
     }

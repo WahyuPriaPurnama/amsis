@@ -32,7 +32,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    @can('view', $subsidiary)
+                                    @can('update', $subsidiary)
                                         <a href="{{ route('subsidiaries.show', $subsidiary->id) }}" class="text-decoration-none"
                                             data-bs-toggle="tooltip" title="Lihat detail">
                                             {{ $subsidiary->name }}

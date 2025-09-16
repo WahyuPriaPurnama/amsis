@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Employee;
 use App\Models\Subsidiary;
 use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -20,69 +22,79 @@ class AdminSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
+        $faker = \Faker\Factory::create();
+
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
 
-        // Subsidiary::create([
-        //     'name' => 'CV. AMS',
-        //     'tagline' => 'General Trading and Supplier',
-        //     'npwp' => '70.651.906.3-657.000',
-        //     'email' => 'headoffice@amsgroup.co.id',
-        //     'phone' => '0341 5054969',
-        //     'address' => 'Perum P. Pratama B2/1P, Karangploso, Malang - East Java 65152, Indonesia'
-        // ]);
-        // Subsidiary::create([
-        //     'name' => 'PT. ELN 1',
-        //     'tagline' => 'Can Maker',
-        //     'npwp' => '94.024.473.4-657.000',
-        //     'email' => 'headoffice@eln.co.id',
-        //     'phone' => '0341 5058269',
-        //     'address' => 'Dusun Boro Nggondang, RT 52 / RW 13, Tawangargo Karangploso, Malang
-        //                     East Java 65152'
-        // ]);
-        // Subsidiary::create([
-        //     'name' => 'PT. ELN 2',
-        //     'tagline' => 'ABF and Cold Storage',
-        //     'npwp' => '94.024.473.4-657.000',
-        //     'email' => 'headoffice@eln.co.id',
-        //     'phone' => '0333 424150',
-        //     'address' => 'Jalan Bawean No. 7, Klatak, Kalipuro, Banyuwangi
-        //                     East Java 68421'
-        // ]);
-        // Subsidiary::create([
-        //     'name' => 'PT. BOFI',
-        //     'tagline' => 'Canning',
-        //     'npwp' => '43.623.790.3-625.000',
-        //     'email' => 'headoffice@blueoceanfoods.co.id',
-        //     'phone' => '0333 2815013',
-        //     'address' => 'Dusun Sampangan, Kedungrejo, Muncar, Banyuwangi Regency, East Java'
-        // ]);
-        // Subsidiary::create([
-        //     'name' => 'PT. HAKA',
-        //     'tagline' => 'Open Trader With Us',
-        //     'npwp' => '43.623.790.3-625.000',
-        //     'email' => 'hkcipta@blueoceanfoods.co.id',
-        //     'phone' => '0333 2815013',
-        //     'address' => 'Kalipuro'
-        // ]);
+        Subsidiary::create([
+            'name' => 'CV. AMS',
+            'tagline' => 'General Trading and Supplier',
+            'npwp' => '70.651.906.3-657.000',
+            'email' => 'headoffice@amsgroup.co.id',
+            'phone' => '0341 5054969',
+            'address' => 'Perum P. Pratama B2/1P, Karangploso, Malang - East Java 65152, Indonesia'
+        ]);
+        Subsidiary::create([
+            'name' => 'PT. ELN 1',
+            'tagline' => 'Can Maker',
+            'npwp' => '94.024.473.4-657.000',
+            'email' => 'headoffice@eln.co.id',
+            'phone' => '0341 5058269',
+            'address' => 'Dusun Boro Nggondang, RT 52 / RW 13, Tawangargo Karangploso, Malang
+                            East Java 65152'
+        ]);
+        Subsidiary::create([
+            'name' => 'PT. ELN 2',
+            'tagline' => 'ABF and Cold Storage',
+            'npwp' => '94.024.473.4-657.000',
+            'email' => 'headoffice@eln.co.id',
+            'phone' => '0333 424150',
+            'address' => 'Jalan Bawean No. 7, Klatak, Kalipuro, Banyuwangi
+                            East Java 68421'
+        ]);
+        Subsidiary::create([
+            'name' => 'PT. BOFI',
+            'tagline' => 'Canning',
+            'npwp' => '43.623.790.3-625.000',
+            'email' => 'headoffice@blueoceanfoods.co.id',
+            'phone' => '0333 2815013',
+            'address' => 'Dusun Sampangan, Kedungrejo, Muncar, Banyuwangi Regency, East Java'
+        ]);
+        Subsidiary::create([
+            'name' => 'PT. HAKA',
+            'tagline' => 'Open Trader With Us',
+            'npwp' => '43.623.790.3-625.000',
+            'email' => 'hkcipta@blueoceanfoods.co.id',
+            'phone' => '0333 2815013',
+            'address' => 'Kalipuro'
+        ]);
 
-        // Subsidiary::create([
-        //     'name' => 'PT. RMM',
-        //     'tagline' => 'Canning',
-        //     'npwp' => '43.623.790.3-625.000',
-        //     'email' => 'headoffice@blueoceanfoods.co.id',
-        //     'phone' => '0333 2815013',
-        //     'address' => ' Dusun Sampangan, Kedungrejo, Muncar, Banyuwangi Regency, East Java'
-        // ]);
+        Subsidiary::create([
+            'name' => 'PT. RMM',
+            'tagline' => 'Canning',
+            'npwp' => '43.623.790.3-625.000',
+            'email' => 'headoffice@blueoceanfoods.co.id',
+            'phone' => '0333 2815013',
+            'address' => ' Dusun Sampangan, Kedungrejo, Muncar, Banyuwangi Regency, East Java'
+        ]);
 
 
         // for ($i = 0; $i < 100; $i++) {
-        //     Employee::create([
-        //         'nip' => $faker->randomNumber(9),
+        //     $nip = $faker->randomNumber(9);
+        //     $nik = $faker->randomNumber(8, true) . $faker->randomNumber(8, true);
+
+        //     // Skip jika nip atau nik sudah ada
+        //     if (Employee::where('nip', $nip)->exists() || Employee::where('nik', $nik)->exists()) {
+        //         info("⏭️ Skip employee: NIP {$nip} atau NIK {$nik} sudah ada.");
+        //         continue;
+        //     }
+        //     $employee = Employee::create([
+        //         'nip' => $nip,
         //         'nama' => $faker->name(),
-        //         'nik' => $faker->nik(),
+        //         'nik' => $nik,
         //         'subsidiary_id' => $faker->numberBetween(1, 6),
         //         'divisi' => $faker->randomElement(['IT', 'HRD', 'Teknik', 'Produksi']),
         //         'departemen' => $faker->randomElement(['IT', 'HRD', 'Teknik', 'Produksi']),
@@ -92,7 +104,6 @@ class AdminSeeder extends Seeder
         //         'tgl_masuk' => $faker->date(),
         //         'awal_kontrak' => $faker->dateTimeBetween('2019-01-01', '2022-01-01'),
         //         'akhir_kontrak' => $faker->dateTimeBetween('2024-11-11', '2025-01-01'),
-
         //         'tmpt_lahir' => $faker->city(),
         //         'tgl_lahir' => $faker->date(),
         //         'jenis_kelamin' => $faker->randomElement(['L', 'P']),
@@ -108,7 +119,7 @@ class AdminSeeder extends Seeder
         //         'jml_ank' => $faker->randomDigit(),
         //         'nama_kd' => $faker->name(),
         //         'no_kd' => $faker->numerify('085#########'),
-        //         'hubungan' => $faker->randomElement(['Saudara Kandung', 'Saudara Sepupu', 'Ipar'])
+        //         'hubungan' => $faker->randomElement(['Saudara Kandung', 'Saudara Sepupu', 'Ipar']),
         //     ]);
 
         //     Vehicle::create([
@@ -129,18 +140,18 @@ class AdminSeeder extends Seeder
         //         'pajak' => $faker->date(),
         //         'kir' => $faker->date(),
         //         'jth_tempo' => $faker->date(),
-        //         'kondisi' => $faker->randomElement(['Baik', 'Kurang Baik'])
+        //         'kondisi' => $faker->randomElement(['Baik', 'Kurang Baik']),
         //     ]);
-
+        // }
 
         $admins = [
-            ['name' => 'Super Admin', 'email' => 'super.admin@amsgroup.co.id', 'password' => 'SuperAdmin_1996'],
-            ['name' => 'Holding Admin', 'email' => 'holding.admin@amsgroup.co.id', 'password' => 'HoldingAdmin_9H!7'],
-            ['name' => 'ELN Admin', 'email' => 'eln.admin@amsgroup.co.id', 'password' => 'ELNAdmin_6c\9'],
-            ['name' => 'ELN 2 Admin', 'email' => 'eln2.admin@amsgroup.co.id', 'password' => 'ELN2Admin_tT45'],
-            ['name' => 'Haka Admin', 'email' => 'haka.admin@amsgroup.co.id', 'password' => 'HakaAdmin_a6^0'],
-            ['name' => 'BOFI Admin', 'email' => 'bofi.admin@amsgroup.co.id', 'password' => 'BOFIAdmin_50U('],
-            ['name' => 'RMM Admin', 'email' => 'rmm.admin@amsgroup.co.id', 'password' => 'RMMAdmin_177v'],
+            ['name' => 'Super Admin', 'email' => 'super.admin@amsgroup.co.id', 'password' => 'SuperAdmin_1996', 'subsidiary_id' => 1],
+            ['name' => 'Holding Admin', 'email' => 'holding.admin@amsgroup.co.id', 'password' => 'HoldingAdmin_9H!7', 'subsidiary_id' => 1],
+            ['name' => 'ELN Admin', 'email' => 'eln.admin@amsgroup.co.id', 'password' => 'ELNAdmin_6c\9', 'subsidiary_id' => 2],
+            ['name' => 'ELN 2 Admin', 'email' => 'eln2.admin@amsgroup.co.id', 'password' => 'ELN2Admin_tT45', 'subsidiary_id' => 3],
+            ['name' => 'Haka Admin', 'email' => 'haka.admin@amsgroup.co.id', 'password' => 'HakaAdmin_a6^0', 'subsidiary_id' => 5],
+            ['name' => 'BOFI Admin', 'email' => 'bofi.admin@amsgroup.co.id', 'password' => 'BOFIAdmin_50U(', 'subsidiary_id' => 4],
+            ['name' => 'RMM Admin', 'email' => 'rmm.admin@amsgroup.co.id', 'password' => 'RMMAdmin_177v', 'subsidiary_id' => 6],
         ];
 
         foreach ($admins as $admin) {
@@ -149,6 +160,7 @@ class AdminSeeder extends Seeder
                     'name' => $admin['name'],
                     'email' => $admin['email'],
                     'password' => Hash::make($admin['password']),
+                    'subsidiary_id' => $admin['subsidiary_id'],
                 ]);
             }
         }

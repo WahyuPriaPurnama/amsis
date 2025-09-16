@@ -17,12 +17,12 @@ class EmployeeExport implements FromCollection, WithHeadings, WithColumnFormatti
      */
     public function headings(): array
     {
-        return ['NIP', 'NAMA', 'NIK', 'DIVISI', 'DEPARTEMENT', 'SEKSI', 'POSISI', 'STATUS PEGAWAI', 'TANGGAL MASUK', 'AWAL KONTRAK', 'AKHIR KONTRAK', 'TEMPAT LAHIR', 'TANGGAL LAHIR', 'L/P', 'ALAMAT', 'NO. TELP', 'EMAIL', 'PENDIDIKAN TERAKHIR', 'JURUSAN', 'TAHUN LULUS', 'NAMA IBU', 'NPWP', 'STATUS PERKAWINAN', 'JUMLAH ANAK', 'NAMA KONTAK DARURAT', 'NOMOR KONTAK DARURAT', 'HUBUNGAN', 'PLANT'];
+        return ['NIP', 'NAMA', 'NIK', 'DIVISI', 'DEPARTEMEN', 'SEKSI', 'POSISI', 'STATUS PEGAWAI', 'TANGGAL MASUK', 'AWAL KONTRAK', 'AKHIR KONTRAK', 'TEMPAT LAHIR', 'TANGGAL LAHIR', 'L/P', 'ALAMAT', 'NO. TELP', 'EMAIL', 'PENDIDIKAN TERAKHIR', 'JURUSAN', 'TAHUN LULUS', 'NAMA IBU', 'NPWP', 'STATUS PERKAWINAN', 'JUMLAH ANAK', 'NAMA KONTAK DARURAT', 'NOMOR KONTAK DARURAT', 'HUBUNGAN', 'PLANT'];
     }
 
     public function collection()
     {
-        $user = Auth::user()->role;
+        $user = Auth::user()->hasRole(['super-admin', 'holding-admin', 'eln-admin', 'eln2-admin', 'bofi-admin', 'haka-admin', 'rmm-admin']);
         $data = Employee::get(['nip', 'nama', 'nik', 'divisi', 'departemen', 'seksi', 'posisi', 'status_peg', 'tgl_masuk', 'awal_kontrak', 'akhir_kontrak', 'tmpt_lahir', 'tgl_lahir', 'jenis_kelamin', 'alamat', 'no_telp', 'email', 'pend_trkhr', 'jurusan', 'thn_lulus', 'nama_ibu', 'npwp', 'status', 'jml_ank', 'nama_kd', 'no_kd', 'hubungan', 'subsidiary_id']);
         if (($user == 'super-admin') or ($user == 'holding-admin')) {
             return $data;
