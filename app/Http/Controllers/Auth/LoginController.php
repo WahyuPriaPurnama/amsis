@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Helpers\LogActivity;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
@@ -22,6 +24,16 @@ class LoginController extends Controller
 
         return $this->resolveRedirectPath($role, $user->employee_id);
     }
+
+    protected function authenticated(Request $request, $user)
+    {
+        LogActivity::addToLog('login berhasil', [
+            'email' => $user->email,
+            'subsidiary_id' => $user->subsidiary_id,
+            'employee_id' => $user->employee_id,
+        ]);
+    }
+
 
     /**
      * Resolve redirect path based on role.
@@ -45,5 +57,19 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
+    }
+
+    public function logout(Request $request)
+    {
+        LogActivity::addToLog('logout', [
+            'email' => auth()->user()->email,
+            'role' => auth()->user()->getRoleNames()->first(),
+        ]);
+
+        $this->guard()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login');
     }
 }

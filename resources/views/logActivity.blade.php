@@ -37,22 +37,22 @@
                     <thead>
                         <tr>
                             <th>URL</th>
-                            <th>Method</th>
                             <th>IP</th>
-                            <th width="500px">Agent</th>
-                            <th>User Role</th>
+                            <th>Role</th>
                             <th>Waktu</th>
+                            <th>Method</th>
+                            <th width="500px">Agent</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($logs as $key => $log)
                             <tr>
                                 <td class="text-success">{{ $log->url }}</td>
-                                <td><label class="label label-info">{{ $log->method }}</label></td>
                                 <td class="text-warning">{{ $log->ip }}</td>
-                                <td class="text-danger">{{ $log->agent }}</td>
-                                <td>{{ $log->user_role }}</td>
+                                <td>{{ $log->role }}</td>
                                 <td>{{ $log->created_at }}</td>
+                                <td><label class="label label-info">{{ $log->method }}</label></td>
+                                <td class="text-danger">{{ $log->agent }}</td>
                             </tr>
                         @endforeach
                     </tbody>

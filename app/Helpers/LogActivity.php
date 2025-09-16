@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Helpers;
 
 use App\Models\LogActivity as ModelsLogActivity;
@@ -8,14 +7,22 @@ use Illuminate\Support\Facades\Request;
 
 class LogActivity
 {
-    public static function addToLog()
+    public static function addToLog(string $action = 'akses halaman', array $extra = [])
     {
-        $log = [];
-        $log['url'] = Request::fullUrl();
-        $log['method'] = Request::method();
-        $log['ip'] = Request::ip();
-        $log['agent'] = Request::header('user-agent');
-        $log['user_role'] = auth()->check() ? auth()->user()->role : 1;
+        $user = auth()->user();
+
+        $log = [
+            'url'         => Request::fullUrl(),
+            'method'      => Request::method(),
+            'ip'          => Request::ip(),
+            'agent'       => Request::header('user-agent'),
+            'role'   => $user?->roles->pluck('name')->implode(', ') ?? 'guest',
+            'user_id'     => $user?->id,
+            'username'   => $user?->name,
+            'action'      => $action,
+            'extra'       => json_encode($extra),
+        ];
+
         ModelsLogActivity::create($log);
     }
 

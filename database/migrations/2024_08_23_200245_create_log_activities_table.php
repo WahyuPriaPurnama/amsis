@@ -17,7 +17,11 @@ return new class extends Migration
             $table->string('method');
             $table->string('ip');
             $table->string('agent')->nullable();
-            $table->string('user_role')->nullable();
+            $table->string('role')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('username')->nullable();
+            $table->string('action')->nullable();
+            $table->json('extra')->nullable();
             $table->timestamps();
         });
     }
