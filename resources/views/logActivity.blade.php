@@ -7,9 +7,9 @@
             @slot('header')
                 LOG ACTIVITY
             @endslot
-            
+
             <x-buttons.delete class="d-flex mb-3" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                 
+
             </x-buttons.delete>
             <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -20,14 +20,14 @@
                         </div>
                         <div class="modal-body">
                             <form action="{{ route('log.activity.truncate') }}" id="deleteForm">
-                            Apakah Anda yakin ingin menghapus semua log activity?
-                        </form>
+                                Apakah Anda yakin ingin menghapus semua log activity?
+                            </form>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                                 Batal
                             </button>
-                                <button type="submit" class="btn btn-danger" form="deleteForm">Hapus</button>
+                            <button type="submit" class="btn btn-danger" form="deleteForm">Hapus</button>
                         </div>
                     </div>
                 </div>
@@ -38,6 +38,7 @@
                         <tr>
                             <th>URL</th>
                             <th>IP</th>
+                            <th>Username</th>
                             <th>Role</th>
                             <th>Waktu</th>
                             <th>Method</th>
@@ -49,6 +50,7 @@
                             <tr>
                                 <td class="text-success">{{ $log->url }}</td>
                                 <td class="text-warning">{{ $log->ip }}</td>
+                                <td>{{ $log->username }}</td>
                                 <td>{{ $log->role }}</td>
                                 <td>{{ $log->created_at }}</td>
                                 <td><label class="label label-info">{{ $log->method }}</label></td>
