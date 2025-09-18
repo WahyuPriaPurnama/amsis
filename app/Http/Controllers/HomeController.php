@@ -41,7 +41,7 @@ class HomeController extends Controller
             return [$key => Vehicle::where('subsidiary_id', $id)->count()];
         });
 
-        return view('dashboard', [
+        return view('admin.dashboard', [
             'ams' => $employeeCounts['ams'],
             'eln1' => $employeeCounts['eln1'],
             'eln2' => $employeeCounts['eln2'],
@@ -66,7 +66,7 @@ class HomeController extends Controller
     public function logActivity()
     {
         $logs = \App\Helpers\LogActivity::logActivityLists();
-        return view('logActivity', compact('logs'));
+        return view('admin.log-activity', compact('logs'));
     }
     public function truncate()
     {

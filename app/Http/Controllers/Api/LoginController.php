@@ -30,11 +30,13 @@ class LoginController extends Controller
                 'message' => 'Email atau Password Anda salah'
             ], 401);
         }
-
+        $user = auth()->guard('api')->user();
+        $role = $user->getRoleNames()->first();
         //if auth success
         return response()->json([
             'success' => true,
             'user'    => auth()->guard('api')->user(),
+            'role'    => $role,
             'token'   => $token
         ], 200);
     }

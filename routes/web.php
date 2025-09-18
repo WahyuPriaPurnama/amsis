@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/password', [UserController::class, 'editPassword'])->name('password.edit');
     Route::resource('users', UserController::class);
     Route::get('log-activity', [HomeController::class, 'logActivity'])->name('log.activity');
-    Route::get('Log-activity/truncate', [HomeController::class, 'truncate'])->name('log.activity.truncate');
+    Route::get('log-activity/truncate', [HomeController::class, 'truncate'])->name('log.activity.truncate');
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     Route::resource('vehicles', VehicleController::class);
