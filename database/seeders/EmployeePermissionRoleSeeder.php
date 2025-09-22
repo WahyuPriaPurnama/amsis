@@ -67,6 +67,7 @@ class EmployeePermissionRoleSeeder extends Seeder
             'employee-create',
             'employee-edit-own',
             'employee-delete',
+            
 
             // Vehicle
             'vehicle-list',

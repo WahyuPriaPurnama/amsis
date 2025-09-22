@@ -28,7 +28,7 @@ class SubsidiaryPolicy
 
     public function update(User $user, Subsidiary $subsidiary)
     {
-        if ($user->can('subsidiary-edit-all')) {
+        if ($user->can('subsidiary-edit')) {
             return true;
         }
         return $user->can('subsidiary-edit-own') &&
@@ -38,6 +38,9 @@ class SubsidiaryPolicy
 
     public function delete(User $user, Subsidiary $subsidiary)
     {
+        if ($user->can('subsidiary-delete')) {
+            return true;
+        }
         return $user->can('subsidiary-delete-own') &&
             $user->subsidiary_id === $subsidiary->id;
     }

@@ -26,7 +26,7 @@ class EmployeePolicy
     public function update(User $user, Employee $employee): bool
     {
         // Admin bisa update siapa saja
-        if ($user->can('employee-edit-all')) {
+        if ($user->can('employee-edit')) {
             return true;
         }
 

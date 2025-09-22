@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\PostController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
+
+Route::post('/login', LoginController::class);
 Route::apiResource('/posts', PostController::class);
-Route::post('/login', \App\Http\Controllers\Api\LoginController::class);
-Route::post('/logout', App\Http\Controllers\Api\LogoutController::class);
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('jwt.auth')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Api\DashboardController::class, 'index']);
+    Route::get('/log-activity', [\App\Http\Controllers\Api\DashboardController::class, 'logActivity']);
+    Route::delete('/log-activity', [\App\Http\Controllers\Api\DashboardController::class, 'truncate']);
+    Route::post('/logout', [\App\Http\Controllers\Api\LogoutController::class, 'logout']);
 });

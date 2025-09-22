@@ -25,7 +25,7 @@ class VehiclePolicy
 
     public function update(User $user, Vehicle $vehicle)
     {
-        if ($user->can('vehicle-edit-all')) {
+        if ($user->can('vehicle-edit')) {
             return true;
         }
         return $user->can('vehicle-edit-own') &&
@@ -34,6 +34,9 @@ class VehiclePolicy
 
     public function delete(User $user, Vehicle $vehicle)
     {
+        if ($user->can('vehicle-delete')) {
+            return true;
+        }
         return $user->can('vehicle-delete-own') &&
             $user->subsidiary_id === $vehicle->subsidiary_id;
     }
