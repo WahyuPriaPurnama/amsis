@@ -65,6 +65,9 @@ class UpdateEmployeeRequest extends FormRequest
         return [
             'required' => 'wajib diisi',
             'unique' => 'tidak boleh sama',
+            'nip.unique' => 'NIP sudah terdaftar',
+            'nik.unique' => 'NIK sudah terdaftar',
+            'email.unique' => 'Email sudah terdaftar',
             'pp.mimes' => 'format yang diizinkan png, jpg dan jpeg',
             'mimes' => 'format yang diizinkan png, jpg, jpeg dan pdf',
             'max' => 'ukuran file maksimum 2 MB',

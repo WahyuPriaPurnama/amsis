@@ -22,9 +22,9 @@ class StoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nip' => 'required|unique:employees|string',
+            'nip' => 'required|string|unique:employees,nip',
             'nama' => 'required|string',
-            'nik' => 'required|unique:employees|string',
+            'nik' => 'required|string|unique:employees,nik',
             'subsidiary_id' => 'required|integer|exists:subsidiaries,id',
             'divisi' => 'required|string|max:100',
             'departemen' => 'required|string|max:100',
@@ -39,7 +39,7 @@ class StoreEmployeeRequest extends FormRequest
             'jenis_kelamin' => 'required|in:L,P',
             'alamat' => 'required|string',
             'no_telp' => 'required|string',
-            'email' => 'required|unique:employees,email',
+            'email' => 'required|string|unique:employees,email',
             'pend_trkhr' => 'nullable|string',
             'jurusan' => 'nullable|string',
             'thn_lulus' => 'nullable|string',
@@ -56,15 +56,6 @@ class StoreEmployeeRequest extends FormRequest
             'npwp2' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
             'bpjs_kes' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
             'bpjs_ket' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
-            'division_name'   => 'required|string|max:100',
-            'department_name' => 'required|string|max:100',
-            'section_name'    => 'required|string|max:100',
-            'position_name'   => 'required|string|max:100',
-            // Optional: validate *_id if present
-            'division_id'     => 'nullable|integer|exists:divisions,id',
-            'department_id'   => 'nullable|integer|exists:departments,id',
-            'section_id'      => 'nullable|integer|exists:sections,id',
-            'position_id'     => 'nullable|integer|exists:positions,id',
 
         ];
     }
@@ -74,6 +65,9 @@ class StoreEmployeeRequest extends FormRequest
         return [
             'required' => 'wajib diisi',
             'unique' => 'tidak boleh sama',
+            'nip.unique' => 'NIP sudah terdaftar',
+            'nik.unique' => 'NIK sudah terdaftar',
+            'email.unique' => 'Email sudah terdaftar',
             'pp.mimes' => 'format yang diizinkan png, jpg dan jpeg',
             'mimes' => 'format yang diizinkan png, jpg, jpeg dan pdf',
             'max' => 'ukuran file maksimum 2 MB',

@@ -112,16 +112,18 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request)
     {
-        $employee = Employee::create($request->validated());
         $data = $request->validated();
+
+        // Simpan hanya sekali
         $employee = Employee::create($data);
+
         // Buat email dari nama
         $fullname = Str::slug($employee->nama, '.');
-        $username = strtolower("{$fullname}");
+        $username = strtolower($fullname);
+        $email = $username;
 
-        // Pastikan email unik
         $counter = 1;
-        while (User::where('email', $username)->exists()) {
+        while (User::where('email', $email)->exists()) {
             $email = "{$username}{$counter}";
             $counter++;
         }
@@ -138,11 +140,12 @@ class EmployeeController extends Controller
             ]
         );
 
-        //assign role employee
+        // Assign role
         if (!$user->hasRole('employee')) {
             $user->assignRole('employee');
         }
 
+        // Upload dokumen
         $documents = [
             'pp' => 'public/foto_profil',
             'ktp' => 'public/KTP',
@@ -158,11 +161,10 @@ class EmployeeController extends Controller
                 $employee->update([$field => $file->hashName()]);
             }
         }
-        $nama = $employee->nama;
 
         return redirect()
             ->route('employees.index')
-            ->with($employee ? 'alert' : 'alert2', "Input data {$nama} " . ($employee ? 'berhasil' : 'gagal'));
+            ->with('alert', "Input data {$employee->nama} berhasil");
     }
 
     /**
