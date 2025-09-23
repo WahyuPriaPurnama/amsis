@@ -90,7 +90,7 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="posisi" class="form-label">Posisi</label>
-                        <input type="text" class="form-control @error('posisi') is-invalid @enderror"
+                        <input type="text" name="posisi" class="form-control @error('posisi') is-invalid @enderror"
                             value="{{ old('posisi') }}">
                         @error('posisi')
                             <div class="invalid-feedback">{{ $message }}</div>

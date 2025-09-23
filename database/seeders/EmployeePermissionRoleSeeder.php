@@ -65,6 +65,7 @@ class EmployeePermissionRoleSeeder extends Seeder
             'employee-list',
             'employee-view',
             'employee-create',
+            'employee-edit',
             'employee-edit-own',
             'employee-delete',
             
@@ -73,12 +74,15 @@ class EmployeePermissionRoleSeeder extends Seeder
             'vehicle-list',
             'vehicle-view',
             'vehicle-create',
+            'vehicle-edit',
             'vehicle-edit-own',
             'vehicle-delete',
 
             // Subsidiary
             'subsidiary-list',
             'subsidiary-view',
+            'subsidiary-create',
+            'subsidiary-edit',
             'subsidiary-edit-own',
         ];
 
