@@ -29,16 +29,18 @@ class AdminSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        Subsidiary::create([
-            'name' => 'CV. AMS',
+        Subsidiary::firstOrCreate([
+            'name' => 'CV. AMS'
+        ], [
             'tagline' => 'General Trading and Supplier',
             'npwp' => '70.651.906.3-657.000',
             'email' => 'headoffice@amsgroup.co.id',
             'phone' => '0341 5054969',
             'address' => 'Perum P. Pratama B2/1P, Karangploso, Malang - East Java 65152, Indonesia'
         ]);
-        Subsidiary::create([
-            'name' => 'PT. ELN 1',
+        Subsidiary::firstOrCreate([
+            'name' => 'PT. ELN 1'
+        ], [
             'tagline' => 'Can Maker',
             'npwp' => '94.024.473.4-657.000',
             'email' => 'headoffice@eln.co.id',
@@ -46,8 +48,9 @@ class AdminSeeder extends Seeder
             'address' => 'Dusun Boro Nggondang, RT 52 / RW 13, Tawangargo Karangploso, Malang
                             East Java 65152'
         ]);
-        Subsidiary::create([
-            'name' => 'PT. ELN 2',
+        Subsidiary::firstOrCreate([
+            'name' => 'PT. ELN 2'
+        ], [
             'tagline' => 'ABF and Cold Storage',
             'npwp' => '94.024.473.4-657.000',
             'email' => 'headoffice@eln.co.id',
@@ -55,16 +58,18 @@ class AdminSeeder extends Seeder
             'address' => 'Jalan Bawean No. 7, Klatak, Kalipuro, Banyuwangi
                             East Java 68421'
         ]);
-        Subsidiary::create([
-            'name' => 'PT. BOFI',
+        Subsidiary::firstOrCreate([
+            'name' => 'PT. BOFI'
+        ], [
             'tagline' => 'Canning',
             'npwp' => '43.623.790.3-625.000',
             'email' => 'headoffice@blueoceanfoods.co.id',
             'phone' => '0333 2815013',
             'address' => 'Dusun Sampangan, Kedungrejo, Muncar, Banyuwangi Regency, East Java'
         ]);
-        Subsidiary::create([
-            'name' => 'PT. HAKA',
+        Subsidiary::firstOrCreate([
+            'name' => 'PT. HAKA'
+        ], [
             'tagline' => 'Open Trader With Us',
             'npwp' => '43.623.790.3-625.000',
             'email' => 'hkcipta@blueoceanfoods.co.id',
@@ -72,8 +77,9 @@ class AdminSeeder extends Seeder
             'address' => 'Kalipuro'
         ]);
 
-        Subsidiary::create([
-            'name' => 'PT. RMM',
+        Subsidiary::firstOrCreate([
+            'name' => 'PT. RMM'
+        ], [
             'tagline' => 'Canning',
             'npwp' => '43.623.790.3-625.000',
             'email' => 'headoffice@blueoceanfoods.co.id',
