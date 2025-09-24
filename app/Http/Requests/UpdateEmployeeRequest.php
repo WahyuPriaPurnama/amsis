@@ -23,9 +23,9 @@ class UpdateEmployeeRequest extends FormRequest
     {
         $employee = $this->route('employee');
         return [
+            //organisasi
             'nip' => 'required|unique:employees,nip,' . $employee->id,
             'nama' => 'required',
-            'nik' => 'required|string|unique:employees,nik,' . $employee->id,
             'subsidiary_id' => 'required|integer|exists:subsidiaries,id',
             'divisi' => 'required|string|max:100',
             'departemen' => 'required|string|max:100',
@@ -35,6 +35,8 @@ class UpdateEmployeeRequest extends FormRequest
             'tgl_masuk' => 'required|date',
             'awal_kontrak' => 'nullable|date',
             'akhir_kontrak' => 'nullable|date',
+            //biodata
+            'nik' => 'required|string|unique:employees,nik,' . $employee->id,
             'tmpt_lahir' => 'required|string',
             'tgl_lahir' => 'required|date',
             'jenis_kelamin' => 'required|in:L,P',

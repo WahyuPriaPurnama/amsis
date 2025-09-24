@@ -37,15 +37,7 @@
                         @enderror
                     </div>
 
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="nik" class="form-label">NIK</label>
-                        <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
-                            class="form-control @error('nik') is-invalid @enderror" placeholder="NIK KTP"
-                            aria-describedby="nikHelp">
-                        @error('nik')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+
 
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="subsidiary_id" class="form-label">Plant</label>
@@ -119,8 +111,8 @@
                     {{-- Status Pegawai --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="status_peg" class="form-label">Status Pegawai</label>
-                        <select name="status_peg" id="status_peg"
-                            class="form-select @error('status_peg') is-invalid @enderror" x-model="statusPeg">
+                        <select name="status_peg" id="status_peg" class="form-select @error('status_peg') is-invalid @enderror"
+                            x-model="statusPeg">
                             <option value="">Pilih Status</option>
                             @foreach (['PKWT', 'PKWTT', '-'] as $status)
                                 <option value="{{ $status }}" @selected(old('status_peg') === $status)>
@@ -160,6 +152,15 @@
                     <div class="col-12">
                         <h3 class="mb-2">Biodata</h3>
                         <hr>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3 mb-3">
+                        <label for="nik" class="form-label">NIK</label>
+                        <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
+                            class="form-control @error('nik') is-invalid @enderror" placeholder="NIK KTP"
+                            aria-describedby="nikHelp">
+                        @error('nik')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-12 col-md-4 mb-3">
                         <label for="tmpt_lahir" class="form-label">Tempat Lahir</label>

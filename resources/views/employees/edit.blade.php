@@ -198,8 +198,7 @@
                     <div class="col-12 col-md-3 mb-3">
                         <label for="nik" class="form-label">NIK</label>
                         <input type="text" id="nik" name="nik" value="{{ old('nik', $employee->nik) }}"
-                            class="form-control @error('nik') is-invalid @enderror" placeholder="Contoh: 1234567890123456"
-                            maxlength="16" inputmode="numeric" pattern="\d{16}" aria-describedby="nikHelp">
+                            class="form-control @error('nik') is-invalid @enderror" aria-describedby="nikHelp">
                         @error('nik')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -215,7 +214,8 @@
                     </div>
                     <div class="col-12 col-md-3 mb-3">
                         <label class="form-label" for="tgl_lahir">Tanggal Lahir</label>
-                        <input type="date" name="tgl_lahir" id="tgl_lahir" class="form-control"
+                        <input type="date" name="tgl_lahir" id="tgl_lahir"
+                            class="form-control @error('tgl_lahir') is-invalid @enderror"
                             value="{{ old('tgl_lahir', $employee->tgl_lahir) }}">
                         @error('tgl_lahir')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -224,17 +224,17 @@
                     <div class="col-12 col-md-3 mb-3">
                         <label class="form-label">Jenis Kelamin</label>
                         <div class="form-check me-3">
-                            <input class="form-check-input" type="radio" name="jenis_kelamin" id="laki_laki"
-                                value="L" @checked($employee->jenis_kelamin == 'L')>
+                            <input class="form-check-input @error('jenis_kelamin') is-invalid @enderror" type="radio"
+                                name="jenis_kelamin" id="laki_laki" value="L" @checked($employee->jenis_kelamin == 'L')>
                             <label class="form-check-label" for="laki_laki">Laki-laki</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="jenis_kelamin" id="perempuan"
-                                value="P" @checked($employee->jenis_kelamin == 'P')>
+                            <input class="form-check-input @error('jenis_kelamin') is-invalid @enderror" type="radio"
+                                name="jenis_kelamin" id="perempuan" value="P" @checked($employee->jenis_kelamin == 'P')>
                             <label class="form-check-label" for="perempuan">Perempuan</label>
                         </div>
                         @error('jenis_kelamin')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
                         @enderror
                     </div>
                     <div class="col-12 mb-3">
