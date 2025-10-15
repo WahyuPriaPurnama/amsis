@@ -50,9 +50,13 @@
                                 <td>
                                     @if ($employee->status_peg == 'PKWT')
                                         @php
-                                            $akhirKontrak = Carbon\Carbon::parse($employee->akhir_kontrak)->startOfDay();
+                                            $akhirKontrak = Carbon\Carbon::parse(
+                                                $employee->akhir_kontrak,
+                                            )->startOfDay();
                                             $days = Carbon\Carbon::now()->diffInDays($akhirKontrak, false);
-                                            
+                                            $daysRaw = $days;
+                                            $days = floor($daysRaw);
+
                                         @endphp
 
                                         @if ($days < 0)
@@ -61,7 +65,9 @@
                                         @elseif ($days === 0)
                                             <span style="color: orange;">hari ini</span>
                                         @else
-                                            <span style="color: green;">{{ $days }} hari</span>
+                                            <span class="text-success">
+                                                {{ $days }} hari
+                                            </span>
                                         @endif
                                     @else
                                         -

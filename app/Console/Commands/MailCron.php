@@ -86,11 +86,11 @@ class MailCron extends Command
         foreach ($employees as $employee) {
             $time = Carbon::now()->diffInDays($employee->akhir_kontrak);
             $subsidiaryName = optional($employee->subsidiary)->name ?? 'Tidak diketahui';
-
+            $days = floor($time);
             $mailData = [
                 'type' => 'reminder',
                 'title' => 'Reminder Sisa Kontrak ' . $employee->nama,
-                'body' => "Dengan Email ini kami menginformasikan bahwa karyawan dengan nama " . $employee->nama . " dari plant " . $subsidiaryName . " memiliki sisa masa kontrak " . $time . " hari lagi."
+                'body' => "Dengan Email ini kami menginformasikan bahwa karyawan dengan nama " . $employee->nama . " dari plant " . $subsidiaryName . " memiliki sisa masa kontrak " . $days . " hari lagi."
             ];
             Mail::bcc(['hrdmgr@amsgroup.co.id', 'hrd@amsgroup.co.id', 'it@amsgroup.co.id'])->queue(new MyTestMail($mailData));
             Log::info("Reminder sisa kontrak karyawan {$employee->nama} berhasil dikirim." . now());

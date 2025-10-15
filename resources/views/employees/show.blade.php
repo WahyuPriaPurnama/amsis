@@ -102,19 +102,28 @@
                                                 {{ $employee->status_peg == 'PKWT' ? 'PKWT' : '' }}
                                                 {{ $employee->status_peg == 'PKWTT' ? 'PKWTT' : '' }}<br>
 
-                                                @if ($employee->status_peg == 'PKWT')
-                                                    <i class="bi bi-calendar-week"></i> {{ $employee->akhir_kontrak }}<br>
+                                                @if ($employee->status_peg === 'PKWT')
+                                                    <i class="bi bi-calendar-week"></i>
+                                                    {{ \Carbon\Carbon::parse($employee->akhir_kontrak)->format('d M Y') }}<br>
+
                                                     @php
-                                                        $days = \Carbon\Carbon::now()->diffInDays(
+                                                        $daysRemaining = \Carbon\Carbon::now()->diffInDays(
                                                             $employee->akhir_kontrak,
                                                             false,
                                                         );
+                                                        $daysRaw = $daysRemaining;
+                                                        $days = floor($daysRaw);
+                                                        $hours = floor(($daysRaw - $days) * 24);
+                                                        $minutes = floor((($daysRaw - $days) * 24 - $hours) * 60);
                                                     @endphp
 
-                                                    @if ($days < 0)
+                                                    @if ($daysRemaining < 0)
                                                         <span class="text-danger">Kontrak sudah berakhir</span>
                                                     @else
-                                                        <span class="text-success">Sisa {{ $days }} hari</span>
+                                                        <span class="text-success">
+                                                            Sisa {{ $days }} hari {{ $hours }} jam
+                                                            {{ $minutes }} menit
+                                                        </span>
                                                     @endif
                                                 @endif
                                             </div>
