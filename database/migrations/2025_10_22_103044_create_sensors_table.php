@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->float('temperature');
             $table->float('humidity');
-            $table->integer('device_id');
+            $table->string('device_id');
             $table->string('location')->nullable();
             $table->timestamps();
         });

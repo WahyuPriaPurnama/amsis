@@ -18,7 +18,7 @@
             <div class="col">
                 @component('components.card')
                     @slot('header')
-                            JUMLAH KARYAWAN
+                        JUMLAH KARYAWAN
                     @endslot
 
                     <div id="employee-chart" class="mt-3">
@@ -36,6 +36,14 @@
                     </div>
                 @endcomponent
             </div>
+            @component('components.card')
+                @slot('header')
+                    SUHU & KELEMBAPAN (Realtime)
+                @endslot
+                <div class="mt-3">
+                    <canvas id="sensorChart"></canvas>
+                </div>
+            @endcomponent
         </div>
     </div>
 
@@ -82,8 +90,7 @@
                 }
             });
         });
-    </script>
-    <script>
+
         document.addEventListener("DOMContentLoaded", () => {
             const vehicleCtx = document.getElementById('vehicleCanvas').getContext('2d');
             new Chart(vehicleCtx, {
@@ -123,6 +130,56 @@
                     }
                 }
             });
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            const sensorCtx = document.getElementById('sensorChart').getContext('2d');
+            const sensorChart = new Chart(sensorCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                            label: 'Temperature (°C)',
+                            data: [],
+                            borderColor: 'red',
+                            fill: false,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Humidity (%)',
+                            data: [],
+                            borderColor: 'blue',
+                            fill: false,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    animation: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            async function fetchSensorData() {
+                try {
+                    const response = await fetch('/api/sensor');
+                    const json = await response.json();
+
+                    sensorChart.data.labels = json.labels;
+                    sensorChart.data.datasets[0].data = json.temperature;
+                    sensorChart.data.datasets[1].data = json.humidity;
+                    sensorChart.update();
+                } catch (error) {
+                    console.error("Gagal memuat data sensor:", error);
+                }
+            }
+
+            fetchSensorData();
+            setInterval(fetchSensorData, 5000); // update setiap 5 detik
         });
     </script>
 @endsection

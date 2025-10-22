@@ -11,28 +11,36 @@ class SensorController extends Controller
 {
     public function index()
     {
-        $data = Sensor::latest()->take(50)->get(); // ambil 50 data terbaru
+        $data = Sensor::latest()->take(20)->get()->reverse()->values();
         return response()->json([
-            'status' => 'success',
-            'data' => $data,
+            'labels' => $data->pluck('created_at')->map(fn($t) => $t->format('H:i:s')),
+            'temperature' => $data->pluck('temperature'),
+            'humidity' => $data->pluck('humidity'),
         ]);
     }
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'suhu' => 'required|numeric',
-            'kelembapan' => 'required|numeric',
-            'device_id' => 'nullable|string',
-            'lokasi' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'temperature' => 'required|numeric',
+                'humidity' => 'required|numeric',
+                'device_id' => 'nullable|string',
+                'location' => 'nullable|string',
+            ]);
 
-        // Simpan ke database atau log dulu
-        Log::info('Data sensor diterima:', $validated);
+            Sensor::create($validated);
+            Log::info('Data sensor disimpan', ['payload' => $validated]);
 
-        // Contoh respon
-        return response()->json([
-            'status' => 'success',
-            'data' => $validated,
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'data' => $validated,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan data sensor: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
