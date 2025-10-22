@@ -25,3 +25,6 @@ Route::middleware('jwt.auth')->group(function () {
     Route::delete('/log-activity', [\App\Http\Controllers\Api\DashboardController::class, 'truncate']);
     Route::post('/logout', [\App\Http\Controllers\Api\LogoutController::class, 'logout']);
 });
+
+Route::post('/sensor', [App\Http\Controllers\Api\SensorController::class, 'store']);
+Route::get('/sensor', [App\Http\Controllers\Api\SensorController::class, 'index']);
