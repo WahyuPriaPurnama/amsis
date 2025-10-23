@@ -36,14 +36,16 @@
                     </div>
                 @endcomponent
             </div>
-            @component('components.card')
-                @slot('header')
-                    SUHU & KELEMBAPAN (Realtime)
-                @endslot
-                <div class="mt-3">
-                    <canvas id="sensorChart"></canvas>
-                </div>
-            @endcomponent
+            <div class="col">
+                @component('components.card')
+                    @slot('header')
+                        SUHU & KELEMBAPAN (Realtime)
+                    @endslot
+                    <div class="mt-3">
+                        <canvas id="sensorChart"></canvas>
+                    </div>
+                @endcomponent
+            </div>
         </div>
     </div>
 
