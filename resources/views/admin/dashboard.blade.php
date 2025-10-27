@@ -15,7 +15,7 @@
             </div>
         @endif
         <div class="row g-4">
-            <div class="col">
+            <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
                         JUMLAH KARYAWAN
@@ -26,7 +26,7 @@
                     </div>
                 @endcomponent
             </div>
-            <div class="col">
+            <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
                         JUMLAH KENDARAAN
@@ -36,7 +36,7 @@
                     </div>
                 @endcomponent
             </div>
-            <div class="col">
+            <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
                         SUHU & KELEMBAPAN (Realtime)
@@ -46,7 +46,7 @@
                     </div>
                 @endcomponent
             </div>
-            <div class="col">
+            <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
                         RPM & COUNTER (Realtime)
