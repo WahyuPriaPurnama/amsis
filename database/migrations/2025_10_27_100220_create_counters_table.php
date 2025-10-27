@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('counters', function (Blueprint $table) {
             $table->id();
-            $table->string('device_id')->nullable();
-            $table->string('location')->nullable();
             $table->unsignedInteger('rpm')->default(0);
             $table->unsignedBigInteger('counter')->default(0);
+            $table->string('device_id')->nullable();
+            $table->string('location')->nullable();
             $table->timestamps();
         });
     }
