@@ -205,7 +205,7 @@
             }
 
             fetchSensorData();
-            setInterval(fetchSensorData, 5000); // update setiap 5 detik
+            setInterval(fetchSensorData, 2000);
         });
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -256,7 +256,7 @@
             }
 
             fetchRpmData();
-            setInterval(fetchRpmData, 5000); // update setiap 5 detik
+            setInterval(fetchRpmData, 2000);
         });
 
         document.addEventListener("DOMContentLoaded", () => {
