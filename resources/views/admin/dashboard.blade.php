@@ -49,7 +49,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        RPM & COUNTER (Realtime)
+                        CPM & COUNTER (Realtime)
                     @endslot
                     <div class="mt-3">
                         <canvas id="rpmChart"></canvas>
@@ -59,7 +59,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        RPM & COUNTER (Speedometer)
+                        CPM & COUNTER (Speedometer)
                     @endslot
                     <div class="mt-3 text-center">
                         <canvas id="rpmGauge" width="250" height="250"></canvas>
@@ -288,7 +288,6 @@
                         },
                         title: {
                             display: true,
-                            text: 'RPM Speedometer',
                             font: {
                                 size: 16
                             }
@@ -316,7 +315,7 @@
             }
 
             fetchRpmData();
-            setInterval(fetchRpmData, 5000);
+            setInterval(fetchRpmData, 2000);
         });
     </script>
 @endsection
