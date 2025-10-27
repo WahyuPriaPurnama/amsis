@@ -39,7 +39,7 @@
             <div class="col-md-4">
                 @component('components.card')
                     @slot('header')
-                        SUHU & KELEMBAPAN (Realtime)
+                        SUHU & KELEMBAPAN
                     @endslot
                     <div class="mt-3">
                         <canvas id="sensorChart"></canvas>
@@ -49,7 +49,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        CPM & COUNTER (Realtime)
+                        CPM & COUNTER (Grafik)
                     @endslot
                     <div class="mt-3">
                         <canvas id="rpmChart"></canvas>
@@ -62,9 +62,9 @@
                         CPM & COUNTER (Speedometer)
                     @endslot
                     <div class="mt-3 text-center">
-                        <canvas id="rpmGauge" width="250" height="250"></canvas>
+                        <canvas id="rpmGauge"></canvas>
                         <div class="mt-3 fs-5">
-                            <strong>RPM:</strong> <span id="rpmValue" class="text-success fw-bold">0</span><br>
+                            <strong>CPM:</strong> <span id="rpmValue" class="text-success fw-bold">0</span><br>
                             <strong>Counter:</strong> <span id="counterValue" class="text-primary fw-bold">0</span>
                         </div>
                     </div>
@@ -205,7 +205,7 @@
             }
 
             fetchSensorData();
-            setInterval(fetchSensorData, 2000);
+            setInterval(fetchSensorData, 10000);
         });
 
         document.addEventListener("DOMContentLoaded", () => {
