@@ -28,3 +28,5 @@ Route::middleware('jwt.auth')->group(function () {
 
 Route::post('/sensor', [App\Http\Controllers\Api\SensorController::class, 'store']);
 Route::get('/sensor', [App\Http\Controllers\Api\SensorController::class, 'index']);
+Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);
+Route::get('/counter', [App\Http\Controllers\Api\CounterController::class, 'index']);
