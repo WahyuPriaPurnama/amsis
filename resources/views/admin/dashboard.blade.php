@@ -46,13 +46,27 @@
                     </div>
                 @endcomponent
             </div>
-            <div class="col-md-6">
+            {{-- <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
                         RPM & COUNTER (Realtime)
                     @endslot
                     <div class="mt-3">
                         <canvas id="rpmChart"></canvas>
+                    </div>
+                @endcomponent
+            </div> --}}
+            <div class="col-md-6">
+                @component('components.card')
+                    @slot('header')
+                        RPM & COUNTER (Speedometer)
+                    @endslot
+                    <div class="mt-3 text-center">
+                        <canvas id="rpmGauge"></canvas>
+                        <div class="mt-3">
+                            <strong>RPM:</strong> <span id="rpmValue">0</span><br>
+                            <strong>Counter:</strong> <span id="counterValue">0</span>
+                        </div>
                     </div>
                 @endcomponent
             </div>
@@ -194,34 +208,80 @@
             setInterval(fetchSensorData, 5000); // update setiap 5 detik
         });
 
+        // document.addEventListener("DOMContentLoaded", () => {
+        //     const rpmCtx = document.getElementById('rpmChart').getContext('2d');
+        //     const rpmChart = new Chart(rpmCtx, {
+        //         type: 'line',
+        //         data: {
+        //             labels: [],
+        //             datasets: [{
+        //                     label: 'RPM',
+        //                     data: [],
+        //                     borderColor: 'green',
+        //                     fill: false,
+        //                     tension: 0.3
+        //                 },
+        //                 {
+        //                     label: 'Counter',
+        //                     data: [],
+        //                     borderColor: 'orange',
+        //                     fill: false,
+        //                     tension: 0.3
+        //                 }
+        //             ]
+        //         },
+        //         options: {
+        //             responsive: true,
+        //             animation: false,
+        //             scales: {
+        //                 y: {
+        //                     beginAtZero: true
+        //                 }
+        //             }
+        //         }
+        //     });
+
+        //     async function fetchRpmData() {
+        //         try {
+        //             const response = await fetch('/api/counter');
+        //             const json = await response.json();
+
+        //             rpmChart.data.labels = json.labels;
+        //             rpmChart.data.datasets[0].data = json.rpm;
+        //             rpmChart.data.datasets[1].data = json.counter;
+        //             rpmChart.update();
+        //         } catch (error) {
+        //             console.error("Gagal memuat data RPM:", error);
+        //         }
+        //     }
+
+        //     fetchRpmData();
+        //     setInterval(fetchRpmData, 5000); // update setiap 5 detik
+        // });
+
         document.addEventListener("DOMContentLoaded", () => {
-            const rpmCtx = document.getElementById('rpmChart').getContext('2d');
-            const rpmChart = new Chart(rpmCtx, {
-                type: 'line',
+            const rpmCtx = document.getElementById('rpmGauge').getContext('2d');
+            const rpmGauge = new Chart(rpmCtx, {
+                type: 'doughnut',
                 data: {
-                    labels: [],
+                    labels: ['RPM'],
                     datasets: [{
-                            label: 'RPM',
-                            data: [],
-                            borderColor: 'green',
-                            fill: false,
-                            tension: 0.3
-                        },
-                        {
-                            label: 'Counter',
-                            data: [],
-                            borderColor: 'orange',
-                            fill: false,
-                            tension: 0.3
-                        }
-                    ]
+                        data: [0, 120], // nilai RPM dan sisa
+                        backgroundColor: ['#198754', '#e9ecef'],
+                        borderWidth: 0,
+                        circumference: 180,
+                        rotation: 270,
+                        cutout: '80%'
+                    }]
                 },
                 options: {
                     responsive: true,
-                    animation: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
+                    plugins: {
+                        tooltip: {
+                            enabled: false
+                        },
+                        legend: {
+                            display: false
                         }
                     }
                 }
@@ -232,10 +292,14 @@
                     const response = await fetch('/api/counter');
                     const json = await response.json();
 
-                    rpmChart.data.labels = json.labels;
-                    rpmChart.data.datasets[0].data = json.rpm;
-                    rpmChart.data.datasets[1].data = json.counter;
-                    rpmChart.update();
+                    const latestRPM = json.rpm.at(-1) || 0;
+                    const latestCounter = json.counter.at(-1) || 0;
+
+                    rpmGauge.data.datasets[0].data = [latestRPM, 120 - latestRPM];
+                    rpmGauge.update();
+
+                    document.getElementById('rpmValue').textContent = latestRPM;
+                    document.getElementById('counterValue').textContent = latestCounter;
                 } catch (error) {
                     console.error("Gagal memuat data RPM:", error);
                 }
