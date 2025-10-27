@@ -62,10 +62,10 @@
                         RPM & COUNTER (Speedometer)
                     @endslot
                     <div class="mt-3 text-center">
-                        <canvas id="rpmGauge"></canvas>
-                        <div class="mt-3">
-                            <strong>RPM:</strong> <span id="rpmValue">0</span><br>
-                            <strong>Counter:</strong> <span id="counterValue">0</span>
+                        <canvas id="rpmGauge" width="250" height="250"></canvas>
+                        <div class="mt-3 fs-5">
+                            <strong>RPM:</strong> <span id="rpmValue" class="text-success fw-bold">0</span><br>
+                            <strong>Counter:</strong> <span id="counterValue" class="text-primary fw-bold">0</span>
                         </div>
                     </div>
                 @endcomponent
@@ -266,12 +266,15 @@
                 data: {
                     labels: ['RPM'],
                     datasets: [{
-                        data: [0, 120], // nilai RPM dan sisa
-                        backgroundColor: ['#198754', '#e9ecef'],
+                        data: [0, 120],
+                        backgroundColor: [
+                            'rgba(25, 135, 84, 0.9)', // RPM aktif (hijau)
+                            'rgba(233, 236, 239, 0.5)' // RPM sisa (abu)
+                        ],
                         borderWidth: 0,
                         circumference: 180,
                         rotation: 270,
-                        cutout: '80%'
+                        cutout: '70%'
                     }]
                 },
                 options: {
@@ -282,6 +285,13 @@
                         },
                         legend: {
                             display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'RPM Speedometer',
+                            font: {
+                                size: 16
+                            }
                         }
                     }
                 }
@@ -306,7 +316,7 @@
             }
 
             fetchRpmData();
-            setInterval(fetchRpmData, 5000); // update setiap 5 detik
+            setInterval(fetchRpmData, 5000);
         });
     </script>
 @endsection
