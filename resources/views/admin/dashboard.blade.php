@@ -49,7 +49,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        CPM & COUNTER (Grafik)
+                        CPM & Counter | Shin i
                     @endslot
                     <div class="mt-3">
                         <canvas id="rpmChart"></canvas>
@@ -59,7 +59,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        RPM Speedometer
+                        CPM & Counter | Shin i
                     @endslot
                     <div class="mt-3 chart-wrapper text-center">
                         <canvas id="rpmGauge" width="200" height="150"></canvas>
@@ -355,7 +355,7 @@
             }
 
             fetchRpmData();
-            setInterval(fetchRpmData, 5000); // lebih aman dari 429
+            setInterval(fetchRpmData, 3000); 
         });
     </script>
 @endsection

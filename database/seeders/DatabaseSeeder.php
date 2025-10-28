@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Sensor;
 use App\Models\Subsidiary;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -21,11 +22,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminSeeder::class,
             AssignAllRolesSeeder::class,
-            EmployeeAccountsSeeder::class,
+            // EmployeeAccountsSeeder::class,
             EmployeePermissionRoleSeeder::class,
             SubsidiaryPermissionRoleSeeder::class,
             UserPermissionRoleSeeder::class,
-            VehiclePermissionRoleSeeder::class
+            VehiclePermissionRoleSeeder::class,
+            SensorPermissionRoleSeeder::class,
         ]);
     }
 }
