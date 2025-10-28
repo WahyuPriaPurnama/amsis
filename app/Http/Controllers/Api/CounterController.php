@@ -21,18 +21,18 @@ class CounterController extends Controller
 
     public function indexhourly()
     {
+        $start = now()->startOfDay()->addHours(7); // hari ini jam 07:00
+
         $data = Counter::selectRaw('DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour, AVG(rpm) as avg_rpm, AVG(counter) as avg_counter')
+            ->where('created_at', '>=', $start)
             ->groupBy('hour')
-            ->orderBy('hour', 'desc')
-            ->limit(24)
-            ->get()
-            ->reverse()
-            ->values();
+            ->orderBy('hour', 'asc')
+            ->get();
 
         return response()->json([
             'labels' => $data->pluck('hour')->map(fn($h) => \Carbon\Carbon::parse($h)->format('H:i')),
-            'avg_rpm' => $data->pluck('avg_rpm')->map(fn($v) => round($v, 2)),
-            'avg_counter' => $data->pluck('avg_counter')->map(fn($v) => round($v, 2)),
+            'rpm' => $data->pluck('avg_rpm')->map(fn($v) => round($v, 2)),
+            'counter' => $data->pluck('avg_counter')->map(fn($v) => round($v, 2)),
         ]);
     }
 
