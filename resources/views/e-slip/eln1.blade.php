@@ -11,463 +11,78 @@
                 <table class="table table-hover display" id="table">
                     <thead>
                         <tr>
+                            <th>No</th>
                             <th>NAMA</th>
                             <th>E-Slip</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Adimas Setiawan</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/HVvL4deZ1"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ahmad Falakhitsaniya</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/iguxcBzcB"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Alfian Fernando</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/9vDhxbhYY"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Alfian Nur</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/IsAcaqsse"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Alvana Noor Fariza</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/tJUbMuxck"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Andika R.</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/zd12BTb3e"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ani Widhi Asih</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/VLmcHvO75"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ardiansyah</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/IuBUfmi1x"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Arif Ainur Rofiq</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/W8OKNR9QM"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ary Puja Triswantoro</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/FaLk2laac"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Aris Kurniawan</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/sq6hyQKlg"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Benny Febriansyah</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/UqIZz3jIb"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Berlian Fitria</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/MgZ4SZDaA"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Davis Ariansyah</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/trnEGbalz"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Deddy Candra Wijaya</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/A21KdDcFw"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Diki Ari Julianto</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/ma6UyxKtC"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Dimas Alvian</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/RklNhd3Pw"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Endang R.</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/oPrmvMHKK"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Fiki Nopan</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/pIMcC9Q3H"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Firdaus Fitraryansyah</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/VGxaP0e5j"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Firdaus Sauqi</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/caUjLcSd1"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Firdha Ayu Lestari</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/xr7EKddcN"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Frinda Ahmad Ghofur</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/AGwBkXtzK"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Haryanto</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/ZCnp8Wn3M"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Hendra Pratama</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/GarbPcOHP"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ipung Septian Raharjo</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/k4wgRFAGL"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Jhody Dwi Bastian</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/tjW2wEOOA"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Kharisma Nanda</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/5xwPdm0Nl"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
+                        @php
+                            $eslips = [
+                                ['nama' => 'Adimas Setiawan', 'link' => 'https://gofile.me/7hje9/HVvL4deZ1'],
+                                ['nama' => 'Ahmad Falakhitsaniya', 'link' => 'https://gofile.me/7hje9/iguxcBzcB'],
+                                ['nama' => 'Alfian Fernando', 'link' => 'https://gofile.me/7hje9/9vDhxbhYY'],
+                                ['nama' => 'Alfian Nur', 'link' => 'https://gofile.me/7hje9/IsAcaqsse'],
+                                ['nama' => 'Alvana Noor Fariza', 'link' => 'https://gofile.me/7hje9/tJUbMuxck'],
+                                ['nama' => 'Andika R.', 'link' => 'https://gofile.me/7hje9/zd12BTb3e'],
+                                ['nama' => 'Ani Widhi Asih', 'link' => 'https://gofile.me/7hje9/VLmcHvO75'],
+                                ['nama' => 'Ardiansyah', 'link' => 'https://gofile.me/7hje9/IuBUfmi1x'],
+                                ['nama' => 'Arif Ainur Rofiq', 'link' => 'https://gofile.me/7hje9/W8OKNR9QM'],
+                                ['nama' => 'Ary Puja Triswantoro', 'link' => 'https://gofile.me/7hje9/FaLk2laac'],
+                                ['nama' => 'Aris Kurniawan', 'link' => 'https://gofile.me/7hje9/sq6hyQKlg'],
+                                ['nama' => 'Benny Febriansyah', 'link' => 'https://gofile.me/7hje9/UqIZz3jIb'],
+                                ['nama' => 'Berlian Fitria', 'link' => 'https://gofile.me/7hje9/MgZ4SZDaA'],
+                                ['nama' => 'Davis Ariansyah', 'link' => 'https://gofile.me/7hje9/trnEGbalz'],
+                                ['nama' => 'Deddy Candra Wijaya', 'link' => 'https://gofile.me/7hje9/A21KdDcFw'],
+                                ['nama' => 'Diki Ari Julianto', 'link' => 'https://gofile.me/7hje9/ma6UyxKtC'],
+                                ['nama' => 'Dimas Alvian', 'link' => 'https://gofile.me/7hje9/RklNhd3Pw'],
+                                ['nama' => 'Endang R.', 'link' => 'https://gofile.me/7hje9/oPrmvMHKK'],
+                                ['nama' => 'Fiki Nopan', 'link' => 'https://gofile.me/7hje9/pIMcC9Q3H'],
+                                ['nama' => 'Firdaus Fitraryansyah', 'link' => 'https://gofile.me/7hje9/VGxaP0e5j'],
+                                ['nama' => 'Firdaus Sauqi', 'link' => 'https://gofile.me/7hje9/caUjLcSd1'],
+                                ['nama' => 'Firdha Ayu Lestari', 'link' => 'https://gofile.me/7hje9/xr7EKddcN'],
+                                ['nama' => 'Frinda Ahmad Ghofur', 'link' => 'https://gofile.me/7hje9/AGwBkXtzK'],
+                                ['nama' => 'Haryanto', 'link' => 'https://gofile.me/7hje9/ZCnp8Wn3M'],
+                                ['nama' => 'Hendra Pratama', 'link' => 'https://gofile.me/7hje9/GarbPcOHP'],
+                                ['nama' => 'Ipung Septian Raharjo', 'link' => 'https://gofile.me/7hje9/k4wgRFAGL'],
+                                ['nama' => 'Jhody Dwi Bastian', 'link' => 'https://gofile.me/7hje9/tjW2wEOOA'],
+                                ['nama' => 'Kharisma Nanda', 'link' => 'https://gofile.me/7hje9/5xwPdm0Nl'],
+                                ['nama' => 'Lingga Pratama', 'link' => 'https://gofile.me/7hje9/LrrTlJak2'],
+                                ['nama' => 'Lutfi Abdi Hafid', 'link' => 'https://gofile.me/7hje9/ACBHqAA7Z'],
+                                ['nama' => 'M. Alvin', 'link' => 'https://gofile.me/7hje9/2pfPXWRPw'],
+                                ['nama' => 'M. Arif', 'link' => 'https://gofile.me/7hje9/LO3DpN3lE'],
+                                ['nama' => 'M. Ghofur', 'link' => 'https://gofile.me/7hje9/NV7yiRR6D'],
+                                ['nama' => 'M. Igo', 'link' => 'https://gofile.me/7hje9/hlxwEd9Ej'],
+                                ['nama' => 'M. Sofyan Setiyo W.', 'link' => 'https://gofile.me/7hje9/LfVEgr3tJ'],
+                                ['nama' => 'Mahyudi', 'link' => 'https://gofile.me/7hje9/kbZdN90Mf'],
+                                ['nama' => 'Mirza Ahmad', 'link' => 'https://gofile.me/7hje9/tAOtH9JDV'],
+                                ['nama' => 'Moh. Yusuf', 'link' => 'https://gofile.me/7hje9/FXe9sJmm6'],
+                                ['nama' => 'Novita Anggraini', 'link' => 'https://gofile.me/7hje9/TNgvHcJgL'],
+                                ['nama' => 'Ragil', 'link' => 'https://gofile.me/7hje9/uKE8FgWPg'],
+                                ['nama' => 'Restu Hidayat', 'link' => 'https://gofile.me/7hje9/ZutWtfEIl'],
+                                ['nama' => 'Rico Syaifudin', 'link' => 'https://gofile.me/7hje9/u8mhCyxAt'],
+                                ['nama' => 'Ridho Ardiansyah', 'link' => 'https://gofile.me/7hje9/5ByhadnfT'],
+                                ['nama' => 'Rudi Nanda', 'link' => 'https://gofile.me/7hje9/kAjagsCql'],
+                                ['nama' => 'Ryan Mulyadi', 'link' => 'https://gofile.me/7hje9/D6uOpmg3W'],
+                                ['nama' => 'Septian Candra', 'link' => 'https://gofile.me/7hje9/QoL4ixekq'],
+                                ['nama' => 'Sugeng Karyono', 'link' => 'https://gofile.me/7hje9/dOTyWZtEi'],
+                                ['nama' => 'Suharto', 'link' => 'https://gofile.me/7hje9/tEJQXHURD'],
+                                ['nama' => 'Viki Wahyu', 'link' => 'https://gofile.me/7hje9/Th1vm508f'],
+                                ['nama' => 'Yusqi F.', 'link' => 'https://gofile.me/7hje9/WiCHB9uW4'],
+                            ];
+                        @endphp
 
-                        <tr>
-                            <td>Lingga Pratama</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/LrrTlJak2"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Lutfi Abdi Hafid</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/ACBHqAA7Z"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>M. Alvin</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/2pfPXWRPw"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>M. Arif</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/LO3DpN3lE"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>M. Ghofur</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/NV7yiRR6D"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>M. Igo</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/hlxwEd9Ej"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>M. Sofyan Setiyo W.</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/LfVEgr3tJ"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-
-                        <tr>
-                            <td>Mahyudi</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/kbZdN90Mf"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Mirza Ahmad</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/tAOtH9JDV"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Moh. Yusuf</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/FXe9sJmm6"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Novita Anggraini</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/TNgvHcJgL"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ragil</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/uKE8FgWPg"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Restu Hidayat</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/ZutWtfEIl"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Rico Syaifudin</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/u8mhCyxAt"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ridho Ardiansyah</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/5ByhadnfT"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Rudi Nanda</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/kAjagsCql"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Ryan Mulyadi</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/D6uOpmg3W"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Septian Candra</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/QoL4ixekq"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Sugeng Karyono</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/dOTyWZtEi"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Suharto</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/tEJQXHURD"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Viki Wahyu</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/Th1vm508f"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
-                        <tr>
-                            <td>Yusqi F.</td>
-                            <td><a class="btn btn-primary" href="https://gofile.me/7hje9/WiCHB9uW4"><svg
-                                        xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-file-earmark" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z" />
-                                    </svg></a></td>
-                        </tr>
+                        @foreach ($eslips as $eslip)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $eslip['nama'] }}</td>
+                                <td>
+                                    <a class="btn btn-primary" href="{{ $eslip['link'] }}" target="_blank">
+                                        <i class="bi bi-file-earmark"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
