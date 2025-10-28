@@ -268,7 +268,7 @@
                     ctx.fillStyle = '#198754';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(`${rpm} RPM`, width / 2, height / 2 - 10);
+                    ctx.fillText(`${rpm} CPM`, width / 2, height / 2 - 10);
 
                     ctx.font = '16px sans-serif';
                     ctx.fillStyle = '#0d6efd';
@@ -354,7 +354,7 @@
                     rpmGauge.config._counterValue = latestCounter;
                     rpmGauge.update();
                 } catch (error) {
-                    console.error("Gagal memuat data RPM Gauge:", error);
+                    console.error("Gagal memuat data CPM Gauge:", error);
                 }
             }
 
@@ -369,7 +369,7 @@
                     rpmChart.data.datasets[1].data = json.counter;
                     rpmChart.update();
                 } catch (error) {
-                    console.error("Gagal memuat data RPM Chart:", error);
+                    console.error("Gagal memuat data CPM Chart:", error);
                 }
             }
 
