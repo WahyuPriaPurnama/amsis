@@ -154,6 +154,19 @@
             });
         });
         document.addEventListener("DOMContentLoaded", () => {
+            function scheduleHourlyFetch() {
+                const now = new Date();
+                const nextHour = new Date(now);
+                nextHour.setMinutes(0, 0, 0); // reset ke jam bulat
+                nextHour.setHours(now.getHours() + 1); // jam berikutnya
+
+                const delay = nextHour - now; // selisih waktu dalam ms
+
+                setTimeout(() => {
+                    fetchSensorData(); // panggil pertama kali di jam bulat
+                    setInterval(fetchSensorData, 3600000); // lalu setiap 1 jam
+                }, delay);
+            }
             const sensorCtx = document.getElementById('sensorChart').getContext('2d');
             const sensorChart = new Chart(sensorCtx, {
                 type: 'line',
@@ -201,7 +214,7 @@
             }
 
             fetchSensorData();
-            setInterval(fetchSensorData, 10000);
+            scheduleHourlyFetch();
         });
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -355,7 +368,7 @@
             }
 
             fetchRpmData();
-            setInterval(fetchRpmData, 3000); 
+            setInterval(fetchRpmData, 2000);
         });
     </script>
 @endsection
