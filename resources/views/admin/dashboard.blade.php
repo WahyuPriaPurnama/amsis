@@ -218,7 +218,7 @@
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Inisialisasi rpmChart
+            // 🔁 Inisialisasi RPM Chart
             const rpmChartCtx = document.getElementById('rpmChart').getContext('2d');
             const rpmChart = new Chart(rpmChartCtx, {
                 type: 'line',
@@ -251,7 +251,7 @@
                 }
             });
 
-            // Plugin: Teks RPM & Counter di tengah
+            // 🔧 Plugin: Teks RPM & Counter di tengah Gauge
             const centerTextPlugin = {
                 id: 'centerText',
                 beforeDraw(chart) {
@@ -277,7 +277,7 @@
                 }
             };
 
-            // Plugin: Angka skala RPM melingkar
+            // 🔧 Plugin: Label skala RPM melingkar
             const rpmScaleLabelsPlugin = {
                 id: 'rpmScaleLabels',
                 beforeDraw(chart) {
@@ -312,7 +312,7 @@
                 }
             };
 
-            // Inisialisasi rpmGauge
+            // 🔁 Inisialisasi RPM Gauge
             const rpmGaugeCtx = document.getElementById('rpmGauge').getContext('2d');
             const rpmGauge = new Chart(rpmGaugeCtx, {
                 type: 'doughnut',
@@ -320,10 +320,7 @@
                     labels: ['CPM'],
                     datasets: [{
                         data: [0, 120],
-                        backgroundColor: [
-                            'rgba(25, 135, 84, 0.9)',
-                            'rgba(233, 236, 239, 0.5)'
-                        ],
+                        backgroundColor: ['rgba(25, 135, 84, 0.9)', 'rgba(233, 236, 239, 0.5)'],
                         borderWidth: 0,
                         circumference: 180,
                         rotation: 270,
@@ -344,31 +341,59 @@
                 plugins: [centerTextPlugin, rpmScaleLabelsPlugin]
             });
 
-            // ✅ Fungsi fetch tunggal untuk kedua chart
-            async function fetchRpmData() {
+            // ✅ Fetch untuk RPM Gauge (tiap 2 detik)
+            async function fetchRpmGaugeData() {
                 try {
                     const response = await fetch('/api/counter');
                     const json = await response.json();
 
-                    // Update rpmChart
-                    rpmChart.data.labels = json.labels;
-                    rpmChart.data.datasets[0].data = json.rpm;
-                    rpmChart.data.datasets[1].data = json.counter;
-                    rpmChart.update();
-
-                    // Update rpmGauge
                     const latestRPM = json.rpm.at(-1) || 0;
                     const latestCounter = json.counter.at(-1) || 0;
+
                     rpmGauge.data.datasets[0].data = [latestRPM, 120 - latestRPM];
                     rpmGauge.config._counterValue = latestCounter;
                     rpmGauge.update();
                 } catch (error) {
-                    console.error("Gagal memuat data CPM:", error);
+                    console.error("Gagal memuat data RPM Gauge:", error);
                 }
             }
 
-            fetchRpmData();
-            setInterval(fetchRpmData, 2000);
+            // ✅ Fetch untuk RPM Chart (tiap jam bulat)
+            async function fetchRpmChartData() {
+                try {
+                    const response = await fetch('/api/counter');
+                    const json = await response.json();
+
+                    rpmChart.data.labels = json.labels;
+                    rpmChart.data.datasets[0].data = json.rpm;
+                    rpmChart.data.datasets[1].data = json.counter;
+                    rpmChart.update();
+                } catch (error) {
+                    console.error("Gagal memuat data RPM Chart:", error);
+                }
+            }
+
+            // ⏱️ Jadwal per jam bulat
+            function scheduleHourlyRpmChartFetch() {
+                const now = new Date();
+                const nextHour = new Date(now);
+                nextHour.setMinutes(0, 0, 0);
+                nextHour.setHours(now.getHours() + 1);
+
+                const delay = nextHour - now;
+
+                setTimeout(() => {
+                    fetchRpmChartData(); // panggilan pertama di jam bulat
+                    setInterval(fetchRpmChartData, 3600000); // tiap 1 jam
+                }, delay);
+            }
+
+            // 🚀 Inisialisasi polling
+            fetchRpmGaugeData();
+            setInterval(fetchRpmGaugeData, 2000); // realtime
+
+            fetchRpmChartData(); // panggilan awal
+            scheduleHourlyRpmChartFetch(); // jadwal jam bulat
         });
     </script>
 @endsection
