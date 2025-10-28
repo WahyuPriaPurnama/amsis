@@ -23,26 +23,11 @@
                         $isEmployee = $user->hasRole('employee');
                         $employeeId = $user->employee_id ?? null;
                     @endphp
-                    @if ($isEmployee && $employeeId)
-                        <a class="navbar-brand" href="{{ route('employees.show', $employeeId) }}">
-                            {{ config('app.name', 'AMSIS') }}
-                        </a>
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav me-auto">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown">
-                                        E-Slip
-                                    </a>
-                                    @include('partials.navbar-eslip')
-                                </li>
-                            </ul>
-                        </div>
-                    @else
+                    
                         <a class="navbar-brand" href="{{ url('/') }}">
                             {{ config('app.name', 'AMSIS') }}
                         </a>
-                    @endif
+                   
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
