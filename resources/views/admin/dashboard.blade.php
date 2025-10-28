@@ -304,7 +304,7 @@
             const rpmGauge = new Chart(rpmGaugeCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['RPM'],
+                    labels: ['CPM'],
                     datasets: [{
                         data: [0, 120],
                         backgroundColor: [
@@ -350,7 +350,7 @@
                     rpmGauge.config._counterValue = latestCounter;
                     rpmGauge.update();
                 } catch (error) {
-                    console.error("Gagal memuat data RPM:", error);
+                    console.error("Gagal memuat data CPM:", error);
                 }
             }
 
