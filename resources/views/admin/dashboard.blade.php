@@ -153,6 +153,8 @@
                 }
             });
         });
+
+        
         document.addEventListener("DOMContentLoaded", () => {
             function scheduleHourlyFetch() {
                 const now = new Date();
@@ -361,7 +363,7 @@
             // ✅ Fetch untuk RPM Chart (tiap jam bulat)
             async function fetchRpmChartData() {
                 try {
-                    const response = await fetch('/api/counter');
+                    const response = await fetch('/api/counter/hourly');
                     const json = await response.json();
 
                     rpmChart.data.labels = json.labels;
