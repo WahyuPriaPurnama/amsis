@@ -121,20 +121,18 @@
                                 <td>{{ $user->subsidiary?->name ?? '-' }}</td>
                                 <td>
                                     <!-- Button trigger modal -->
-                                    
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#editData{{ $user->id }}">
-                                            <i class="bi bi-pencil-square" data-bs-toggle="tooltip" title="Edit Data"></i>
-                                        </button>
-                                        <button type="submit" class="btn btn-danger" form="delete-form{{ $user->id }}"
-                                            data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash3-fill"></i></button>
-                                   
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editData{{ $user->id }}">
+                                        <i class="bi bi-pencil-square" data-bs-toggle="tooltip" title="Edit Data"></i>
+                                    </button>
+                                    <button type="submit" class="btn btn-danger" form="delete-form{{ $user->id }}"
+                                        data-bs-toggle="tooltip" title="Delete"><i class="bi bi-trash3-fill"></i></button>
+
                                     <form id="delete-form{{ $user->id }}"
                                         action="{{ route('users.destroy', ['user' => $user->id]) }}" method="post">
                                         @method('DELETE')
                                         @csrf
                                     </form>
-
 
                                     <!-- Modal -->
                                     <div class="modal fade" id="editData{{ $user->id }}" data-bs-backdrop="static"
@@ -176,37 +174,28 @@
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                                        <div class="form-floating mb-3">
-                                                            <select name="role" id="floatingSelect"
-                                                                class="form-select @error('role') is-invalid @enderror"
-                                                                aria-placeholder="level">
-                                                                <option value="super-admin" @selected($user->role == 'super-admin')>
-                                                                    super-admin</option>
-                                                                <option value="holding-admin" @selected($user->role == 'holding-admin')>
-                                                                    holding-admin</option>
-                                                                <option value="eln-admin" @selected($user->role == 'eln-admin')>
-                                                                    eln-admin
-                                                                </option>
-                                                                <option value="eln2-admin" @selected($user->role == 'eln2-admin')>
-                                                                    eln2-admin</option>
-                                                                <option value="haka-admin" @selected($user->role == 'haka-admin')>
-                                                                    haka-admin
-                                                                </option>
-                                                                <option value="bofi-admin" @selected($user->role == 'bofi-admin')>
-                                                                    bofi-admin
-                                                                </option>
-                                                                <option value="rmm-admin" @selected($user->role == 'rmm-admin')>
-                                                                    rmm-admin
-                                                                </option>
-                                                                <option value="employee" @selected($user->role == 'employee')>
-                                                                    employee
-                                                                </option>
-                                                            </select>
-                                                            <label for="floatingSelect">level</label>
-                                                            @error('role')
-                                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                            @enderror
-                                                        </div>
+                                                        <select name="role" id="floatingSelect"
+                                                            class="form-select @error('role') is-invalid @enderror"
+                                                            aria-placeholder="level">
+                                                            <option value="super-admin" @selected($user->getRoleNames()->contains('super-admin'))>
+                                                                super-admin</option>
+                                                            <option value="holding-admin" @selected($user->getRoleNames()->contains('holding-admin'))>
+                                                                holding-admin</option>
+                                                            <option value="eln-admin" @selected($user->getRoleNames()->contains('eln-admin'))>eln-admin
+                                                            </option>
+                                                            <option value="eln2-admin" @selected($user->getRoleNames()->contains('eln2-admin'))>eln2-admin
+                                                            </option>
+                                                            <option value="haka-admin" @selected($user->getRoleNames()->contains('haka-admin'))>haka-admin
+                                                            </option>
+                                                            <option value="bofi-admin" @selected($user->getRoleNames()->contains('bofi-admin'))>bofi-admin
+                                                            </option>
+                                                            <option value="rmm-admin" @selected($user->getRoleNames()->contains('rmm-admin'))>rmm-admin
+                                                            </option>
+                                                            <option value="employee" @selected($user->getRoleNames()->contains('employee'))>employee
+                                                            </option>
+                                                            <option value="bofi-monitoring" @selected($user->getRoleNames()->contains('bofi-monitoring'))>
+                                                                bofi-monitoring</option>
+                                                        </select>
                                                         <div class="mb-3">
                                                             <div class="col">
                                                                 <label for="password" class="form-label">Kata Sandi

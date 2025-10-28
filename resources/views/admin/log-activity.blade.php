@@ -9,7 +9,6 @@
             @endslot
 
             <x-buttons.delete class="d-flex mb-3" data-bs-toggle="modal" data-bs-target="#deleteModal">
-
             </x-buttons.delete>
             <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
