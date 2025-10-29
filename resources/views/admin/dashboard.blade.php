@@ -391,11 +391,12 @@
             }
 
             // 🚀 Inisialisasi polling
+            fetchRpmChartData(); // panggilan awal
+            scheduleHourlyRpmChartFetch(); // jadwal jam bulat
+            
             fetchRpmGaugeData();
             setInterval(fetchRpmGaugeData, 2000); // realtime
 
-            fetchRpmChartData(); // panggilan awal
-            scheduleHourlyRpmChartFetch(); // jadwal jam bulat
         });
     </script>
 @endsection
