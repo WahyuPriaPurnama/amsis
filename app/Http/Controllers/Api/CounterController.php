@@ -29,7 +29,7 @@ class CounterController extends Controller
             ->orderBy('hour', 'asc')
             ->get();
 
-        // Hitung delta counter antar jam
+      
         $delta = [];
         $prev = null;
         foreach ($raw as $row) {
