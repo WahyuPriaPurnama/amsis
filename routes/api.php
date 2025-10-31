@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\PostController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,3 +34,12 @@ Route::get('/sensor', [App\Http\Controllers\Api\SensorController::class, 'index'
 Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);
 Route::get('/counter', [App\Http\Controllers\Api\CounterController::class, 'index']);
 Route::get('/counter/hourly', [App\Http\Controllers\Api\CounterController::class, 'indexhourly']);
+Route::get('/reset-check', function (Request $request) {
+    $deviceId = $request->device_id;
+    $shouldReset = Cache::pull("reset:$deviceId"); // hanya sekali
+    return $shouldReset ? 'reset' : 'ok';
+});
+Route::post('/trigger-reset', function () {
+    Cache::put("reset:esp32-001", true, now()->addMinutes(1));
+    return response()->json(['status' => 'reset flag set']);
+});

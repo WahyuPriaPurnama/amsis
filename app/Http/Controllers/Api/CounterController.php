@@ -22,26 +22,39 @@ class CounterController extends Controller
     public function indexhourly()
     {
         $start = now()->startOfDay()->addHours(7); // hari ini jam 07:00
+        $startHour = $start->format('Y-m-d H:00:00');
 
         $raw = Counter::selectRaw('DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour, MAX(counter) as max_counter, AVG(rpm) as avg_rpm')
             ->where('created_at', '>=', $start)
             ->groupBy('hour')
             ->orderBy('hour', 'asc')
-            ->get();
+            ->get()
+            ->filter(fn($row) => $row->hour !== $startHour); // 🚫 buang data asli jam 07:00
 
-      
-        $delta = [];
-        $prev = null;
+        $labels = collect(['07:00']); // ⏱️ dummy jam 07:00
+        $rpm = collect([0]);
+        $counter = collect([0]);
+
+        $prev = 0;
+
         foreach ($raw as $row) {
             $current = (int) $row->max_counter;
-            $delta[] = $prev === null ? $current : $current - $prev;
+
+            if ($current < $prev) {
+                $counter->push($current); // reset
+            } else {
+                $counter->push($current - $prev);
+            }
+
+            $labels->push(\Carbon\Carbon::parse($row->hour)->format('H:i'));
+            $rpm->push(round($row->avg_rpm, 2));
             $prev = $current;
         }
 
         return response()->json([
-            'labels' => $raw->pluck('hour')->map(fn($h) => \Carbon\Carbon::parse($h)->format('H:i')),
-            'rpm' => $raw->pluck('avg_rpm')->map(fn($v) => round($v, 2)),
-            'counter' => collect($delta),
+            'labels' => $labels,
+            'rpm' => $rpm,
+            'counter' => $counter,
         ]);
     }
 

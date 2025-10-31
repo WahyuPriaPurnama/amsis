@@ -154,7 +154,7 @@
             });
         });
 
-        
+
         document.addEventListener("DOMContentLoaded", () => {
             function scheduleHourlyFetch() {
                 const now = new Date();
@@ -226,13 +226,14 @@
                 type: 'line',
                 data: {
                     labels: [],
-                    datasets: [{
-                            label: 'RPM',
-                            data: [],
-                            borderColor: 'green',
-                            fill: false,
-                            tension: 0.3
-                        },
+                     datasets: [
+                        // {
+                    //         label: 'RPM',
+                    //         data: [],
+                    //         borderColor: 'green',
+                    //         fill: false,
+                    //         tension: 0.3
+                    //     },
                         {
                             label: 'Counter',
                             data: [],
@@ -367,8 +368,8 @@
                     const json = await response.json();
 
                     rpmChart.data.labels = json.labels;
-                    rpmChart.data.datasets[0].data = json.rpm;
-                    rpmChart.data.datasets[1].data = json.counter;
+                  //  rpmChart.data.datasets[0].data = json.rpm;
+                    rpmChart.data.datasets[0].data = json.counter;
                     rpmChart.update();
                 } catch (error) {
                     console.error("Gagal memuat data CPM Chart:", error);
@@ -392,7 +393,7 @@
             // 🚀 Inisialisasi polling
             fetchRpmChartData(); // panggilan awal
             scheduleHourlyRpmChartFetch(); // jadwal jam bulat
-            
+
             fetchRpmGaugeData();
             setInterval(fetchRpmGaugeData, 2000); // realtime
 
