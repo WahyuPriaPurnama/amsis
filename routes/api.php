@@ -36,8 +36,10 @@ Route::get('/counter', [App\Http\Controllers\Api\CounterController::class, 'inde
 Route::get('/counter/hourly', [App\Http\Controllers\Api\CounterController::class, 'indexhourly']);
 Route::get('/reset-check', function (Request $request) {
     $deviceId = $request->device_id;
-    $shouldReset = Cache::pull("reset:$deviceId"); // hanya sekali
-    return $shouldReset ? 'reset' : 'ok';
+    $shouldReset = Cache::get("reset:$deviceId", false);
+
+    return response($shouldReset ? 'reset' : 'ok', 200)
+        ->header('Content-Type', 'text/plain');
 });
 Route::post('/trigger-reset', function () {
     Cache::put("reset:esp32-001", true, now()->addMinutes(1));

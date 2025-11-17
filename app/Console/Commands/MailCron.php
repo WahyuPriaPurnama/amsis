@@ -46,7 +46,7 @@ class MailCron extends Command
             ];
 
             $toEmail = null;
-            $bccEmails = ['it@amsgroup.co.id'];
+            $bccEmails = ['it@amsgroup.co.id','hrd@amsgroup.co.id'];
 
             $email = trim($employee->email);
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
