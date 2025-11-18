@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Counter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MachineStoppedNotification;
 
 class CounterController extends Controller
 {
@@ -67,10 +69,15 @@ class CounterController extends Controller
                 'device_id' => 'nullable|string',
                 'location' => 'nullable|string',
             ]);
+            $isStopped = ($validated['rpm'] == 0 || $validated['counter'] == 0);
 
             Counter::create($validated);
             Log::info('Data RPM disimpan', ['payload' => $validated]);
 
+            if ($isStopped) {
+                Mail::to('it@amsgroup.co.id')->send(new MachineStoppedNotification($validated));
+                Log::warning('Mesin terdeteksi mati atau berhenti', ['payload' => $validated]);
+            }
             return response()->json([
                 'status' => 'success',
                 'data' => $validated,
