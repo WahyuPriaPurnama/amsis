@@ -69,21 +69,38 @@ class CounterController extends Controller
                 'device_id' => 'nullable|string',
                 'location' => 'nullable|string',
             ]);
+
             $isStopped = ($validated['rpm'] == 0 || $validated['counter'] == 0);
 
-            Counter::create($validated);
+            $counter = Counter::create($validated);
             Log::info('Data RPM disimpan', ['payload' => $validated]);
 
             if ($isStopped) {
-                Mail::to('it@amsgroup.co.id')->send(new MachineStoppedNotification($validated));
-                Log::warning('Mesin terdeteksi mati atau berhenti', ['payload' => $validated]);
+                $lastNotified = Counter::where('device_id', $validated['device_id'] ?? null)
+                    ->where(function ($query) {
+                        $query->where('rpm', 0)->orWhere('counter', 0);
+                    })
+                    ->orderByDesc('created_at')
+                    ->skip(1) // abaikan entri baru yang barusan disimpan
+                    ->first();
+
+                $shouldNotify = !$lastNotified || $lastNotified->created_at->diffInMinutes(now()) >= 60;
+
+                if ($shouldNotify) {
+                    Mail::to('it@amsgroup.co.id')->send(new MachineStoppedNotification($validated));
+                    Log::warning('Notifikasi mesin berhenti dikirim', ['payload' => $validated]);
+                } else {
+                    Log::info('Mesin masih berhenti, tapi belum waktunya kirim notifikasi ulang');
+                }
             }
+
             return response()->json([
                 'status' => 'success',
                 'data' => $validated,
             ]);
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan data RPM: ' . $e->getMessage());
+
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
