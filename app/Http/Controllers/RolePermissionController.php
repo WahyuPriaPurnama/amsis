@@ -42,7 +42,7 @@ class RolePermissionController extends Controller
     public function assignRoleToUser(Request $request)
     {
         $user = User::find($request->user_id);
-        $user->assignRole($request->role);
+        $user->syncRoles($request->role);
         return back()->with('alert', 'Role assigned to user.');
     }
     public function edit($id)

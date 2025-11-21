@@ -84,6 +84,7 @@ class UserController extends Controller
 
             'password' => 'min:8|nullable|confirmed'
         ]);
+
         $updateData = [
             'name' => ucwords(strtolower($validated['name'])),
             'role' => $validated['role'],
