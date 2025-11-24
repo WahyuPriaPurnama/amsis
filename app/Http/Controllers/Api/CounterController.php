@@ -30,12 +30,11 @@ class CounterController extends Controller
             ->where('created_at', '>=', $start)
             ->groupBy('hour')
             ->orderBy('hour', 'asc')
-            ->get()
-            ->filter(fn($row) => $row->hour !== $startHour); // 🚫 buang data asli jam 07:00
+            ->get();
 
-        $labels = collect(['07:00']); // ⏱️ dummy jam 07:00
-        $rpm = collect([0]);
-        $counter = collect([0]);
+        $labels = collect(); // ⏱️ dummy jam 07:00
+        $rpm = collect();
+        $counter = collect();
 
         $prev = 0;
 
