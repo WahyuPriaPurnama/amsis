@@ -98,23 +98,16 @@ Route::middleware('auth')->group(function () {
 // ]);
 Route::redirect('/', '/login');
 
-//e-slip
+// e-slip routes
+$routes = [
+    'ams-malang' => 'e-slip.ams',
+    'rmm-malang' => 'e-slip.rmm',
+    'eln-malang' => 'e-slip.eln1',
+    'eln-bwi'    => 'e-slip.eln2',
+    'haka-bwi'   => 'e-slip.haka',
+    'bofi-bwi'   => 'e-slip.bofi',
+];
 
-Route::get('/ams-malang', function () {
-    return view('e-slip.ams');
-});
-Route::get('/rmm-malang', function () {
-    return view('e-slip.rmm');
-});
-Route::get('/eln-malang', function () {
-    return view('e-slip.eln1');
-});
-Route::get('/eln-bwi', function () {
-    return view('e-slip.eln2');
-});
-Route::get('/haka-bwi', function () {
-    return view('e-slip.haka');
-});
-Route::get('/bofi-bwi', function () {
-    return view('e-slip.bofi');
-});
+foreach ($routes as $uri => $view) {
+    Route::view($uri, $view);
+}
