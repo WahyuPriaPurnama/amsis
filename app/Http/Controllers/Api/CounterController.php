@@ -23,28 +23,36 @@ class CounterController extends Controller
 
     public function indexhourly()
     {
-        $start = now()->startOfDay()->addHours(7); // hari ini jam 07:00
-        $startHour = $start->format('Y-m-d H:00:00');
+        $start = now()->startOfDay()->addHours(7); // mulai jam 07:00 hari ini
 
-        $raw = Counter::selectRaw('DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour, MAX(counter) as max_counter, AVG(rpm) as avg_rpm')
+        $raw = Counter::selectRaw('
+            DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour,
+            MAX(counter) as max_counter,
+            AVG(rpm) as avg_rpm
+        ')
             ->where('created_at', '>=', $start)
             ->groupBy('hour')
             ->orderBy('hour', 'asc')
             ->get();
 
-        $labels = collect(); // ⏱️ dummy jam 07:00
+        $labels = collect();
         $rpm = collect();
         $counter = collect();
 
-        $prev = 0;
+        $prev = null;
 
         foreach ($raw as $row) {
             $current = (int) $row->max_counter;
 
-            if ($current < $prev) {
-                $counter->push($current); // reset
+            if ($prev === null) {
+                // jam pertama selalu 0
+                $counter->push(0);
             } else {
-                $counter->push($current - $prev);
+                if ($current < $prev) {
+                    $counter->push($current); // reset
+                } else {
+                    $counter->push($current - $prev);
+                }
             }
 
             $labels->push(\Carbon\Carbon::parse($row->hour)->format('H:i'));
@@ -58,7 +66,7 @@ class CounterController extends Controller
             'counter' => $counter,
         ]);
     }
-
+    
     public function store(Request $request)
     {
         try {
