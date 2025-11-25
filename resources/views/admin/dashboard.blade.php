@@ -49,7 +49,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        CPM & Counter | Shin i
+                        CPM & Counter | Shin i - 10
                     @endslot
                     <div class="mt-3">
                         <canvas id="rpmChart"></canvas>
@@ -59,7 +59,7 @@
             <div class="col-md-6">
                 @component('components.card')
                     @slot('header')
-                        CPM & Counter | Shin i
+                        CPM & Counter | Shin i - 10
                     @endslot
                     <div class="mt-3 chart-wrapper text-center">
                         <canvas id="rpmGauge" width="200" height="150"></canvas>
