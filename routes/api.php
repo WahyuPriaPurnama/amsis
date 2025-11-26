@@ -28,12 +28,12 @@ Route::middleware('jwt.auth')->group(function () {
     Route::post('/logout', [\App\Http\Controllers\Api\LogoutController::class, 'logout']);
 });
 
-Route::post('/sensor', [App\Http\Controllers\Api\SensorController::class, 'store']);
-Route::get('/sensor', [App\Http\Controllers\Api\SensorController::class, 'index']);
+Route::post('/suhu', [App\Http\Controllers\Api\SensorController::class, 'store']);
+Route::get('/suhu', [App\Http\Controllers\Api\SensorController::class, 'index']);
 
 Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);
 Route::get('/counter', [App\Http\Controllers\Api\CounterController::class, 'index']);
-Route::get('/counter/hourly', [App\Http\Controllers\Api\CounterController::class, 'indexhourly']);
+Route::get('/counter/{range}', [App\Http\Controllers\Api\CounterController::class, 'indexhourly']);
 Route::get('/reset-check', function (Request $request) {
     $deviceId = $request->device_id;
     $shouldReset = Cache::get("reset:$deviceId", false);

@@ -21,9 +21,15 @@ class CounterController extends Controller
         ]);
     }
 
-    public function indexhourly()
+    public function indexhourly($range = 'day')
     {
-        $start = now()->startOfDay()->addHours(7); // mulai jam 07:00 hari ini
+        if ($range === 'day') {
+            $start = now()->startOfDay()->addHours(7);
+        } elseif ($range === 'week') {
+            $start = now()->subDays(7)->startOfDay();
+        } elseif ($range === 'month') {
+            $start = now()->subMonth()->startOfDay();
+        }
 
         $raw = Counter::selectRaw('
             DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour,
@@ -40,22 +46,14 @@ class CounterController extends Controller
         $counter = collect();
 
         $prev = null;
-
         foreach ($raw as $row) {
             $current = (int) $row->max_counter;
-
             if ($prev === null) {
-                // jam pertama selalu 0
                 $counter->push(0);
             } else {
-                if ($current < $prev) {
-                    $counter->push($current); // reset
-                } else {
-                    $counter->push($current - $prev);
-                }
+                $counter->push($current < $prev ? $current : $current - $prev);
             }
-
-            $labels->push(\Carbon\Carbon::parse($row->hour)->format('H:i'));
+            $labels->push(\Carbon\Carbon::parse($row->hour)->format('d-m H:i'));
             $rpm->push(round($row->avg_rpm, 2));
             $prev = $current;
         }
@@ -66,7 +64,7 @@ class CounterController extends Controller
             'counter' => $counter,
         ]);
     }
-    
+
     public function store(Request $request)
     {
         try {
