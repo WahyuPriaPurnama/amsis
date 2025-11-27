@@ -67,7 +67,14 @@
                                         data-bs-toggle="dropdown">
                                         E-Slip
                                     </a>
-                                    @include('partials.navbar-eslip')
+                                    @include('partials.menu-eslip')
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        data-bs-toggle="dropdown">
+                                        Pembelian
+                                    </a>
+                                    @include('partials.menu-pembelian')
                                 </li>
                             </ul>
                         </div>

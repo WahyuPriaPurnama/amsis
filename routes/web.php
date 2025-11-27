@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\RequestOrderController;
 use App\Http\Controllers\RolePermissionController;
 
 /*
@@ -89,6 +90,8 @@ Route::middleware('auth')->group(function () {
         Route::get('truncate', [HarianController::class, 'truncate'])->name('karyawan-harian.truncate');
         Route::post('slip/{pin}', [HarianController::class, 'cetakSlip'])->name('karyawan-cetak-slip');
     });
+
+    Route::resource('request-order', RequestOrderController::class);
 });
 
 
