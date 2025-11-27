@@ -96,7 +96,7 @@
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     E-Slip
                                 </a>
-                                @include('partials.navbar-eslip')
+                                @include('partials.menu-eslip')
                             </li>
                         </ul>
                     </div>
