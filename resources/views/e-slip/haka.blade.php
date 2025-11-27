@@ -42,8 +42,17 @@
                             ];
                         @endphp
 
-
-
+                        @foreach ($slips as $slip)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $slip['nama'] }}</td>
+                                <td>
+                                    <a class="btn btn-primary" href="{{ $slip['link'] }}" target="_blank">
+                                        <i class="bi bi-file-earmark"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
