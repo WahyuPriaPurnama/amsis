@@ -23,7 +23,7 @@ class ScanlogController extends Controller
         $scanlogs = Scanlog::latest()->get();
         return view('scanlog.index', compact('scanlogs'));
     }
-
+   
     public function prosesGaji()
     {
         $scanlogs = Scanlog::with('harian')->get();

@@ -73,7 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('show-pdf/{id}', 'show_pdf')->name('vehicle.pdf');
     });
 
-    Route::resource('scanlog', ScanlogController::class);
+    Route::get('scanlog', [ScanlogController::class, 'index'])->name('scanlog.index');
     Route::prefix('scanlog')->controller(ScanlogController::class)->group(function () {
         Route::post('import', [ScanlogController::class, 'import'])->name('scanlog.import');
         Route::get('export', [ScanlogController::class, 'export'])->name('scanlog.export');
