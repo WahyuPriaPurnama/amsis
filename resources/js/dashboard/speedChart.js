@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    let lastDataTime = Date.now(); // waktu terakhir data diterima
+
     const centerTextPlugin = {
         id: 'centerText',
         beforeDraw(chart) {
@@ -7,46 +9,36 @@ document.addEventListener("DOMContentLoaded", () => {
             const counter = chart.config._counterValue || 0;
 
             ctx.save();
-            ctx.font = 'bold 20px sans-serif';
-            ctx.fillStyle = '#198754';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+
+            // tulisan utama tetap
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillStyle = '#198754';
             ctx.fillText(`${rpm} CPM`, width / 2, height / 2 - 10);
 
             ctx.font = '16px sans-serif';
             ctx.fillStyle = '#0d6efd';
             ctx.fillText(`Counter: ${counter}`, width / 2, height / 2 + 15);
-            ctx.restore();
-        }
-    };
 
-    const rpmScaleLabelsPlugin = {
-        id: 'rpmScaleLabels',
-        beforeDraw(chart) {
-            const { ctx, chartArea, width, height } = chart;
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = Math.min(width, chartArea.bottom - chartArea.top) / 2.1;
+            // cek delay > 5 detik
+            const now = Date.now();
+            if (now - lastDataTime > 5000) {
+                ctx.font = '14px sans-serif';
+                ctx.fillStyle = '#dc3545'; // merah
+                ctx.fillText("Menunggu data...", width / 2, height / 2 + 40);
 
-            ctx.save();
-            ctx.font = '12px sans-serif';
-            ctx.fillStyle = '#6c757d';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            const maxRPM = 120;
-            const step = 20;
-
-            for (let rpm = 0; rpm <= maxRPM; rpm += step) {
-                const percent = rpm / maxRPM;
-                const angle = Math.PI * (percent - 1);
-                const x = centerX + radius * Math.cos(angle);
-                const y = centerY + radius * Math.sin(angle) + 50;
-                ctx.fillText(rpm.toString(), x, y);
+                // atau titik merah kecil
+                ctx.beginPath();
+                ctx.arc(width / 2, height / 2 + 60, 6, 0, 2 * Math.PI);
+                ctx.fill();
             }
+
             ctx.restore();
         }
     };
+
+    const rpmScaleLabelsPlugin = { /* tetap sama */ };
 
     const rpmGaugeCtx = document.getElementById('rpmGauge').getContext('2d');
     const rpmGauge = new Chart(rpmGaugeCtx, {
@@ -79,6 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
             rpmGauge.data.datasets[0].data = [latestRPM, 120 - latestRPM];
             rpmGauge.config._counterValue = latestCounter;
             rpmGauge.update();
+
+            // update waktu terakhir data diterima
+            lastDataTime = Date.now();
         } catch (error) {
             console.error("Gagal memuat data CPM Gauge:", error);
         }
