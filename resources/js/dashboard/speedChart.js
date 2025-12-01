@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     let lastDataTime = Date.now(); // waktu terakhir data diterima
 
+    // Plugin untuk teks di tengah gauge
     const centerTextPlugin = {
         id: 'centerText',
         beforeDraw(chart) {
@@ -12,23 +13,23 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            // tulisan utama tetap
+            // Tulisan utama (RPM)
             ctx.font = 'bold 20px sans-serif';
             ctx.fillStyle = '#198754';
             ctx.fillText(`${rpm} CPM`, width / 2, height / 2 - 10);
 
+            // Counter
             ctx.font = '16px sans-serif';
             ctx.fillStyle = '#0d6efd';
             ctx.fillText(`Counter: ${counter}`, width / 2, height / 2 + 15);
 
-            // cek delay > 5 detik
+            // Indikator delay > 5 detik
             const now = Date.now();
             if (now - lastDataTime > 5000) {
                 ctx.font = '14px sans-serif';
-                ctx.fillStyle = '#dc3545'; // merah
+                ctx.fillStyle = '#dc3545';
                 ctx.fillText("Menunggu data...", width / 2, height / 2 + 40);
 
-                // atau titik merah kecil
                 ctx.beginPath();
                 ctx.arc(width / 2, height / 2 + 60, 6, 0, 2 * Math.PI);
                 ctx.fill();
@@ -38,8 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const rpmScaleLabelsPlugin = { /* tetap sama */ };
+    // Plugin label skala RPM (tetap sama)
+    const rpmScaleLabelsPlugin = { /* isi plugin label */ };
 
+    // Inisialisasi chart
     const rpmGaugeCtx = document.getElementById('rpmGauge').getContext('2d');
     const rpmGauge = new Chart(rpmGaugeCtx, {
         type: 'doughnut',
@@ -47,7 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
             labels: ['CPM'],
             datasets: [{
                 data: [0, 120],
-                backgroundColor: ['rgba(25, 135, 84, 0.9)', 'rgba(233, 236, 239, 0.5)'],
+                backgroundColor: [
+                    'rgba(25, 135, 84, 0.9)',
+                    'rgba(233, 236, 239, 0.5)'
+                ],
                 borderWidth: 0,
                 circumference: 180,
                 rotation: 270,
@@ -56,11 +62,15 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         options: {
             responsive: true,
-            plugins: { tooltip: { enabled: false }, legend: { display: false } }
+            plugins: {
+                tooltip: { enabled: false },
+                legend: { display: false }
+            }
         },
         plugins: [centerTextPlugin, rpmScaleLabelsPlugin]
     });
 
+    // Fungsi ambil data
     async function fetchRpmGaugeData() {
         try {
             const response = await fetch('/api/counter');
@@ -72,14 +82,21 @@ document.addEventListener("DOMContentLoaded", () => {
             rpmGauge.config._counterValue = latestCounter;
             rpmGauge.update();
 
-            // update waktu terakhir data diterima
-            lastDataTime = Date.now();
+            lastDataTime = Date.now(); // update waktu terakhir data
         } catch (error) {
             console.error("Gagal memuat data CPM Gauge:", error);
+            rpmGauge.update(); // tetap redraw agar indikator delay muncul
         }
     }
 
-    // init
+    // Init pertama
     fetchRpmGaugeData();
+
+    // Interval ambil data
     setInterval(fetchRpmGaugeData, 2000);
+
+    // Interval redraw untuk cek delay
+    setInterval(() => {
+        rpmGauge.update();
+    }, 1000);
 });
