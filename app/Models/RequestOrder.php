@@ -18,7 +18,9 @@ class RequestOrder extends Model
         'status',
         'requested_by',
         'approved_by_div_head',
-        'approved_by_manager',
+        'approved_by_manager',  
+        'approved_by_divhead_at',
+        'approved_by_manager_at',
     ];
 
     /**

@@ -156,6 +156,7 @@ class RequestOrderController extends Controller
         // Update status dan approved_by_div_head
         $requestOrder->status = 'approved_by_div_head';
         $requestOrder->approved_by_div_head = Auth::id();
+        $requestOrder->approved_by_divhead_at = now();
         $requestOrder->save();
 
         return redirect()->route('request-order.index')
@@ -169,6 +170,7 @@ class RequestOrderController extends Controller
         // Update status dan approved_by_manager
         $requestOrder->status = 'approved_by_manager';
         $requestOrder->approved_by_manager = Auth::id();
+        $requestOrder->approved_by_manager_at = now();
         $requestOrder->save();
 
         return redirect()->route('request-order.index')
@@ -178,7 +180,7 @@ class RequestOrderController extends Controller
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'manager'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
-        $pdf = Pdf::loadView('request_orders.pdf', compact('order','timestamp'));
+        $pdf = Pdf::loadView('request_orders.pdf', compact('order', 'timestamp'));
         return $pdf->stream('RO-' . $order->request_number . '.pdf');
     }
 }

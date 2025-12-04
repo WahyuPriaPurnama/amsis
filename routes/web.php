@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
         Route::get('KK/{kk}', 'kk')->name('employee.kk');
         Route::get('BPJS-ket/{bpjs_ket}', 'bpjs_ket')->name('employee.bpjs_ket');
         Route::get('BPJS-kes/{bpjs_kes}', 'bpjs_kes')->name('employee.bpjs_kes');
+        Route::get('ttd/{ttd}', 'ttd')->name('employee.ttd');
         Route::post('import', [EmployeeController::class, 'import'])->name('employees.import');
         Route::get('export-pdf', [EmployeeController::class, 'index_pdf'])->name('employees.pdf');
         Route::get('export-excel', [EmployeeController::class, 'index_excel'])->name('employees.excel');

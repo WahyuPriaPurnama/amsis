@@ -47,6 +47,7 @@ return new class extends Migration
             $table->string('npwp2')->nullable();
             $table->string('bpjs_ket')->nullable();
             $table->string('bpjs_kes')->nullable();
+            $table->string('ttd')->nullable();
             $table->timestamps();
         });
     }

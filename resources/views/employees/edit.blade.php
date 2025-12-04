@@ -425,6 +425,14 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="form-label" for="ttd">Tanda Tangan</label>
+                        <input type="file" id="ttd" name="ttd"
+                            class="form-control @error('ttd') is-invalid @enderror" accept="image/*">
+                        @error('ttd')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
                 <x-buttons.submit>

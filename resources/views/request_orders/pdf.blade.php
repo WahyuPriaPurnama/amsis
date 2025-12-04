@@ -33,12 +33,9 @@
         </div>
     @endif
 
-    <h3>Detail Request Order</h3>
+    <h3 style="text-align:center">Request Order</h3>
     <table style="width:100%; border:none; margin-top:10px;">
         <tr>
-            <td style="border:none; width:20%;">
-                <strong>Plant:</strong> {{ $order->subsidiary->name ?? '-' }}
-            </td>
             <td style="border:none; width:20%;">
                 <strong>Divisi:</strong> {{ $order->division }}
             </td>
@@ -74,17 +71,54 @@
 
     <table style="margin-top:20px; width:100%; border:none; text-align:center;">
         <tr>
-            <td style="width:33%; border:none;">
-                <strong>Dibuat Oleh:</strong><br>
+            <td style="width:33%; border:none;text-align:center">
+                <strong>Dibuat Oleh:</strong>
+            </td>
+            <td style="width:33%; border:none;text-align:center">
+                <strong>Kepala Divisi:</strong>
+            </td>
+            <td style="width:34%; border:none;text-align:center">
+                <strong>Plant Mgr / BOD:</strong>
+            </td>
+        </tr>
+        <tr>
+            <td style="border:none;text-align:center">
+                <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->requester->employee->ttd)) }}"
+                    style="width:100px; height:auto;">
+            </td>
+            <td style="border:none;text-align:center">
+                <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->divHead->employee->ttd)) }}"
+                    style="width:100px; height:auto;">
+            </td>
+            <td style="border:none;text-align:center">
+                <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->manager->employee->ttd)) }}"
+                    style="width:100px; height:auto;">
+            </td>
+        </tr>
+        <tr>
+            <td style="border:none;text-align:center">
                 {{ $order->user->name ?? '-' }}
             </td>
-            <td style="width:33%; border:none;">
-                <strong>Kepala Divisi:</strong><br>
+            <td style="border:none;text-align:center">
                 {{ $order->divHead->name ?? '-' }}
             </td>
-            <td style="width:34%; border:none;">
-                <strong>Plant Mgr / BOD:</strong><br>
+            <td style="border:none;text-align:center">
                 {{ $order->manager->name ?? '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td style="border:none;text-align:center">
+                <small>{{ $order->created_at }}</small>
+            </td>
+            <td style="border:none;text-align:center">
+                <small>
+                    {{ $order->approved_by_divhead_at }}
+                </small>
+            </td>
+            <td style="border:none;text-align:center">
+                <small>
+                    {{ $order->approved_by_manager_at }}
+                </small>
             </td>
         </tr>
     </table>
@@ -96,7 +130,8 @@
     @endif
 
     <div style="position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; font-size: 10px;">
-        <p>&copy; {{ date('Y') }} AMS Information System. All rights reserved. Generated on: {{ $timestamp }}</p>
+        <p>&copy; {{ date('Y') }} AMS Information System. All rights reserved. Generated on: {{ $timestamp }}
+        </p>
     </div>
 </body>
 

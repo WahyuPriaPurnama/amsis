@@ -466,6 +466,20 @@
                                                         @endif
                                                     </div>
                                                 </div>
+                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
+                                                    <div class="p-2">Tanda Tangan</div>
+                                                </div>
+                                                <div
+                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
+                                                    <div class="p-2">
+                                                        @if ($employee->ttd == null)
+                                                            <p class="font-monospace">kosong</p>
+                                                        @else
+                                                            <x-buttons.download
+                                                                href="{{ route('employee.ttd', $employee->ttd) }}"></x-buttons.download>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -153,6 +153,7 @@ class EmployeeController extends Controller
             'kk' => 'public/Kartu Keluarga',
             'bpjs_kes' => 'public/BPJS Kesehatan',
             'bpjs_ket' => 'public/BPJS Ketenagakerjaan',
+            'ttd' => 'public/ttd',
         ];
 
         foreach ($documents as $field => $path) {
@@ -266,6 +267,11 @@ class EmployeeController extends Controller
             $bpjs_ket = $this->fileUpload($request, 'public/BPJS Ketenagakerjaan/', 'bpjs_ket');
             $employee->update(['bpjs_ket' => $bpjs_ket->hashName()]);
         }
+        if ($request->file('ttd')) {
+            Storage::disk('local')->delete('public/ttd/' . $employee->ttd);
+            $ttd = $this->fileUpload($request, 'public/ttd/', 'ttd');
+            $employee->update(['ttd' => $ttd->hashName()]);
+        }
 
         if ($employee) {
             return redirect()->route('employees.show', ['employee' => $employee->id])->with('alert', "update data $request->nama berhasil");
@@ -324,6 +330,11 @@ class EmployeeController extends Controller
     {
 
         return Response::download('storage/BPJS Kesehatan/' . $bpjs_kes);
+    }
+    public function ttd($ttd)
+    {
+
+        return Response::download('storage/ttd/' . $ttd);
     }
 
     public function index_pdf()

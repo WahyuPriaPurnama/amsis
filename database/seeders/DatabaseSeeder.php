@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             UserPermissionRoleSeeder::class,
             VehiclePermissionRoleSeeder::class,
             SensorPermissionRoleSeeder::class,
+            RequestOrderSeeder::class,
         ]);
     }
 }

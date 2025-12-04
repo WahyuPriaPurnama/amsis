@@ -26,6 +26,8 @@ return new class extends Migration
             $table->unsignedBigInteger('subsidiary_id')->nullable(); // subsidiary id
 
             $table->timestamps();
+            $table->timestamp('approved_by_divhead_at')->nullable();
+            $table->timestamp('approved_by_manager_at')->nullable();
 
             // Relasi ke tabel users
             $table->foreign('requested_by')->references('id')->on('users');

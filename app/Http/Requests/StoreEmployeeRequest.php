@@ -34,7 +34,7 @@ class StoreEmployeeRequest extends FormRequest
             'tgl_masuk' => 'required|date',
             'awal_kontrak' => 'nullable|date',
             'akhir_kontrak' => 'nullable|date',
-            
+
             //biodata
             'nik' => 'nullable|string|unique:employees,nik',
             'tmpt_lahir' => 'nullable|string',
@@ -59,6 +59,7 @@ class StoreEmployeeRequest extends FormRequest
             'npwp2' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
             'bpjs_kes' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
             'bpjs_ket' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
+            'ttd' => 'nullable|mimes:png,jpg,jpeg|max:2048',
 
         ];
     }
@@ -78,7 +79,7 @@ class StoreEmployeeRequest extends FormRequest
             'alpha_num' => 'hanya boleh berisi huruf dan angka',
             'email' => 'format email tidak valid',
             'date' => 'harus berisi tanggal yang valid',
-            'string' => 'harus berupa teks'
+            'string' => 'harus berupa teks',
         ];
     }
 
