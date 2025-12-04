@@ -92,6 +92,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('request-order', RequestOrderController::class);
+    Route::post('request-order/approve/{id}', [RequestOrderController::class, 'approve'])
+        ->name('request-order.approve_div_head');
+    Route::post('request-order/approve-manager/{id}', [RequestOrderController::class, 'approveManager'])->name('request-order.approve_manager');
+    Route::get('request-order/{id}/pdf', [RequestOrderController::class, 'pdf'])
+        ->name('request-order.pdf');
 });
 
 

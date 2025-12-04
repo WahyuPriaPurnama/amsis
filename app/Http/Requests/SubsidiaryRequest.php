@@ -29,6 +29,8 @@ class SubsidiaryRequest extends FormRequest
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'kop_header' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'kop_footer' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ];
 
         // Jika update, tambahkan pengecualian unik berdasarkan ID
@@ -48,7 +50,12 @@ class SubsidiaryRequest extends FormRequest
             'name.max' => 'nama maksimal 50 karakter',
             'name.min' => 'nama minimal 3 karakter',
             'logo.mimes' => 'format yang diizinkan png, jpeg atau jpg',
-            'logo.max' => 'maksimal ukuran foto 2 MB'
+            'logo.max' => 'maksimal ukuran foto 2 MB',
+            'email.email' => 'format email tidak valid',
+            'kop_header.mimes' => 'format yang diizinkan png, jpeg atau jpg',
+            'kop_header.max' => 'maksimal ukuran foto 2 MB',
+            'kop_footer.mimes' => 'format yang diizinkan png, jpeg atau jpg',
+            'kop_footer.max' => 'maksimal ukuran foto 2 MB',
         ];
     }
 

@@ -19,14 +19,26 @@
     </div>
 
     <div class="row mb-3">
-        <div class="col-8">
+        <div class="col-4">
             <x-form.textarea label="Alamat" name="address" :value="old('address', $subsidiary->address)" />
         </div>
-        <div class="col-4">
+        <div class="col-8 d-flex gap-3">
             <x-form.file label="Logo" name="logo" accept="image/png,image/jpeg,image/jpg" />
-            @if ($isEdit && $subsidiary->logo)
+            <x-form.file label="Header" name="kop_header" accept="image/png,image/jpeg,image/jpg" />
+            <x-form.file label="Footer" name="kop_footer" accept="image/png,image/jpeg,image/jpg" />
+            <div class="col">
+                @if ($isEdit && $subsidiary->logo)
                 <small class="text-muted">Logo lama: {{ $subsidiary->logo }}</small>
-            @endif
+                @endif
+                
+                @if ($isEdit && $subsidiary->kop_header)
+                <small class="text-muted">Header lama: {{ $subsidiary->kop_header }}</small>
+                @endif
+                
+                @if ($isEdit && $subsidiary->kop_footer)
+                <small class="text-muted">Footer lama: {{ $subsidiary->kop_footer }}</small>
+                @endif
+            </div>
         </div>
     </div>
 

@@ -34,6 +34,14 @@ class SubsidiaryController extends Controller
             $logo = $this->fileUpload($request, 'public/subsidiary/logo', 'logo');
             $subsidiary->update(['logo' => $logo->hashName()]);
         }
+        if ($request->hasFile('kop_header')) {
+            $kop_header = $this->fileUpload($request, 'public/subsidiary/kop_header', 'kop_header');
+            $subsidiary->update(['kop_header' => $kop_header->hashName()]);
+        }
+        if ($request->hasFile('kop_footer')) {
+            $kop_footer = $this->fileUpload($request, 'public/subsidiary/kop_footer', 'kop_footer');
+            $subsidiary->update(['kop_footer' => $kop_footer->hashName()]);
+        }
 
         return redirect()->route('subsidiaries.index')->with('alert', 'Input data berhasil');
     }
@@ -62,6 +70,18 @@ class SubsidiaryController extends Controller
             $logo = $this->fileUpload($request, 'public/subsidiary/logo', 'logo');
             $subsidiary->update(['logo' => $logo->hashName()]);
         }
+        if ($request->hasFile('kop_header')) {
+            Storage::disk('local')->delete("public/subsidiary/kop_header/{$subsidiary->kop_header}");
+
+            $kop_header = $this->fileUpload($request, 'public/subsidiary/kop_header', 'kop_header');
+            $subsidiary->update(['kop_header' => $kop_header->hashName()]);
+        }
+        if ($request->hasFile('kop_footer')) {
+            Storage::disk('local')->delete("public/subsidiary/kop_footer/{$subsidiary->kop_footer}");
+
+            $kop_footer = $this->fileUpload($request, 'public/subsidiary/kop_footer', 'kop_footer');
+            $subsidiary->update(['kop_footer' => $kop_footer->hashName()]);
+        }
 
         return redirect()->route('subsidiaries.index')->with('alert', "Update data {$subsidiary->name} berhasil");
     }
@@ -69,6 +89,8 @@ class SubsidiaryController extends Controller
     public function destroy(Subsidiary $subsidiary)
     {
         Storage::disk('local')->delete("public/subsidiary/logo/{$subsidiary->logo}");
+        Storage::disk('local')->delete("public/subsidiary/kop_header/{$subsidiary->kop_header}");
+        Storage::disk('local')->delete("public/subsidiary/kop_footer/{$subsidiary->kop_footer}");
         $subsidiary->delete();
 
         return redirect()->route('subsidiaries.index')->with('alert', "Hapus data {$subsidiary->name} berhasil");

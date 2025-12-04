@@ -16,9 +16,6 @@ return new class extends Migration
             $table->string('division');
             $table->date('request_date');
             $table->string('request_number')->unique();
-            $table->string('item_name');
-            $table->integer('quantity');
-            $table->string('unit');
             $table->text('purpose');
             $table->string('status')->default('pending');
 
@@ -26,6 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('requested_by');   // user id pengaju
             $table->unsignedBigInteger('approved_by_div_head')->nullable(); // kepala divisi
             $table->unsignedBigInteger('approved_by_manager')->nullable();  // plant manager
+            $table->unsignedBigInteger('subsidiary_id')->nullable(); // subsidiary id
 
             $table->timestamps();
 
@@ -33,6 +31,9 @@ return new class extends Migration
             $table->foreign('requested_by')->references('id')->on('users');
             $table->foreign('approved_by_div_head')->references('id')->on('users');
             $table->foreign('approved_by_manager')->references('id')->on('users');
+
+            //relasi ke subsidiary
+            $table->foreign('subsidiary_id')->references('id')->on('subsidiaries');
         });
     }
 

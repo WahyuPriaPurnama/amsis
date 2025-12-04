@@ -39,6 +39,13 @@
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown">
+                                        E-Slip
+                                    </a>
+                                    @include('partials.menu-eslip')
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        data-bs-toggle="dropdown">
                                         HRD
                                     </a>
                                     <ul class="dropdown-menu">
@@ -48,26 +55,11 @@
                                                 href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
                                         <li><a class="dropdown-item @yield('menuVehicles')"
                                                 href="{{ route('vehicles.index') }}">Kendaraan</a></li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown">
-                                        Payroll
-                                    </a>
-                                    <ul class="dropdown-menu">
                                         <li><a class="dropdown-item @yield('menuScanlog')"
                                                 href="{{ route('scanlog.index') }}">Scanlog</a></li>
                                         <li><a class="dropdown-item @yield('menuHarian')"
                                                 href="{{ route('karyawan-harian.index') }}">Karyawan</a></li>
                                     </ul>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown">
-                                        E-Slip
-                                    </a>
-                                    @include('partials.menu-eslip')
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"

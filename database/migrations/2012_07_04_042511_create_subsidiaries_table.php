@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('phone');
             $table->text('address');
             $table->string('logo')->nullable();
+            $table->string('kop_header')->nullable();
+            $table->string('kop_footer')->nullable();
             $table->timestamps();
         });
     }
