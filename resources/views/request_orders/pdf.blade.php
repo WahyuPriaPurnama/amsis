@@ -82,17 +82,37 @@
             </td>
         </tr>
         <tr>
-            <td style="border:none;text-align:center">
-                <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->requester->employee->ttd)) }}"
-                    style="width:100px; height:auto;">
+            <td style="border:none; text-align:center">
+                @if ($order->requester && $order->requester->employee && $order->requester->employee->ttd)
+                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->requester->employee->ttd)) }}"
+                        style="width:100px; height:auto;">
+                @else
+                    <div style="width:100px; height:50px; border-bottom:1px solid #000; margin:0 auto;">
+                        <small>Belum ditandatangani</small>
+                    </div>
+                @endif
             </td>
-            <td style="border:none;text-align:center">
-                <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->divHead->employee->ttd)) }}"
-                    style="width:100px; height:auto;">
+
+            <td style="border:none; text-align:center">
+                @if ($order->divHead && $order->divHead->employee && $order->divHead->employee->ttd)
+                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->divHead->employee->ttd)) }}"
+                        style="width:100px; height:auto;">
+                @else
+                    <div style="width:100px; height:50px; border-bottom:1px solid #000; margin:0 auto;">
+                        <small>Belum ditandatangani</small>
+                    </div>
+                @endif
             </td>
-            <td style="border:none;text-align:center">
-                <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->manager->employee->ttd)) }}"
-                    style="width:100px; height:auto;">
+
+            <td style="border:none; text-align:center">
+                @if ($order->manager && $order->manager->employee && $order->manager->employee->ttd)
+                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->manager->employee->ttd)) }}"
+                        style="width:100px; height:auto;">
+                @else
+                    <div style="width:100px; height:50px; border-bottom:1px solid #000; margin:0 auto;">
+                        <small>Belum ditandatangani</small>
+                    </div>
+                @endif
             </td>
         </tr>
         <tr>
