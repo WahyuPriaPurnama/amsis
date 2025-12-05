@@ -27,7 +27,6 @@ class DatabaseSeeder extends Seeder
             SubsidiaryPermissionRoleSeeder::class,
             UserPermissionRoleSeeder::class,
             VehiclePermissionRoleSeeder::class,
-            SensorPermissionRoleSeeder::class,
             RequestOrderSeeder::class,
         ]);
     }

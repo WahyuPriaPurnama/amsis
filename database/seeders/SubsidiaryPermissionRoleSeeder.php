@@ -15,13 +15,13 @@ class SubsidiaryPermissionRoleSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'subsidiary-list',
-            'subsidiary-view',
-            'subsidiary-create',
-            'subsidiary-edit',
-            'subsidiary-delete',
-            'subsidiary-restore',
-            'subsidiary-force-delete',
+            'subsidiary.list',
+            'subsidiary.view',
+            'subsidiary.create',
+            'subsidiary.edit',
+            'subsidiary.delete',
+            'subsidiary.restore',
+            'subsidiary.force-delete',
         ];
 
         foreach ($permissions as $perm) {
@@ -30,10 +30,10 @@ class SubsidiaryPermissionRoleSeeder extends Seeder
 
         Role::findOrCreate('super-admin')->syncPermissions($permissions);
         Role::findOrCreate('holding-admin')->syncPermissions([
-            'subsidiary-list',
-            'subsidiary-view',
-            'subsidiary-create',
-            'subsidiary-edit',
+            'subsidiary.list',
+            'subsidiary.view',
+            'subsidiary.create',
+            'subsidiary.edit',
         ]);
     }
 }

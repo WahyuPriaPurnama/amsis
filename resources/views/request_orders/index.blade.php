@@ -41,10 +41,11 @@
                                 {{-- <td>{{ $order->subsidiary->name ?? '-' }}</td> --}}
                                 <td>{{ $order->division }}</td>
                                 <td>{{ \Carbon\Carbon::parse($order->request_date)->format('d-m-Y') }}</td>
-                               <td><a href="{{ route('request-order.show', $order->id) }}" class="text-decoration-none"
+                                <td><a href="{{ route('request-order.show', $order->id) }}" class="text-decoration-none"
                                         data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
                                         {{ $order->request_number }}
-                                    </a></td> <td>
+                                    </a></td>
+                                <td>
                                     <ul class="mb-0">
                                         @foreach ($order->items as $item)
                                             <li>{{ $item->item_name }}</li>
@@ -106,7 +107,7 @@
                                             </button>
                                         </form>
                                     @elseif($order->status === 'approved_by_manager')
-                                        <span class="badge bg-success">Approved by Manager</span>
+                                        <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                                     @endif
 
                                 </td>

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('request_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('division');
-            $table->date('request_date');
-            $table->string('request_number')->unique();
-            $table->text('purpose');
+            $table->string('division')->nullable();
+            $table->date('request_date')->nullable();
+            $table->string('request_number')->unique()->nullable();
+            $table->text('purpose')->nullable();
             $table->string('status')->default('pending');
 
             // Signature workflow

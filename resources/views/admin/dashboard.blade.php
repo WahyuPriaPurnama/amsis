@@ -15,16 +15,12 @@
             </div>
         @endif
         <div class="row g-4">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 @component('components.dashboard.karyawan')
                 @endcomponent
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 @component('components.dashboard.kendaraan')
-                @endcomponent
-            </div>
-            <div class="col-md-4">
-                @component('components.dashboard.suhu')
                 @endcomponent
             </div>
             <div class="col-md-6">

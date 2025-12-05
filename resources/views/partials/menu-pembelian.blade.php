@@ -1,3 +1,5 @@
 <ul class="dropdown-menu">
-    <li><a class="dropdown-item @yield('menuRO')" href="/request-order">Request Order</a></li>
+    @can('request-order.list')
+        <li><a class="dropdown-item @yield('menuRO')" href="/request-order">Request Order</a></li>
+    @endcan
 </ul>

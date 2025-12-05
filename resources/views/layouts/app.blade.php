@@ -49,16 +49,22 @@
                                         HRD
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item @yield('menuEmployees')"
-                                                href="{{ route('employees.index') }}">Karyawan</a></li>
-                                        <li><a class="dropdown-item @yield('menuSubsidiaries')"
-                                                href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
-                                        <li><a class="dropdown-item @yield('menuVehicles')"
-                                                href="{{ route('vehicles.index') }}">Kendaraan</a></li>
-                                        <li><a class="dropdown-item @yield('menuScanlog')"
+                                        @can('employee-list')
+                                            <li><a class="dropdown-item @yield('menuEmployees')"
+                                                    href="{{ route('employees.index') }}">Karyawan</a></li>
+                                        @endcan
+                                        @can('subsidiary-list')
+                                            <li><a class="dropdown-item @yield('menuSubsidiaries')"
+                                                    href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
+                                        @endcan
+                                        @can('vehicle-list')
+                                            <li><a class="dropdown-item @yield('menuVehicles')"
+                                                    href="{{ route('vehicles.index') }}">Kendaraan</a></li>
+                                        @endcan
+                                        {{-- <li><a class="dropdown-item @yield('menuScanlog')"
                                                 href="{{ route('scanlog.index') }}">Scanlog</a></li>
                                         <li><a class="dropdown-item @yield('menuHarian')"
-                                                href="{{ route('karyawan-harian.index') }}">Karyawan</a></li>
+                                                href="{{ route('karyawan-harian.index') }}">Karyawan</a></li> --}}
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">

@@ -15,13 +15,13 @@ class VehiclePermissionRoleSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            'vehicle-list',
-            'vehicle-view',
-            'vehicle-create',
-            'vehicle-edit',
-            'vehicle-delete',
-            'vehicle-restore',
-            'vehicle-force-delete',
+            'vehicle.list',
+            'vehicle.view',
+            'vehicle.create',
+            'vehicle.edit',
+            'vehicle.delete',
+            'vehicle.restore',
+            'vehicle.force-delete',
         ];
 
         foreach ($permissions as $perm) {

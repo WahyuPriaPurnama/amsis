@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -17,8 +18,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::Index()->get();
-        return view('auth.userlist', ['users' => $users]);
+        return view('auth.userlist', [
+            'roles' => Role::with('permissions')->orderBy('name', 'asc')->get(),
+            'users' => User::with('roles')->orderBy('name', 'asc')->get(),
+        ]);
     }
 
     /**
@@ -72,22 +75,18 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-     
-
         $validated = $request->validate([
             'name' => 'required|max:50|string',
-            'role' => 'required|string|max:25',
+            'roles' => 'required|string|max:25', // kalau hanya satu role
             'email' => [
                 'required',
                 Rule::unique('users')->ignore($user->id),
             ],
-
             'password' => 'min:8|nullable|confirmed'
         ]);
 
         $updateData = [
             'name' => ucwords(strtolower($validated['name'])),
-            'role' => $validated['role'],
             'email' => $validated['email'],
         ];
 
@@ -95,8 +94,14 @@ class UserController extends Controller
             $updateData['password'] = Hash::make($request->password);
         }
 
+        // update data user
         $user->update($updateData);
-        return redirect()->route('users.index')->with('alert', 'update data ' . e($validated['name']) . ' berhasil');
+
+        // sinkronisasi role dengan Spatie
+        $user->syncRoles([$validated['roles']]);
+
+        return redirect()->route('users.index')
+            ->with('alert', 'Update data ' . e($validated['name']) . ' berhasil');
     }
 
     /**

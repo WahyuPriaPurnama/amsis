@@ -11,36 +11,36 @@ class EmployeePermissionRoleSeeder extends Seeder
     public function run(): void
     {
         $employeePermissions = [
-            'employee-list',
-            'employee-view',
-            'employee-create',
-            'employee-edit-own',
-            'employee-edit',
-            'employee-delete',
-            'employee-restore',
-            'employee-force-delete',
+            'employee.list',
+            'employee.view',
+            'employee.create',
+            'employee.edit-own',
+            'employee.edit',
+            'employee.delete',
+            'employee.restore',
+            'employee.force-delete',
         ];
 
         $vehiclePermissions = [
-            'vehicle-list',
-            'vehicle-view',
-            'vehicle-create',
-            'vehicle-edit-own',
-            'vehicle-edit',
-            'vehicle-delete',
-            'vehicle-restore',
-            'vehicle-force-delete',
+            'vehicle.list',
+            'vehicle.view',
+            'vehicle.create',
+            'vehicle.edit-own',
+            'vehicle.edit',
+            'vehicle.delete',
+            'vehicle.restore',
+            'vehicle.force-delete',
         ];
 
         $subsidiaryPermissions = [
-            'subsidiary-list',
-            'subsidiary-view',
-            'subsidiary-create',
-            'subsidiary-edit-own',
-            'subsidiary-edit',
-            'subsidiary-delete',
-            'subsidiary-restore',
-            'subsidiary-force-delete',
+            'subsidiary.list',
+            'subsidiary.view',
+            'subsidiary.create',
+            'subsidiary.edit-own',
+            'subsidiary.edit',
+            'subsidiary.delete',
+            'subsidiary.restore',
+            'subsidiary.force-delete',
         ];
 
         $allPermissions = array_merge(
@@ -62,28 +62,27 @@ class EmployeePermissionRoleSeeder extends Seeder
 
         $adminPermissions = [
             // Employee
-            'employee-list',
-            'employee-view',
-            'employee-create',
-            'employee-edit',
-            'employee-edit-own',
-            'employee-delete',
+            'employee.list',
+            'employee.view',
+            'employee.create',
+            'employee.edit',
+            'employee.edit-own',
+            'employee.delete',
             
 
             // Vehicle
-            'vehicle-list',
-            'vehicle-view',
-            'vehicle-create',
-            'vehicle-edit',
-            'vehicle-edit-own',
-            'vehicle-delete',
-
+            'vehicle.list',
+            'vehicle.view',
+            'vehicle.create',
+            'vehicle.edit',
+            'vehicle.edit-own',
+            'vehicle.delete',
             // Subsidiary
-            'subsidiary-list',
-            'subsidiary-view',
-            'subsidiary-create',
-            'subsidiary-edit',
-            'subsidiary-edit-own',
+            'subsidiary.list',
+            'subsidiary.view',
+            'subsidiary.create',
+            'subsidiary.edit',
+            'subsidiary.edit-own',
         ];
 
         foreach ($adminRoles as $roleName) {
@@ -94,9 +93,9 @@ class EmployeePermissionRoleSeeder extends Seeder
         // Employee Role
         $employeeRole = Role::firstOrCreate(['name' => 'employee', 'guard_name' => 'web']);
         $employeeRole->syncPermissions([
-            'employee-list',
-            'employee-view',
-            'employee-edit-own',
+            'employee.list',
+            'employee.view',
+            'employee.edit-own',
         ]);
     }
 }

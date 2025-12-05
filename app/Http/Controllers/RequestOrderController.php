@@ -158,8 +158,10 @@ class RequestOrderController extends Controller
 
     public function approve($id)
     {
+        if (!auth()->user()->hasRole('div-head')) {
+            abort(403, 'Hanya Kepala Divisi yang dapat menyetujui Request Order.');
+        }
         $requestOrder = RequestOrder::findOrFail($id);
-
         // Update status dan approved_by_div_head
         $requestOrder->status = 'approved_by_div_head';
         $requestOrder->approved_by_div_head = Auth::id();
@@ -172,6 +174,9 @@ class RequestOrderController extends Controller
 
     public function approveManager($id)
     {
+        if (!auth()->user()->hasRole('manager')) {
+            abort(403, 'Hanya Plant Manager / BOD yang dapat menyetujui Request Order.');
+        }
         $requestOrder = RequestOrder::findOrFail($id);
 
         // Update status dan approved_by_manager

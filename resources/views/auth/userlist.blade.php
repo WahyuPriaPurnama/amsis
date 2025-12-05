@@ -49,23 +49,9 @@
                                     <select name="role" id="floatingSelect"
                                         class="form-select @error('role') is-invalid @enderror" aria-placeholder="level">
                                         <option value="" selected>pilih level</option>
-                                        @if (Auth::user()->hasRole('super-admin'))
-                                            <option value="super-admin">
-                                                super-admin</option>
-                                        @endif
-                                        <option value="holding-admin">
-                                            holding-admin
-                                        </option>
-                                        <option value="eln-admin">
-                                            eln-admin</option>
-                                        <option value="eln2-admin">
-                                            eln2-admin
-                                        </option>
-                                        <option value="haka-admin">
-                                            haka-admin</option>
-                                        <option value="bofi-admin">bofi-admin</option>
-                                        <option value="rmm-admin">rmm-admin</option>
-                                        <option value="employee">employee</option>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role->name }}">{{ $role->name }}</option>
+                                        @endforeach
                                     </select>
                                     <label for="floatingSelect">level</label>
                                     @error('role')
@@ -174,27 +160,14 @@
                                                                 <div class="invalid-feedback">{{ $message }}</div>
                                                             @enderror
                                                         </div>
-                                                        <select name="role" id="floatingSelect"
+                                                        <select name="roles" id="floatingSelect"
                                                             class="form-select @error('role') is-invalid @enderror"
                                                             aria-placeholder="level">
-                                                            <option value="super-admin" @selected($user->getRoleNames()->contains('super-admin'))>
-                                                                super-admin</option>
-                                                            <option value="holding-admin" @selected($user->getRoleNames()->contains('holding-admin'))>
-                                                                holding-admin</option>
-                                                            <option value="eln-admin" @selected($user->getRoleNames()->contains('eln-admin'))>eln-admin
-                                                            </option>
-                                                            <option value="eln2-admin" @selected($user->getRoleNames()->contains('eln2-admin'))>eln2-admin
-                                                            </option>
-                                                            <option value="haka-admin" @selected($user->getRoleNames()->contains('haka-admin'))>haka-admin
-                                                            </option>
-                                                            <option value="bofi-admin" @selected($user->getRoleNames()->contains('bofi-admin'))>bofi-admin
-                                                            </option>
-                                                            <option value="rmm-admin" @selected($user->getRoleNames()->contains('rmm-admin'))>rmm-admin
-                                                            </option>
-                                                            <option value="employee" @selected($user->getRoleNames()->contains('employee'))>employee
-                                                            </option>
-                                                            <option value="bofi-monitoring" @selected($user->getRoleNames()->contains('bofi-monitoring'))>
-                                                                bofi-monitoring</option>
+                                                            @foreach ($roles as $role)
+                                                                <option value="{{ $role->name }}"
+                                                                    @selected(old('role', $user->roles->pluck('name')->first() ?? '') == $role->name)>{{ $role->name }}
+                                                                </option>
+                                                            @endforeach
                                                         </select>
                                                         <div class="mb-3">
                                                             <div class="col">

@@ -15,6 +15,7 @@ class RequestOrderSeeder extends Seeder
     {
 
         $permissions = [
+            'request-order.list',
             'request-order.view',
             'request-order.create',
             'request-order.edit',
