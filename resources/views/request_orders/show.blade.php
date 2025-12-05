@@ -68,6 +68,7 @@
             <div class="mt-3 d-flex justify-content-between">
                 <a href="{{ route('request-order.index') }}" class="btn btn-secondary">Kembali</a>
                 <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
             </div>
         @endcomponent
     </div>

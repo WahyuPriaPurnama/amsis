@@ -146,7 +146,14 @@ class RequestOrderController extends Controller
      */
     public function destroy(RequestOrder $requestOrder)
     {
-        //
+        // Hapus item terkait
+        $requestOrder->items()->delete();
+
+        // Hapus header Request Order
+        $requestOrder->delete();
+
+        return redirect()->route('request-order.index')
+            ->with('success', 'Request Order berhasil dihapus.');
     }
 
     public function approve($id)
