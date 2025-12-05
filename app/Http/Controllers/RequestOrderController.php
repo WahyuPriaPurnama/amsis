@@ -16,10 +16,21 @@ class RequestOrderController extends Controller
      */
     public function index()
     {
-        // Ambil semua Request Order dengan relasi items
-        $orders = RequestOrder::with(['items', 'requester', 'subsidiary'])->latest()->paginate(20);
+        $user = auth()->user();
 
-        // Kirim data ke view
+        // Jika role holding-admin atau super admin → lihat semua
+        if ($user->hasRole('holding-admin') || $user->hasRole('super-admin')) {
+            $orders = RequestOrder::with(['items', 'requester', 'subsidiary'])
+                ->latest()
+                ->paginate(20);
+        } else {
+            // Selain itu → filter sesuai plant (subsidiary) employee
+            $orders = RequestOrder::with(['items', 'requester', 'subsidiary'])
+                ->where('subsidiary_id', $user->employee->subsidiary_id) // asumsi relasi user->employee->subsidiary_id
+                ->latest()
+                ->paginate(20);
+        }
+
         return view('request_orders.index', compact('orders'));
     }
 

@@ -143,13 +143,13 @@
         </tr>
     </table>
     @if ($order->subsidiary->kop_footer)
-        <div style="position: absolute; bottom: 100px; left: 0; width: 100%; text-align: center;">
+        <div style="position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center;">
             <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/subsidiary/kop_footer/' . $order->subsidiary->kop_footer)) }}"
                 style="width: 650px; height: auto;">
         </div>
     @endif
 
-    <div style="position: absolute; bottom: 10px; left: 0; width: 100%; text-align: center; font-size: 10px;">
+    <div style="position: fixed; bottom: 0; left: 0; width: 100%; text-align: center; font-size: 10px;">
         <p>&copy; {{ date('Y') }} AMS Information System. All rights reserved. Generated on: {{ $timestamp }}
         </p>
     </div>
