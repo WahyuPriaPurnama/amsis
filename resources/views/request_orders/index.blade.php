@@ -55,14 +55,12 @@
                                             <span class="badge bg-success">Approved</span>
                                         @break
 
-                                        @case('approved_by_div_head')
-                                            <span class="badge bg-warning text-dark">Menunggu Plant Mgr / BOD</span>
                                         @case('pending')
-                                            <span class="badge bg-warning text-dark">Menunggu Kepala Divisi</span>
+                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>
                                         @break
 
-                                        @case('rejected')
-                                            <span class="badge bg-danger">Rejected</span>
+                                        @case('approved_by_div_head')
+                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Mgr / BOD</span>
                                         @break
 
                                         @default

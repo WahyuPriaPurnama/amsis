@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('division')->nullable();
             $table->date('request_date')->nullable();
-            $table->string('request_number')->unique()->nullable();
+            $table->string('request_number')->nullable();
             $table->text('purpose')->nullable();
             $table->string('status')->default('pending');
 
@@ -36,6 +36,7 @@ return new class extends Migration
 
             //relasi ke subsidiary
             $table->foreign('subsidiary_id')->references('id')->on('subsidiaries');
+            $table->unique(['request_number', 'subsidiary_id']);
         });
     }
 
