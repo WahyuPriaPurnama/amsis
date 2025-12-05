@@ -43,30 +43,32 @@
                                     </a>
                                     @include('partials.menu-eslip')
                                 </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown">
-                                        HRD
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        @can('employee-list')
-                                            <li><a class="dropdown-item @yield('menuEmployees')"
-                                                    href="{{ route('employees.index') }}">Karyawan</a></li>
-                                        @endcan
-                                        @can('subsidiary-list')
-                                            <li><a class="dropdown-item @yield('menuSubsidiaries')"
-                                                    href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
-                                        @endcan
-                                        @can('vehicle-list')
-                                            <li><a class="dropdown-item @yield('menuVehicles')"
-                                                    href="{{ route('vehicles.index') }}">Kendaraan</a></li>
-                                        @endcan
-                                        {{-- <li><a class="dropdown-item @yield('menuScanlog')"
+                                @canany(['employee.list', 'subsidiary.list', 'vehicle.list'])
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                                            data-bs-toggle="dropdown">
+                                            HRD
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            @can('employee.list')
+                                                <li><a class="dropdown-item @yield('menuEmployees')"
+                                                        href="{{ route('employees.index') }}">Karyawan</a></li>
+                                            @endcan
+                                            @can('subsidiary.list')
+                                                <li><a class="dropdown-item @yield('menuSubsidiaries')"
+                                                        href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
+                                            @endcan
+                                            @can('vehicle.list')
+                                                <li><a class="dropdown-item @yield('menuVehicles')"
+                                                        href="{{ route('vehicles.index') }}">Kendaraan</a></li>
+                                            @endcan
+                                            {{-- <li><a class="dropdown-item @yield('menuScanlog')"
                                                 href="{{ route('scanlog.index') }}">Scanlog</a></li>
                                         <li><a class="dropdown-item @yield('menuHarian')"
                                                 href="{{ route('karyawan-harian.index') }}">Karyawan</a></li> --}}
-                                    </ul>
-                                </li>
+                                        </ul>
+                                    </li>
+                                @endcanany
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown">

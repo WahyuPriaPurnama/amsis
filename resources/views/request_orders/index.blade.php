@@ -24,13 +24,10 @@
                             <th>Tanggal</th>
                             <th>No. RO</th>
                             <th>Nama Barang</th>
-                            <th>Qty</th>
-                            <th>Satuan</th>
-                            <th>Purpose</th>
                             <th>Status</th>
                             <th>Oleh</th>
-                            <th>Kadiv</th>
-                            <th>Manager</th>
+                            <th>Kepala Divisi</th>
+                            <th>Manager / BOD</th>
                             <th>Menu</th>
                         </tr>
                     </thead>
@@ -53,28 +50,15 @@
                                     </ul>
                                 </td>
                                 <td>
-                                    <ul class="mb-0">
-                                        @foreach ($order->items as $item)
-                                            <li>{{ $item->quantity }}</li>
-                                        @endforeach
-                                    </ul>
-                                </td>
-                                <td>
-                                    <ul class="mb-0">
-                                        @foreach ($order->items as $item)
-                                            <li>{{ $item->unit }}</li>
-                                        @endforeach
-                                    </ul>
-                                </td>
-                                <td>{{ $order->purpose }}</td>
-                                <td>
                                     @switch($order->status)
-                                        @case('approved')
+                                        @case('approved_by_manager')
                                             <span class="badge bg-success">Approved</span>
                                         @break
 
+                                        @case('approved_by_div_head')
+                                            <span class="badge bg-warning text-dark">Menunggu Plant Mgr / BOD</span>
                                         @case('pending')
-                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            <span class="badge bg-warning text-dark">Menunggu Kepala Divisi</span>
                                         @break
 
                                         @case('rejected')

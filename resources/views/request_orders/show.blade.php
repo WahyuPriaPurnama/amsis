@@ -25,11 +25,7 @@
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <strong>Tujuan:</strong> {{ $order->purpose }}
-                </div>
-            </div>
+
 
             {{-- Barang dinamis --}}
             <h5 class="fw-semibold mb-3">Daftar Barang</h5>
@@ -51,17 +47,21 @@
                     @endforeach
                 </tbody>
             </table>
-
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <strong>Keterangan:</strong> {{ $order->purpose }}
+                </div>
+            </div>
             {{-- Status & User --}}
             <div class="row mt-3">
                 <div class="col-md-4">
                     <strong>Dibuat Oleh:</strong> {{ $order->user->name ?? '-' }}
                 </div>
                 <div class="col-md-4">
-                    <strong>Approved Kadiv:</strong> {{ $order->divHead->name ?? '-' }}
+                    <strong>Kepala Divisi:</strong> {{ $order->divHead->name ?? '-' }}
                 </div>
                 <div class="col-md-4">
-                    <strong>Approved Manager:</strong> {{ $order->manager->name ?? '-' }}
+                    <strong>Manager / BOD:</strong> {{ $order->manager->name ?? '-' }}
                 </div>
             </div>
 
