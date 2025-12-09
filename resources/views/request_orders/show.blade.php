@@ -8,8 +8,29 @@
             @slot('header')
                 Detail Request Order
             @endslot
-            <div class="text-end">
-                <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
+            <div class="d-flex justify-content-between">
+                @switch($order->status)
+                    @case('pending')
+                        <span class="badge bg-warning text-dark fs-5">Menunggu Persetujuan Kepala Divisi</span>
+                    @break
+
+                    @case('approved_by_div_head')
+                        <span class="badge bg-warning text-dark fs-5">Menunggu Persetujuan Plant Manager</span>
+                        @break
+
+                        @case('approved_by_manager')
+                            <span class="badge bg-warning text-dark fs-5">Menunggu Persetujuan BOD</span>
+                        @break
+
+                        @case('approved_by_bod')
+                            <span class="badge bg-success fs-5">Approved</span>
+                        @break
+
+                        @default
+                            <span class="badge bg-secondary fs-5">{{ $order->status }}</span>
+                        @break
+                    @endswitch
+                    <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
             </div>
             {{-- Data umum --}}
             <div class="row mb-3">
