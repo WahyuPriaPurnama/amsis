@@ -78,33 +78,34 @@
 
             <div class="mt-3 d-flex justify-content-between">
                 <a href="{{ route('request-order.index') }}" class="btn btn-secondary">Kembali</a>
-                @if ($order->status === 'pending')
-                    {{-- Tombol untuk Kepala Divisi --}}
-                    <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm">
-                            Approve Kepala Divisi
-                        </button>
-                    </form>
-                @elseif($order->status === 'approved_by_div_head')
-                    {{-- Tombol untuk Plant Manager --}}
-                    <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            Approve Plant Manager
-                        </button>
-                    </form>
-                @elseif($order->status === 'approved_by_manager')
-                    {{-- Tombol untuk Plant Manager --}}
-                    <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            Approve BOD
-                        </button>
-                    </form>
-                @else
+                <div class="d-flex gap-1">
                     <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
-                @endif
+                    @if ($order->status === 'pending')
+                        {{-- Tombol untuk Kepala Divisi --}}
+                        <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">
+                                Approve Kepala Divisi
+                            </button>
+                        </form>
+                    @elseif($order->status === 'approved_by_div_head')
+                        {{-- Tombol untuk Plant Manager --}}
+                        <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Approve Plant Manager
+                            </button>
+                        </form>
+                    @elseif($order->status === 'approved_by_manager')
+                        {{-- Tombol untuk Plant Manager --}}
+                        <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                Approve BOD
+                            </button>
+                        </form>
+                    @endif
+                </div>
             </div>
         @endcomponent
     </div>
