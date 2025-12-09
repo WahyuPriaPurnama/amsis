@@ -32,36 +32,43 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
+                        <th>No.</th>
                         <th>Nama Barang</th>
                         <th>Qty</th>
                         <th>Satuan</th>
+                        <th>Keterangan</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($order->items as $item)
                         <tr>
+                            <td>{{ $loop->iteration }}</td>
                             <td>{{ $item->item_name }}</td>
                             <td>{{ $item->quantity }}</td>
                             <td>{{ $item->unit }}</td>
+                            <td>{{ $item->remark ?? '-' }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
             <div class="row mb-3">
                 <div class="col-md-12">
-                    <strong>Keterangan:</strong> {{ $order->purpose }}
+                    <strong>Note:</strong> {{ $order->purpose }}
                 </div>
             </div>
             {{-- Status & User --}}
             <div class="row mt-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <strong>Dibuat Oleh:</strong> {{ $order->user->name ?? '-' }}
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <strong>Kepala Divisi:</strong> {{ $order->divHead->name ?? '-' }}
                 </div>
-                <div class="col-md-4">
-                    <strong>Manager / BOD:</strong> {{ $order->manager->name ?? '-' }}
+                <div class="col-md-3">
+                    <strong>Plant Manager:</strong> {{ $order->manager->name ?? '-' }}
+                </div>
+                <div class="col-md-3">
+                    <strong>BOD:</strong> {{ $order->bod->name ?? '-' }}
                 </div>
             </div>
 

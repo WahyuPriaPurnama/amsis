@@ -18,20 +18,17 @@ class RequestOrderController extends Controller
     {
         $user = auth()->user();
 
-        // Jika role holding-admin atau super admin → lihat semua
-        if ($user->hasRole('holding-admin') || $user->hasRole('super-admin')) {
+        // Pastikan user punya permission 'view request orders'
+        if ($user->can('request-order.list')) {
             $orders = RequestOrder::with(['items', 'requester', 'subsidiary'])
                 ->latest()
                 ->paginate(20);
-        } else {
-            // Selain itu → filter sesuai plant (subsidiary) employee
-            $orders = RequestOrder::with(['items', 'requester', 'subsidiary'])
-                ->where('subsidiary_id', $user->employee->subsidiary_id) // asumsi relasi user->employee->subsidiary_id
-                ->latest()
-                ->paginate(20);
+
+            return view('request_orders.index', compact('orders'));
         }
 
-        return view('request_orders.index', compact('orders'));
+        // Jika tidak punya permission → abort
+        abort(403, 'Anda tidak memiliki izin untuk melihat Request Order.');
     }
 
     /**
@@ -90,11 +87,12 @@ class RequestOrderController extends Controller
                     return $query->where('subsidiary_id', $request->subsidiary_id);
                 }),
             ],
-            'purpose'           => 'required|string|max:500',
+            'purpose'           => 'nullable|string|max:500',
             'items'             => 'required|array|min:1',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity'  => 'required|integer|min:1',
             'items.*.unit'      => 'required|string|max:50',
+            'items.*.remark' => 'nullable|string|max:255',
         ], [
             'request_number.unique' => 'Nomor RO sudah digunakan di plant ini.',
         ]);
@@ -186,7 +184,7 @@ class RequestOrderController extends Controller
     public function approveManager($id)
     {
         if (!auth()->user()->hasRole('manager')) {
-            abort(403, 'Hanya Plant Manager / BOD yang dapat menyetujui Request Order.');
+            abort(403, 'Hanya Plant Manager dapat menyetujui Request Order.');
         }
         $requestOrder = RequestOrder::findOrFail($id);
 
@@ -199,6 +197,24 @@ class RequestOrderController extends Controller
         return redirect()->route('request-order.index')
             ->with('success', 'Request Order telah disetujui oleh Manager.');
     }
+
+    public function approveBod($id)
+    {
+        if (!auth()->user()->hasRole('bod')) {
+            abort(403, 'Hanya BOD yang dapat menyetujui Request Order.');
+        }
+        $requestOrder = RequestOrder::findOrFail($id);
+
+        // Update status dan approved_by_bod
+        $requestOrder->status = 'approved_by_bod';
+        $requestOrder->approved_by_bod = Auth::id();
+        $requestOrder->approved_by_bod_at = now();
+        $requestOrder->save();
+
+        return redirect()->route('request-order.index')
+            ->with('success', 'Request Order telah disetujui oleh BOD.');
+    }
+
     public function pdf($id)
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'manager'])->findOrFail($id);

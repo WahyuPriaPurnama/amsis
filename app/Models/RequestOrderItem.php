@@ -15,6 +15,7 @@ class RequestOrderItem extends Model
         'item_name',
         'quantity',
         'unit',
+        'remark',
     ];
 
     /**

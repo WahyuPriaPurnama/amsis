@@ -25,9 +25,6 @@
                             <th>No. RO</th>
                             <th>Nama Barang</th>
                             <th>Status</th>
-                            <th>Oleh</th>
-                            <th>Kepala Divisi</th>
-                            <th>Manager / BOD</th>
                             <th>Menu</th>
                         </tr>
                     </thead>
@@ -51,33 +48,34 @@
                                 </td>
                                 <td>
                                     @switch($order->status)
-                                        @case('approved_by_manager')
-                                            <span class="badge bg-success">Approved</span>
-                                        @break
-
                                         @case('pending')
                                             <span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>
                                         @break
 
                                         @case('approved_by_div_head')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Mgr / BOD</span>
-                                        @break
+                                            <spa n class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
+                                            @break
 
-                                        @default
-                                            <span class="badge bg-secondary">{{ $order->status }}</span>
-                                    @endswitch
+                                            @case('approved_by_manager')
+                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
+                                            @break
+
+                                            @case('approved_by_bod')
+                                                <span class="badge bg-success">Approved</span>
+                                            @break
+
+                                            @default
+                                                <span class="badge bg-secondary">{{ $order->status }}</span>
+                                            @break
+                                        @endswitch
                                 </td>
-                                <td>{{ $order->requester->name ?? '-' }}</td>
-                                <td>{{ $order->divHead->name ?? '-' }}</td>
-                                <td>{{ $order->manager->name ?? '-' }}</td>
                                 <td>
                                     @if ($order->status === 'pending')
                                         {{-- Tombol untuk Kepala Divisi --}}
-                                        <form action="{{ route('request-order.approve_div_head', $order->id) }}"
-                                            method="POST">
+                                        <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="btn btn-success btn-sm">
-                                                Approve Div Head
+                                                Approve Kepala Divisi
                                             </button>
                                         </form>
                                     @elseif($order->status === 'approved_by_div_head')
@@ -89,6 +87,14 @@
                                             </button>
                                         </form>
                                     @elseif($order->status === 'approved_by_manager')
+                                        {{-- Tombol untuk Plant Manager --}}
+                                        <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                Approve BOD
+                                            </button>
+                                        </form>
+                                    @else
                                         <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                                     @endif
 

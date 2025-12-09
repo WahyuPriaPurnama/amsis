@@ -23,16 +23,19 @@ return new class extends Migration
             $table->unsignedBigInteger('requested_by');   // user id pengaju
             $table->unsignedBigInteger('approved_by_div_head')->nullable(); // kepala divisi
             $table->unsignedBigInteger('approved_by_manager')->nullable();  // plant manager
+            $table->unsignedBigInteger('approved_by_bod')->nullable();      // bod
             $table->unsignedBigInteger('subsidiary_id')->nullable(); // subsidiary id
 
             $table->timestamps();
             $table->timestamp('approved_by_divhead_at')->nullable();
             $table->timestamp('approved_by_manager_at')->nullable();
+            $table->timestamp('approved_by_bod_at')->nullable();
 
             // Relasi ke tabel users
             $table->foreign('requested_by')->references('id')->on('users');
             $table->foreign('approved_by_div_head')->references('id')->on('users');
             $table->foreign('approved_by_manager')->references('id')->on('users');
+            $table->foreign('approved_by_bod')->references('id')->on('users');
 
             //relasi ke subsidiary
             $table->foreign('subsidiary_id')->references('id')->on('subsidiaries');

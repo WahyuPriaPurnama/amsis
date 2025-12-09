@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('item_name');
             $table->integer('quantity');
             $table->string('unit');
+            $table->string('remark')->nullable();
             $table->timestamps();
         });
     }

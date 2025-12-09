@@ -96,6 +96,7 @@ Route::middleware('auth')->group(function () {
     Route::post('request-order/approve/{id}', [RequestOrderController::class, 'approve'])
         ->name('request-order.approve_div_head');
     Route::post('request-order/approve-manager/{id}', [RequestOrderController::class, 'approveManager'])->name('request-order.approve_manager');
+    Route::post('request-order/approve-bod/{id}', [RequestOrderController::class, 'approveBod'])->name('request-order.approve_bod');
     Route::get('request-order/{id}/pdf', [RequestOrderController::class, 'pdf'])
         ->name('request-order.pdf');
 });

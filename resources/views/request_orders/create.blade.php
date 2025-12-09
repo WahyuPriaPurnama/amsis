@@ -3,7 +3,7 @@
 @section('menuRO', 'active')
 @section('content')
     <div class="container mt-3" x-data="{
-        items: {{ json_encode(old('items', [['item_name' => '', 'quantity' => 1, 'unit' => '']])) }},
+        items: {{ json_encode(old('items', [['item_name' => '', 'quantity' => 1, 'unit' => '', 'remark' => '']])) }},
         errors: {}
     }">
 
@@ -81,7 +81,7 @@
                 <h5 class="fw-semibold mb-3">Daftar Barang</h5>
                 <template x-for="(item, index) in items" :key="index">
                     <div class="row mb-2">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <input type="text" class="form-control" placeholder="Nama Barang"
                                 :name="`items[${index}][item_name]`" x-model="item.item_name">
                             <small class="text-danger" x-text="errors[`item_name_${index}`]"></small>
@@ -105,7 +105,15 @@
                                 <small class="text-danger">{{ $message }}</small>
                             @enderror
                         </div>
-                        <div class="col-md-2 text-center">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" placeholder="Keterangan"
+                                :name="`items[${index}][remark]`" x-model="item.remark">
+                            <small class="text-danger" x-text="errors[`remark_${index}`]"></small>
+                            @error('items.*.remark')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+                        <div class="col-md-1 text-center">
                             <button type="button" class="btn btn-danger btn-sm" @click="items.splice(index,1)"
                                 x-show="items.length > 1">Hapus</button>
                         </div>
@@ -120,7 +128,7 @@
                 {{-- Purpose --}}
                 <div class="row mb-3">
                     <div class="col-12">
-                        <label for="purpose" class="form-label">Tujuan</label>
+                        <label for="purpose" class="form-label">Note</label>
                         <input type="text" name="purpose" id="purpose" x-ref="purpose" value="{{ old('purpose') }}"
                             placeholder="Purpose" class="form-control @error('purpose') is-invalid @enderror">
                         <small class="text-danger" x-text="errors.purpose"></small>

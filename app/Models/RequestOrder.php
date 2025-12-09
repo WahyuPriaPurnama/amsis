@@ -18,9 +18,11 @@ class RequestOrder extends Model
         'status',
         'requested_by',
         'approved_by_div_head',
-        'approved_by_manager',  
+        'approved_by_manager',
+        'approved_by_bod',
         'approved_by_divhead_at',
         'approved_by_manager_at',
+        'approved_by_bod_at',
     ];
 
     /**
@@ -53,6 +55,11 @@ class RequestOrder extends Model
     public function manager()
     {
         return $this->belongsTo(User::class, 'approved_by_manager');
+    }
+
+    public function bod()
+    {
+        return $this->belongsTo(User::class, 'approved_by_bod');
     }
 
     public function subsidiary()
