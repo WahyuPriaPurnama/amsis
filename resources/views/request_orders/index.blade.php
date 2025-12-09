@@ -74,7 +74,7 @@
                                         {{-- Tombol untuk Kepala Divisi --}}
                                         <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-success btn-sm">
+                                            <button type="submit" class="btn btn-success">
                                                 Approve Kepala Divisi
                                             </button>
                                         </form>
@@ -82,7 +82,7 @@
                                         {{-- Tombol untuk Plant Manager --}}
                                         <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm">
+                                            <button type="submit" class="btn btn-primary">
                                                 Approve Plant Manager
                                             </button>
                                         </form>
@@ -90,7 +90,7 @@
                                         {{-- Tombol untuk Plant Manager --}}
                                         <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="btn btn-primary btn-sm">
+                                            <button type="submit" class="btn btn-primary">
                                                 Approve BOD
                                             </button>
                                         </form>
