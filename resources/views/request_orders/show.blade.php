@@ -8,7 +8,9 @@
             @slot('header')
                 Detail Request Order
             @endslot
-
+            <div class="text-end">
+                <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
+            </div>
             {{-- Data umum --}}
             <div class="row mb-3">
                 <div class="col-md-3">
@@ -29,28 +31,30 @@
 
             {{-- Barang dinamis --}}
             <h5 class="fw-semibold mb-3">Daftar Barang</h5>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Nama Barang</th>
-                        <th>Qty</th>
-                        <th>Satuan</th>
-                        <th>Keterangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($order->items as $item)
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $item->item_name }}</td>
-                            <td>{{ $item->quantity }}</td>
-                            <td>{{ $item->unit }}</td>
-                            <td>{{ $item->remark ?? '-' }}</td>
+                            <th>No.</th>
+                            <th>Nama Barang</th>
+                            <th>Qty</th>
+                            <th>Satuan</th>
+                            <th>Keterangan</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($order->items as $item)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $item->item_name }}</td>
+                                <td>{{ $item->quantity }}</td>
+                                <td>{{ $item->unit }}</td>
+                                <td>{{ $item->remark ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
             <div class="row mb-3">
                 <div class="col-md-12">
                     <strong>Note:</strong> {{ $order->purpose }}
@@ -74,8 +78,33 @@
 
             <div class="mt-3 d-flex justify-content-between">
                 <a href="{{ route('request-order.index') }}" class="btn btn-secondary">Kembali</a>
-                <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
-                <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
+                @if ($order->status === 'pending')
+                    {{-- Tombol untuk Kepala Divisi --}}
+                    <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-success btn-sm">
+                            Approve Kepala Divisi
+                        </button>
+                    </form>
+                @elseif($order->status === 'approved_by_div_head')
+                    {{-- Tombol untuk Plant Manager --}}
+                    <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            Approve Plant Manager
+                        </button>
+                    </form>
+                @elseif($order->status === 'approved_by_manager')
+                    {{-- Tombol untuk Plant Manager --}}
+                    <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            Approve BOD
+                        </button>
+                    </form>
+                @else
+                    <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                @endif
             </div>
         @endcomponent
     </div>
