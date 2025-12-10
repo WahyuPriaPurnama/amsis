@@ -19,6 +19,9 @@ class AssignAllRolesSeeder extends Seeder
             'bofi-admin',
             'rmm-admin',
             'employee',
+            'div-head',
+            'manager',
+            'bod',
         ];
 
         // Pastikan semua role tersedia
@@ -53,5 +56,6 @@ class AssignAllRolesSeeder extends Seeder
             $user->assignRole('employee');
             $this->command->info("User ID {$user->id} assigned to role 'employee'.");
         }
+        $this->command->info("Roles 'div-head', 'manager', dan 'bod' berhasil dibuat tanpa assignment.");
     }
 }
