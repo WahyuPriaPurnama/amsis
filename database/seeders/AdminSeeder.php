@@ -86,6 +86,15 @@ class AdminSeeder extends Seeder
             'phone' => '0333 2815013',
             'address' => ' Dusun Sampangan, Kedungrejo, Muncar, Banyuwangi Regency, East Java'
         ]);
+        Subsidiary::firstOrCreate([
+            'name' => 'PT. AMS Foods'
+        ], [
+            'tagline' => 'Food Service',
+            'npwp' => '',
+            'email' => 'info@amsfoods.co.id',
+            'phone' => '',
+            'address' => 'Jl. Diponegoro, Dusun Sidomulyo RT 006 RW 002, Sumber Beras, Muncar, Kabupaten Banyuwangi'
+        ]);
 
 
         // for ($i = 0; $i < 100; $i++) {

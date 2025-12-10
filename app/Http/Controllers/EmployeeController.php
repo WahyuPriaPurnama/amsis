@@ -207,7 +207,7 @@ class EmployeeController extends Controller
             }
 
             // Karyawan hanya bisa lihat subsidiary miliknya sendiri
-            if ($user->hasRole('employee')) {
+            if ($user->hasAnyRole(['employee', 'div-head', 'manager', 'bod'])) {
                 $subsidiaries = Subsidiary::where('id', $employee->subsidiary_id)->get();
             }
 
@@ -222,8 +222,8 @@ class EmployeeController extends Controller
 
         // Cek apakah user adalah karyawan dan sedang edit datanya sendiri
         $isEmployee = $user->hasRole('employee') && $user->employee_id === $employee->id;
-
-        return view('employees.edit', compact('employee', 'subsidiaries', 'isEmployee'));
+        $isLeader = $user->hasAnyRole(['div-head', 'manager', 'bod']);
+        return view('employees.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader'));
     }
 
     /**
