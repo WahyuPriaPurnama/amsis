@@ -9,11 +9,11 @@
                 {{ $vehicle->jenis_kendaraan }}
             @endslot
             <div class="btn-group d-flex gap-2 flex-wrap">
-                @can('update', $vehicle)
+                @can('vehicle.edit')
                     <x-buttons.edit href="{{ route('vehicles.edit', ['vehicle' => $vehicle->id]) }}"></x-buttons.edit>
                 @endcan
 
-                @can('delete', $vehicle)
+                @can('vehicle.delete')
                     <x-buttons.delete data-bs-toggle="modal" data-bs-target="#modal-delete-{{ $vehicle->id }}"></x-buttons.delete>
 
                     <div class="modal fade" id="modal-delete-{{ $vehicle->id }}" data-bs-backdrop="static" data-bs-keyboard="false"

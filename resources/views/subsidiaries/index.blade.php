@@ -9,12 +9,12 @@
                 🏢 DATA PERUSAHAAN
             @endslot
 
-            {{-- Tombol Create --}}
-            <div class="mb-3 d-flex justify-content-end">
-                @can('create', App\Models\Subsidiary::class)
-                    <x-buttons.create href="{{ route('subsidiaries.create') }}" />
-                @endcan
-            </div>
+            {{-- tombol create --}}
+            @can('subsidiary.create')
+                <x-buttons.create href="{{ route('subsidiaries.create') }}" />
+            @endcan
+
+
 
             {{-- Tabel Subsidiary --}}
             <div class="table-responsive">
@@ -32,7 +32,7 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
-                                    @can('update', $subsidiary)
+                                    @can('subsidiary.view')
                                         <a href="{{ route('subsidiaries.show', $subsidiary->id) }}" class="text-decoration-none"
                                             data-bs-toggle="tooltip" title="Lihat detail">
                                             {{ $subsidiary->name }}

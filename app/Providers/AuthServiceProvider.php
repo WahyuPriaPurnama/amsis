@@ -26,6 +26,6 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('employee-edit.own', function ($user, $employee) {
             // hanya boleh edit jika employee_id sama dengan dirinya sendiri
             return $user->employee_id === $employee->id;
-        }); 
+        });
     }
 }

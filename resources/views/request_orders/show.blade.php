@@ -38,7 +38,7 @@
                         @break
                     @endswitch
                 </div>
-                @can('delete', $order)
+                @can('request-order.delete')
                     <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center">
                         <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
                     </div>

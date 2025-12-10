@@ -20,11 +20,11 @@
             @endslot
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <div class="btn-group d-flex gap-2 flex-wrap">
-                    @can('employee-edit.own', $employee)
+                    @can('employee.edit')
                         <x-buttons.edit href="{{ route('employees.edit', ['employee' => $employee->id]) }}"></x-buttons.edit>
                         <x-buttons.pdf href="{{ route('employee.pdf', ['employee' => $employee->id]) }}"></x-buttons.pdf>
                     @endcan
-                    @can('employee-delete', $employee)
+                    @can('employee.delete')
                         <x-buttons.delete data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                         </x-buttons.delete>
                     @endcan

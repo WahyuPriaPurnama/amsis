@@ -5,11 +5,11 @@
     <div class="container-fluid mt-3">
         @component('components.card')
             <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
-                @unless (auth()->user()->hasRole('employee'))
+                @can('request-order.create')
                     <div class="d-flex gap-2 flex-wrap">
                         <x-buttons.create href="{{ route('request-order.create') }}">Buat RO</x-buttons.create>
                     </div>
-                @endunless
+                @endcan
             </div>
             @slot('header')
                 Data RO
