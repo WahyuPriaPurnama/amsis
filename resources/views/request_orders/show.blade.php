@@ -8,29 +8,40 @@
             @slot('header')
                 Detail Request Order
             @endslot
-            <div class="d-flex justify-content-between">
-                @switch($order->status)
-                    @case('pending')
-                        <span class="badge bg-warning text-dark fs-5">Menunggu Persetujuan Kepala Divisi</span>
-                    @break
+            <div class="row mt-3">
+                <div class="col-12 col-md-8 mb-2 mb-md-0">
+                    @switch($order->status)
+                        @case('pending')
+                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
+                                Menunggu Persetujuan Kepala Divisi
+                            </span>
+                        @break
 
-                    @case('approved_by_div_head')
-                        <span class="badge bg-warning text-dark fs-5">Menunggu Persetujuan Plant Manager</span>
+                        @case('approved_by_div_head')
+                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
+                                Menunggu Persetujuan Plant Manager
+                            </span>
                         @break
 
                         @case('approved_by_manager')
-                            <span class="badge bg-warning text-dark fs-5">Menunggu Persetujuan BOD</span>
+                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
+                                Menunggu Persetujuan BOD
+                            </span>
                         @break
 
                         @case('approved_by_bod')
-                            <span class="badge bg-success fs-5">Approved</span>
+                            <span class="badge bg-success fs-5 w-100 text-center">Approved</span>
                         @break
 
                         @default
-                            <span class="badge bg-secondary fs-5">{{ $order->status }}</span>
+                            <span class="badge bg-secondary fs-5 w-100 text-center">{{ $order->status }}</span>
                         @break
                     @endswitch
+                </div>
+
+                <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center">
                     <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
+                </div>
             </div>
             {{-- Data umum --}}
             <div class="row mb-3">
