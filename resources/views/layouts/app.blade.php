@@ -146,7 +146,8 @@
                                             Management</a>
                                         <a class="dropdown-item" href="{{ route('log.activity') }}">Log
                                             Activity</a>
-                                    @elseif(Auth::user()->hasRole('employee'))
+                                    @endif
+                                    @if (Auth::user()->employee)
                                         <a href="{{ route('employees.show', $employeeId) }}"
                                             class="dropdown-item">Profil</a>
                                         <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti

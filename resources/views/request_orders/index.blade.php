@@ -70,34 +70,42 @@
                                         @endswitch
                                 </td>
                                 <td>
-                                    @if ($order->status === 'pending')
-                                        {{-- Tombol untuk Kepala Divisi --}}
-                                        <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-success">
-                                                Approve Kepala Divisi
-                                            </button>
-                                        </form>
-                                    @elseif($order->status === 'approved_by_div_head')
-                                        {{-- Tombol untuk Plant Manager --}}
-                                        <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-primary">
-                                                Approve Plant Manager
-                                            </button>
-                                        </form>
-                                    @elseif($order->status === 'approved_by_manager')
-                                        {{-- Tombol untuk Plant Manager --}}
-                                        <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="btn btn-primary">
-                                                Approve BOD
-                                            </button>
-                                        </form>
-                                    @else
+                                    @can('request-order.approve')
+                                        @switch ($order->status)
+                                            @case('pending')
+                                                {{-- Tombol untuk Kepala Divisi --}}
+                                                <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success">
+                                                        Approve
+                                                    </button>
+                                                </form>
+                                            @break
+
+                                            @case('approved_by_div_head')
+                                                {{-- Tombol untuk Plant Manager --}}
+                                                <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-primary">
+                                                        Approve
+                                                    </button>
+                                                </form>
+                                            @break
+
+                                            @case('approved_by_manager')
+                                                {{-- Tombol untuk Plant Manager --}}
+                                                <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-primary">
+                                                        Approve
+                                                    </button>
+                                                </form>
+                                            @break
+                                        @endswitch  
+                                    @endcan
+                                    @if ($order->status === 'approved_by_bod')
                                         <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                                     @endif
-
                                 </td>
                             </tr>
                         @endforeach
