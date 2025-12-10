@@ -35,10 +35,19 @@
                                 {{-- <td>{{ $order->subsidiary->name ?? '-' }}</td> --}}
                                 <td>{{ $order->division }}</td>
                                 <td>{{ \Carbon\Carbon::parse($order->request_date)->format('d-m-Y') }}</td>
-                                <td><a href="{{ route('request-order.show', $order->id) }}" class="text-decoration-none"
-                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
-                                        {{ $order->request_number }}
-                                    </a></td>
+
+                                <td>
+                                    @can('request-order.view')
+                                        <a href="{{ route('request-order.show', $order->id) }}" class="text-decoration-none"
+                                            data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
+                                            {{ $order->request_number }}
+                                        </a>
+                                    @else
+                                        <div class="text-muted">
+                                            {{ $order->request_number }}
+                                        </div>
+                                    @endcan
+                                </td>
                                 <td>
                                     <ul class="mb-0">
                                         @foreach ($order->items as $item)
@@ -101,7 +110,7 @@
                                                     </button>
                                                 </form>
                                             @break
-                                        @endswitch  
+                                        @endswitch
                                     @endcan
                                     @if ($order->status === 'approved_by_bod')
                                         <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
