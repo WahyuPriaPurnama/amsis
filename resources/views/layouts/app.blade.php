@@ -69,6 +69,7 @@
                                         </ul>
                                     </li>
                                 @endcanany
+                                @can('request-order.list')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown">
@@ -76,6 +77,7 @@
                                     </a>
                                     @include('partials.menu-pembelian')
                                 </li>
+                                @endcan
                             </ul>
                         </div>
                     @endif
