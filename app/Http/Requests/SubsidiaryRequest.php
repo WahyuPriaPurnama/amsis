@@ -62,8 +62,7 @@ class SubsidiaryRequest extends FormRequest
     protected function prepareForValidation()
     {
         $this->merge([
-            'name' => strtoupper($this->name),
-            'tagline' => ucwords(strtolower($this->tagline))
+            'name' => strtoupper($this->name)
         ]);
     }
 }

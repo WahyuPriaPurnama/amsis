@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
         plugins: [centerTextPlugin, rpmScaleLabelsPlugin]
     });
 
-    // Fungsi ambil data
     async function fetchRpmGaugeData() {
         try {
             const response = await fetch('/api/counter');
@@ -82,13 +81,15 @@ document.addEventListener("DOMContentLoaded", () => {
             rpmGauge.config._counterValue = latestCounter;
             rpmGauge.update();
 
-            lastDataTime = Date.now(); // update waktu terakhir data
+            // update waktu terakhir data diterima
+            if (json.last_timestamp) {
+                lastDataTime = json.last_timestamp * 1000; // update global
+            }
         } catch (error) {
             console.error("Gagal memuat data CPM Gauge:", error);
-            rpmGauge.update(); // tetap redraw agar indikator delay muncul
+            rpmGauge.update();
         }
     }
-
     // Init pertama
     fetchRpmGaugeData();
 

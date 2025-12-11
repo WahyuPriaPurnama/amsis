@@ -14,10 +14,12 @@ class CounterController extends Controller
     public function index()
     {
         $data = Counter::latest()->take(20)->get()->reverse()->values();
+        $lastTimestamp = Counter::latest()->value('created_at');
         return response()->json([
             'labels' => $data->pluck('created_at')->map(fn($t) => $t->format('H:i:s')),
             'rpm' => $data->pluck('rpm'),
             'counter' => $data->pluck('counter'),
+            'last_update' => $lastTimestamp ? $lastTimestamp->timestamp : null,
         ]);
     }
 
