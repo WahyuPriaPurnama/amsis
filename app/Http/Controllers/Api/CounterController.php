@@ -19,7 +19,7 @@ class CounterController extends Controller
             'labels' => $data->pluck('created_at')->map(fn($t) => $t->format('H:i:s')),
             'rpm' => $data->pluck('rpm'),
             'counter' => $data->pluck('counter'),
-            'last_update' => $lastTimestamp ? $lastTimestamp->timestamp : null,
+            'last_timestamp' => $lastTimestamp ? $lastTimestamp->timestamp : null,
         ]);
     }
 
