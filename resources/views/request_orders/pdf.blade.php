@@ -116,8 +116,8 @@
                 @endif
             </td>
             <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-                @if ($order->manager && $order->manager->employee && $order->manager->employee->ttd)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->manager->employee->ttd)) }}"
+                @if ($order->plantManager && $order->plantManager->employee && $order->plantManager->employee->ttd)
+                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->plantManager->employee->ttd)) }}"
                         style="width:100px; height:auto;">
                 @endif
             </td>
@@ -143,7 +143,7 @@
             </td>
             <td
                 style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                {{ $order->manager->name ?? '-' }} <br>
+                {{ $order->plantManager->name ?? '-' }} <br>
                 <small>{{ $order->approved_by_manager_at }}</small>
             </td>
             <td

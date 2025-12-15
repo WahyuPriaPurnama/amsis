@@ -70,13 +70,13 @@
                                     </li>
                                 @endcanany
                                 @can('request-order.list')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown">
-                                        Pembelian
-                                    </a>
-                                    @include('partials.menu-pembelian')
-                                </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                                            data-bs-toggle="dropdown">
+                                            Pembelian
+                                        </a>
+                                        @include('request_orders.partials.ro-menu')
+                                    </li>
                                 @endcan
                             </ul>
                         </div>

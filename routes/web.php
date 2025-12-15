@@ -93,7 +93,7 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::resource('request-order', RequestOrderController::class);
-    Route::post('request-order/approve/{id}', [RequestOrderController::class, 'approve'])
+    Route::post('request-order/approve/{id}', [RequestOrderController::class, 'approveDivHead'])
         ->name('request-order.approve_div_head');
     Route::post('request-order/approve-manager/{id}', [RequestOrderController::class, 'approveManager'])->name('request-order.approve_manager');
     Route::post('request-order/approve-bod/{id}', [RequestOrderController::class, 'approveBod'])->name('request-order.approve_bod');

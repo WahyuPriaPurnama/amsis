@@ -24,9 +24,15 @@
                         @break
 
                         @case('approved_by_manager')
-                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
-                                Menunggu Persetujuan BOD
-                            </span>
+                            @if ($order->subsidiary->id == 2)
+                                <span class="badge bg-success fs-5 w-100 text-center">
+                                    Approved
+                                </span>
+                            @else
+                                <span class="badge bg-warning text-dark fs-5 w-100 text-center">
+                                    Menunggu Persetujuan BOD
+                                </span>
+                            @endif
                         @break
 
                         @case('approved_by_bod')
@@ -59,8 +65,6 @@
                     <strong>Nomor RO:</strong> {{ $order->request_number }}
                 </div>
             </div>
-
-
 
             {{-- Barang dinamis --}}
             <h5 class="fw-semibold mb-3">Daftar Barang</h5>
@@ -102,7 +106,7 @@
                     <strong>Kepala Divisi:</strong> {{ $order->divHead->name ?? '-' }}
                 </div>
                 <div class="col-md-3">
-                    <strong>Plant Manager:</strong> {{ $order->manager->name ?? '-' }}
+                    <strong>Plant Manager:</strong> {{ $order->plantManager->name ?? '-' }}
                 </div>
                 <div class="col-md-3">
                     <strong>BOD:</strong> {{ $order->bod->name ?? '-' }}
@@ -115,7 +119,6 @@
                     <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                     @can('request-order.approve')
                         @if ($order->status === 'pending')
-                            {{-- Tombol untuk Kepala Divisi --}}
                             <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
@@ -123,7 +126,6 @@
                                 </button>
                             </form>
                         @elseif($order->status === 'approved_by_div_head')
-                            {{-- Tombol untuk Plant Manager --}}
                             <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
@@ -131,13 +133,14 @@
                                 </button>
                             </form>
                         @elseif($order->status === 'approved_by_manager')
-                            {{-- Tombol untuk Plant Manager --}}
-                            <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-success">
-                                    Approve BOD
-                                </button>
-                            </form>
+                            @if ($order->subsidiary->id != 2)
+                                <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success">
+                                        Approve BOD
+                                    </button>
+                                </form>
+                            @endif
                         @endif
                     @endcan
                 </div>

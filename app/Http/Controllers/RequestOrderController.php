@@ -128,7 +128,7 @@ class RequestOrderController extends Controller
     public function show($id)
     {
         // Ambil Request Order beserta relasi items dan user
-        $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'manager'])->findOrFail($id);
+        $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
 
         return view('request_orders.show', compact('order'));
     }
@@ -165,17 +165,16 @@ class RequestOrderController extends Controller
             ->with('success', 'Request Order berhasil dihapus.');
     }
 
-    public function approve($id)
+    public function approveDivHead($id)
     {
-        if (!auth()->user()->hasRole('div-head')) {
-            abort(403, 'Hanya Kepala Divisi yang dapat menyetujui Request Order.');
-        }
         $requestOrder = RequestOrder::findOrFail($id);
-        // Update status dan approved_by_div_head
-        $requestOrder->status = 'approved_by_div_head';
-        $requestOrder->approved_by_div_head = Auth::id();
-        $requestOrder->approved_by_divhead_at = now();
-        $requestOrder->save();
+        $this->authorize('approve', $requestOrder);
+
+        $requestOrder->update([
+            'status' => 'approved_by_div_head',
+            'approved_by_div_head' => Auth::id(),
+            'approved_by_divhead_at' => now(),
+        ]);
 
         return redirect()->route('request-order.index')
             ->with('success', 'Request Order telah disetujui oleh Kepala Divisi.');
@@ -183,16 +182,23 @@ class RequestOrderController extends Controller
 
     public function approveManager($id)
     {
-        if (!auth()->user()->hasRole('manager')) {
-            abort(403, 'Hanya Plant Manager dapat menyetujui Request Order.');
-        }
         $requestOrder = RequestOrder::findOrFail($id);
+        $this->authorize('approve', $requestOrder);
 
-        // Update status dan approved_by_manager
-        $requestOrder->status = 'approved_by_manager';
-        $requestOrder->approved_by_manager = Auth::id();
-        $requestOrder->approved_by_manager_at = now();
-        $requestOrder->save();
+        if ($requestOrder->subsidiary_id == 2) {
+            // Plant Manager merangkap BOD
+            $requestOrder->update([
+                'status' => 'approved_by_bod',
+                'approved_by_bod' => Auth::id(),
+                'approved_by_bod_at' => now(),
+            ]);
+
+            $requestOrder->update([
+                'status' => 'approved_by_manager',
+                'approved_by_manager' => Auth::id(),
+                'approved_by_manager_at' => now(),
+            ]);
+        }
 
         return redirect()->route('request-order.index')
             ->with('success', 'Request Order telah disetujui oleh Manager.');
@@ -200,24 +206,21 @@ class RequestOrderController extends Controller
 
     public function approveBod($id)
     {
-        if (!auth()->user()->hasRole('bod')) {
-            abort(403, 'Hanya BOD yang dapat menyetujui Request Order.');
-        }
         $requestOrder = RequestOrder::findOrFail($id);
+        $this->authorize('approve', $requestOrder);
 
-        // Update status dan approved_by_bod
-        $requestOrder->status = 'approved_by_bod';
-        $requestOrder->approved_by_bod = Auth::id();
-        $requestOrder->approved_by_bod_at = now();
-        $requestOrder->save();
+        $requestOrder->update([
+            'status' => 'approved_by_bod',
+            'approved_by_bod' => Auth::id(),
+            'approved_by_bod_at' => now(),
+        ]);
 
         return redirect()->route('request-order.index')
             ->with('success', 'Request Order telah disetujui oleh BOD.');
     }
-
     public function pdf($id)
     {
-        $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'manager'])->findOrFail($id);
+        $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
         $pdf = Pdf::loadView('request_orders.pdf', compact('order', 'timestamp'));
         return $pdf->stream('RO-' . $order->request_number . '.pdf');

@@ -52,7 +52,7 @@ class RequestOrder extends Model
     /**
      * Relasi ke plant manager
      */
-    public function manager()
+    public function plantManager()
     {
         return $this->belongsTo(User::class, 'approved_by_manager');
     }
@@ -71,5 +71,19 @@ class RequestOrder extends Model
     {
         return $this->belongsTo(User::class, 'requested_by');
         // ganti 'requested_by' dengan 'user_id' kalau kolomnya bernama user_id
+    }
+    public function getStatusLabelAttribute(): string
+    {
+        if ($this->status === 'approved_by_div_head' && $this->subsidiary_id == 2) {
+            return '<span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager / BOD</span>';
+        }
+
+        return match ($this->status) {
+            'pending' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>',
+            'approved_by_div_head' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>',
+            'approved_by_manager' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>',
+            'approved_by_bod' => '<span class="badge bg-success">Approved</span>',
+            default => '<span class="badge bg-secondary">' . $this->status . '</span>',
+        };
     }
 }

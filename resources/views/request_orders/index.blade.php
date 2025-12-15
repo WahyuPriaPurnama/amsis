@@ -19,7 +19,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            {{-- <th>Plant</th> --}}
+                            <th>Plant</th>
                             <th>Divisi</th>
                             <th>Tanggal</th>
                             <th>No. RO</th>
@@ -32,7 +32,7 @@
                         @foreach ($orders as $order)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                {{-- <td>{{ $order->subsidiary->name ?? '-' }}</td> --}}
+                                <td>{{ $order->subsidiary->name ?? '-' }}</td>
                                 <td>{{ $order->division }}</td>
                                 <td>{{ \Carbon\Carbon::parse($order->request_date)->format('d-m-Y') }}</td>
 
@@ -62,58 +62,38 @@
                                         @break
 
                                         @case('approved_by_div_head')
-                                            <spa n class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
-                                            @break
+                                            @if ($order->subsidiary->id == 2)
+                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager / BOD</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
+                                            @endif
+                                        @break
 
-                                            @case('approved_by_manager')
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
-                                            @break
-
-                                            @case('approved_by_bod')
+                                        @case('approved_by_manager')
+                                            @if ($order->subsidiary->id == 2)
                                                 <span class="badge bg-success">Approved</span>
-                                            @break
+                                            @else
+                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
+                                            @endif
+                                        @break
 
-                                            @default
-                                                <span class="badge bg-secondary">{{ $order->status }}</span>
-                                            @break
-                                        @endswitch
+                                        @case('approved_by_bod')
+                                            <span class="badge bg-success">Approved</span>
+                                        @break
+
+                                        @default
+                                            <span class="badge bg-secondary">{{ $order->status }}</span>
+                                        @break
+                                    @endswitch
                                 </td>
                                 <td>
                                     @can('request-order.approve')
-                                        @switch ($order->status)
-                                            @case('pending')
-                                                {{-- Tombol untuk Kepala Divisi --}}
-                                                <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success">
-                                                        Approve
-                                                    </button>
-                                                </form>
-                                            @break
-
-                                            @case('approved_by_div_head')
-                                                {{-- Tombol untuk Plant Manager --}}
-                                                <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-primary">
-                                                        Approve
-                                                    </button>
-                                                </form>
-                                            @break
-
-                                            @case('approved_by_manager')
-                                                {{-- Tombol untuk Plant Manager --}}
-                                                <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-primary">
-                                                        Approve
-                                                    </button>
-                                                </form>
-                                            @break
-                                        @endswitch
+                                        @include('request_orders.partials.approve-button')
                                     @endcan
                                     @if ($order->status === 'approved_by_bod')
-                                        <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                                        @can('request-order.export')
+                                            <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                                        @endcan
                                     @endif
                                 </td>
                             </tr>
