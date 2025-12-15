@@ -33,54 +33,49 @@
                         aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    @if (!$isEmployee)
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav me-auto">
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    E-Slip
+                                </a>
+                                @include('partials.menu-eslip')
+                            </li>
+                            @canany(['employee.list', 'subsidiary.list', 'vehicle.list'])
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                                        data-bs-toggle="dropdown">
-                                        E-Slip
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        HRD
                                     </a>
-                                    @include('partials.menu-eslip')
-                                </li>
-                                @canany(['employee.list', 'subsidiary.list', 'vehicle.list'])
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" href="#" role="button"
-                                            data-bs-toggle="dropdown">
-                                            HRD
-                                        </a>
-                                        <ul class="dropdown-menu">
-                                            @can('employee.list')
-                                                <li><a class="dropdown-item @yield('menuEmployees')"
-                                                        href="{{ route('employees.index') }}">Karyawan</a></li>
-                                            @endcan
-                                            @can('subsidiary.list')
-                                                <li><a class="dropdown-item @yield('menuSubsidiaries')"
-                                                        href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
-                                            @endcan
-                                            @can('vehicle.list')
-                                                <li><a class="dropdown-item @yield('menuVehicles')"
-                                                        href="{{ route('vehicles.index') }}">Kendaraan</a></li>
-                                            @endcan
-                                            {{-- <li><a class="dropdown-item @yield('menuScanlog')"
+                                    <ul class="dropdown-menu">
+                                        @can('employee.list')
+                                            <li><a class="dropdown-item @yield('menuEmployees')"
+                                                    href="{{ route('employees.index') }}">Karyawan</a></li>
+                                        @endcan
+                                        @can('subsidiary.list')
+                                            <li><a class="dropdown-item @yield('menuSubsidiaries')"
+                                                    href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
+                                        @endcan
+                                        @can('vehicle.list')
+                                            <li><a class="dropdown-item @yield('menuVehicles')"
+                                                    href="{{ route('vehicles.index') }}">Kendaraan</a></li>
+                                        @endcan
+                                        {{-- <li><a class="dropdown-item @yield('menuScanlog')"
                                                 href="{{ route('scanlog.index') }}">Scanlog</a></li>
                                         <li><a class="dropdown-item @yield('menuHarian')"
                                                 href="{{ route('karyawan-harian.index') }}">Karyawan</a></li> --}}
-                                        </ul>
-                                    </li>
-                                @endcanany
-                                @can('request-order.list')
-                                    <li class="nav-item dropdown">
-                                        <a class="nav-link dropdown-toggle" href="#" role="button"
-                                            data-bs-toggle="dropdown">
-                                            Pembelian
-                                        </a>
-                                        @include('request_orders.partials.ro-menu')
-                                    </li>
-                                @endcan
-                            </ul>
-                        </div>
-                    @endif
+                                    </ul>
+                                </li>
+                            @endcanany
+                            @can('request-order.list')
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        Pembelian
+                                    </a>
+                                    @include('request_orders.partials.ro-menu')
+                                </li>
+                            @endcan
+                        </ul>
+                    </div> 
                 @endauth
                 @guest
                     <a class="navbar-brand" href="{{ url('/') }}" id="amsis-logo">
