@@ -39,6 +39,7 @@
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     E-Slip
                                 </a>
+                                
                                 @include('hrd.partials.menu-eslip')
                             </li>
                             @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
