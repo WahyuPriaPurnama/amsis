@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
             rpmChart.data.datasets[0].data = json.counter;
             rpmChart.update();
         } catch (error) {
-            console.error("Gagal memuat data CPM Chart:", error);
+            console.error("Gagal memuat data CPM Chart:", error); 
         }
     }
 

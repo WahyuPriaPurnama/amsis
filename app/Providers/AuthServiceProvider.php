@@ -22,10 +22,8 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
-
-        Gate::define('employee-edit.own', function ($user, $employee) {
-            // hanya boleh edit jika employee_id sama dengan dirinya sendiri
-            return $user->employee_id === $employee->id;
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('super-admin') ? true : null;
         });
     }
 }

@@ -9,8 +9,7 @@ use App\Models\Subsidiary;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-
-
+use Spatie\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,11 +22,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             AssignAllRolesSeeder::class,
             // EmployeeAccountsSeeder::class,
-            EmployeePermissionRoleSeeder::class,
-            SubsidiaryPermissionRoleSeeder::class,
-            UserPermissionRoleSeeder::class,
-            VehiclePermissionRoleSeeder::class,
-            RequestOrderSeeder::class,
+            PermissionSeeder::class,
         ]);
     }
 }

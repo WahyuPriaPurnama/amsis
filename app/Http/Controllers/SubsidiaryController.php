@@ -88,6 +88,9 @@ class SubsidiaryController extends Controller
 
     public function destroy(Subsidiary $subsidiary)
     {
+        if ($subsidiary->employees()->count() > 0) {
+            return redirect()->route('subsidiaries.index')->with('alert2', "Tidak dapat menghapus {$subsidiary->name} karena masih ada karyawan di plant tersebut.");
+        }
         Storage::disk('local')->delete("public/subsidiary/logo/{$subsidiary->logo}");
         Storage::disk('local')->delete("public/subsidiary/kop_header/{$subsidiary->kop_header}");
         Storage::disk('local')->delete("public/subsidiary/kop_footer/{$subsidiary->kop_footer}");
