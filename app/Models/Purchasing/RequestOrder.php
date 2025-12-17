@@ -1,7 +1,10 @@
 <?php
 // app/Models/RequestOrder.php
-namespace App\Models;
+namespace App\Models\Purchasing;
 
+use App\Models\HRD\Subsidiary;
+use App\Models\Purchasing\RequestOrderItem;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -70,7 +73,6 @@ class RequestOrder extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'requested_by');
-        // ganti 'requested_by' dengan 'user_id' kalau kolomnya bernama user_id
     }
     public function getStatusLabelAttribute(): string
     {

@@ -119,22 +119,25 @@
                     <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                     @can('request-order.approve')
                         @if ($order->status === 'pending')
-                            <form action="{{ route('request-order.approve_div_head', $order->id) }}" method="POST">
+                            <form action="{{ route('request-order.approve_div_head', ['id' => $order->id, 'from' => 'show']) }}"
+                                method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
-                                    Approve Kepala Divisi
+                                    Approve Kadiv
                                 </button>
                             </form>
                         @elseif($order->status === 'approved_by_div_head')
-                            <form action="{{ route('request-order.approve_manager', $order->id) }}" method="POST">
+                            <form action="{{ route('request-order.approve_manager', ['id' => $order->id, 'from' => 'show']) }}"
+                                method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
-                                    Approve Plant Manager
+                                    Approve Plant Mgr
                                 </button>
                             </form>
                         @elseif($order->status === 'approved_by_manager')
                             @if ($order->subsidiary->id != 2)
-                                <form action="{{ route('request-order.approve_bod', $order->id) }}" method="POST">
+                                <form action="{{ route('request-order.approve_bod', ['id' => $order->id, 'from' => 'show']) }}"
+                                    method="POST">
                                     @csrf
                                     <button type="submit" class="btn btn-success">
                                         Approve BOD

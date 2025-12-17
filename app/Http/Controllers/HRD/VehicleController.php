@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HRD;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreVehicleRequest;
 use App\Http\Requests\UpdateVehicleRequest;
-use App\Models\Subsidiary;
-use App\Models\Vehicle;
+use App\Models\HRD\Subsidiary;
+use App\Models\HRD\Vehicle;
 use App\Traits\FileUpload;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ class VehicleController extends Controller
     public function index()
     {
         $data = Vehicle::Index()->paginate(50);
-        return view('vehicles.index', compact('data'));
+        return view('hrd.vehicle.index', compact('data'));
     }
 
 
@@ -37,7 +38,7 @@ class VehicleController extends Controller
             $sub = Subsidiary::where('id', $user->subsidiary_id)->get();
         }
 
-        return view('vehicles.create', compact('sub'));
+        return view('hrd.vehicle.create', compact('sub'));
     }
 
 
@@ -84,7 +85,7 @@ class VehicleController extends Controller
      */
     public function show(Vehicle $vehicle)
     {
-        return view('vehicles.show', compact('vehicle'));
+        return view('hrd.vehicle.show', compact('vehicle'));
     }
 
     /**
@@ -93,7 +94,7 @@ class VehicleController extends Controller
     public function edit(Vehicle $vehicle)
     {
         $sub = Subsidiary::all();
-        return view('vehicles.edit', compact('sub', 'vehicle'));
+        return view('hrd.vehicle.edit', compact('sub', 'vehicle'));
     }
     /**
      * Update the specified resource in storage.
@@ -209,7 +210,7 @@ class VehicleController extends Controller
         $timestamp = now()->format('d/m/Y H:i:s');
         ini_set('max_execution_time', 500);
         ini_set('memory_limit', '512M');
-        $pdf = pdf::loadview('vehicles.pdf.index', ['vehicles' => $vehicles, 'timestamp' => $timestamp, 'subsidiary' => $subsidiary])
+        $pdf = pdf::loadview('hrd.vehicle.pdf.index', ['vehicles' => $vehicles, 'timestamp' => $timestamp, 'subsidiary' => $subsidiary])
             ->setPaper('letter', 'landscape');
         return $pdf->stream('data-kendaraan-' . now()->format('d-m-Y') . '.pdf');
     }
@@ -219,7 +220,7 @@ class VehicleController extends Controller
         $vehicle = Vehicle::findOrFail($id);
         $subsidiary = Subsidiary::find($vehicle->subsidiary_id);
         $timestamp = now()->format('d-m-Y H:i:s');
-        $pdf = Pdf::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadview('vehicles.pdf.show', ['vehicle' => $vehicle, 'subsidiary' => $subsidiary, 'timestamp' => $timestamp])->setPaper('letter', 'landscape');
+        $pdf = Pdf::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadview('hrd.vehicle.pdf.show', ['vehicle' => $vehicle, 'subsidiary' => $subsidiary, 'timestamp' => $timestamp])->setPaper('letter', 'landscape');
         return $pdf->stream('data-kendaraan-' . $vehicle->jenis_kendaraan . '-' . now()->format('d-m-Y') . '.pdf');
     }
 }

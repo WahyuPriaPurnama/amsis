@@ -88,12 +88,10 @@
                                 </td>
                                 <td>
                                     @can('request-order.approve')
-                                        @include('request_orders.partials.approve-button')
+                                        @include('purchasing.partials.approve-button')
                                     @endcan
                                     @if ($order->status === 'approved_by_bod')
-                                        @can('request-order.export')
-                                            <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
-                                        @endcan
+                                        <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                                     @endif
                                 </td>
                             </tr>

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HRD;
 
 use App\Exports\ScanlogExport;
+use App\Http\Controllers\Controller;
 use App\Imports\ScanlogImport;
-use App\Models\Employee;
-use App\Models\Scanlog;
+use App\Models\HRD\Employee;
+use App\Models\HRD\Scanlog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -21,15 +22,15 @@ class ScanlogController extends Controller
     {
         $this->authorize('view', Employee::class);
         $scanlogs = Scanlog::latest()->get();
-        return view('scanlog.index', compact('scanlogs'));
+        return view('hrd.scanlog.index', compact('scanlogs'));
     }
-   
+
     public function prosesGaji()
     {
         $scanlogs = Scanlog::with('harian')->get();
 
         if ($scanlogs->isEmpty()) {
-            return redirect()->route('scanlog.index')->with('alert2', 'Database kosong. Tidak ada data scanlog yang tersedia.');
+            return redirect()->route('hrd.scanlog.index')->with('alert2', 'Database kosong. Tidak ada data scanlog yang tersedia.');
         }
 
         $pinTidakDitemukan = [];
@@ -48,7 +49,7 @@ class ScanlogController extends Controller
             ? 'Gaji berhasil diproses! Namun, beberapa PIN tidak ditemukan: ' . implode(', ', $pinTidakDitemukan)
             : 'Gaji berhasil diproses!';
 
-        return redirect()->route('scanlog.index')->with('alert', $pesan);
+        return redirect()->route('hrd.scanlog.index')->with('alert', $pesan);
     }
 
     public function import(Request $request)
@@ -73,7 +74,7 @@ class ScanlogController extends Controller
         }
         //remove from server
         Storage::delete($path);
-        return redirect()->route('scanlog.index')->with($pesan);
+        return redirect()->route('hrd.scanlog.index')->with($pesan);
     }
 
     public function export()
@@ -140,7 +141,7 @@ class ScanlogController extends Controller
     {
         $datas = Scanlog::where('status', 0)->get();
         if ($datas->isEmpty()) {
-            return redirect()->route('scanlog.index')->with('alert2', 'tidak ada data yang perlu diproses');
+            return redirect()->route('hrd.scanlog.index')->with('alert2', 'tidak ada data yang perlu diproses');
         }
         $berhasil = 0;
         foreach ($datas as $data) {
@@ -180,15 +181,15 @@ class ScanlogController extends Controller
             ? "Berhasil, {$berhasil} data berhasil dikonversi ke jam."
             : "Gagal mengonversi data ke jam.";
         $alert = $berhasil > 0 ? 'alert' : 'alert2';
-        return redirect()->route('scanlog.index')->with($alert, $pesan);
+        return redirect()->route('hrd.scanlog.index')->with($alert, $pesan);
     }
 
     public function truncate()
     {
         if (!Scanlog::exists()) {
-            return redirect()->route('scanlog.index')->with('alert2', 'tidak ada data yang perlu dihapus');
+            return redirect()->route('hrd.scanlog.index')->with('alert2', 'tidak ada data yang perlu dihapus');
         }
         Scanlog::truncate();
-        return redirect()->route('scanlog.index')->with('alert', 'data berhasil dikosongkan!');
+        return redirect()->route('hrd.scanlog.index')->with('alert', 'data berhasil dikosongkan!');
     }
 }

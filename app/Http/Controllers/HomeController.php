@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
+use App\Models\HRD\Employee;
 use App\Models\LogActivity;
-use App\Models\Vehicle;
+use App\Models\HRD\Vehicle;
 
 class HomeController extends Controller
 {

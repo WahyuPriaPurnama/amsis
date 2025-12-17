@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HRD;
 
 use App\Exports\EmployeeExport;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Imports\EmployeeImport;
-use App\Models\Employee;
-use App\Models\Subsidiary;
+use App\Models\HRD\Employee;
+use App\Models\HRD\Subsidiary;
 use App\Models\User;
 use App\Traits\FileUpload;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -55,7 +56,7 @@ class EmployeeController extends Controller
 
         $employees = $query->paginate(1000);
 
-        return view('employees.index', compact('employees'));
+        return view('hrd.employee.index', compact('employees'));
     }
     protected function getSubsidiaryIdByRole($user, array $roleSubsidiaryMap): ?int
     {
@@ -105,7 +106,7 @@ class EmployeeController extends Controller
             $subsidiaries = Subsidiary::where('id', 5)->get();
         }
 
-        return view('employees.create', compact('subsidiaries'));
+        return view('hrd.employee.create', compact('subsidiaries'));
     }
     /**
      * Store a newly created resource in storage.
@@ -164,7 +165,7 @@ class EmployeeController extends Controller
         }
 
         return redirect()
-            ->route('employees.index')
+            ->route('employee.index')
             ->with('alert', "Input data {$employee->nama} berhasil");
     }
 
@@ -173,8 +174,9 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        return view('employees.show', compact('employee'));
+        return view('hrd.employee.show', compact('employee'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -223,7 +225,7 @@ class EmployeeController extends Controller
         // Cek apakah user adalah karyawan dan sedang edit datanya sendiri
         $isEmployee = $user->hasRole('employee') && $user->employee_id === $employee->id;
         $isLeader = $user->hasAnyRole(['div-head', 'manager', 'bod']);
-        return view('employees.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader'));
+        return view('hrd.employee.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader'));
     }
 
     /**
@@ -345,7 +347,7 @@ class EmployeeController extends Controller
         $timestamp = now()->format('d/m/Y H:i:s');
         ini_set('max_execution_time', 500);
         ini_set('memory_limit', '512M');
-        $pdf = pdf::loadview('employees.pdf.index', ['employees' => $employees, 'timestamp' => $timestamp, 'subsidiary' => $subsidiary])
+        $pdf = pdf::loadview('hrd.employee.pdf.index', ['employees' => $employees, 'timestamp' => $timestamp, 'subsidiary' => $subsidiary])
             ->setPaper('letter', 'landscape');
         return $pdf->stream('data-karyawan-' . now()->format('d-M-Y') . '.pdf');
     }
@@ -393,7 +395,7 @@ class EmployeeController extends Controller
         $pdf = PDF::setOptions([
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true
-        ])->loadView('employees.pdf.show', compact('employee', 'timestamp', 'subsidiary'))
+        ])->loadView('hrd.employee.pdf.show', compact('employee', 'timestamp', 'subsidiary'))
             ->setPaper('letter', 'landscape');
 
         return $pdf->stream($filename);

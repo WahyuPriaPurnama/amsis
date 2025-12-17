@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HRD;
 
+use App\Http\Controllers\Controller;
 use App\Models\Asset;
 use Illuminate\Http\Request;
 

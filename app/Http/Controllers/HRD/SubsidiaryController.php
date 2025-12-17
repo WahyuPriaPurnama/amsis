@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HRD;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\SubsidiaryRequest;
-use App\Models\Subsidiary;
+use App\Models\HRD\Subsidiary;
 use App\Traits\FileUpload;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -15,12 +16,12 @@ class SubsidiaryController extends Controller
     public function index()
     {
         $subsidiaries = Subsidiary::withCount('employees')->get();
-        return view('subsidiaries.index', compact('subsidiaries'));
+        return view('hrd.subsidiary.index', compact('subsidiaries'));
     }
 
     public function create()
     {
-        return view('subsidiaries.form', [
+        return view('hrd.subsidiary.form', [
             'subsidiary' => new Subsidiary(),
             'isEdit' => false,
         ]);
@@ -48,13 +49,13 @@ class SubsidiaryController extends Controller
 
     public function show(Subsidiary $subsidiary)
     {
-        return view('subsidiaries.show', compact('subsidiary'));
+        return view('hrd.subsidiary.show', compact('subsidiary'));
     }
 
 
     public function edit(Subsidiary $subsidiary)
     {
-        return view('subsidiaries.form', [
+        return view('hrd.subsidiary.form', [
             'subsidiary' => $subsidiary,
             'isEdit' => true,
         ]);

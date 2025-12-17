@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\RequestOrder;
+use App\Models\Purchasing\RequestOrder;
 use App\Models\User;
 
 class RequestOrderPolicy

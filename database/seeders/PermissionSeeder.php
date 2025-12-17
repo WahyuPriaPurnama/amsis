@@ -55,6 +55,7 @@ class PermissionSeeder extends Seeder
             'request-order.create',
             'request-order.edit',
             'request-order.delete',
+            'request-order.approve',
         ];
         $RequestPaymentPermissions = [
             'request-payment.list',
@@ -62,6 +63,7 @@ class PermissionSeeder extends Seeder
             'request-payment.create',
             'request-payment.edit',
             'request-payment.delete',
+            'request-payment.approve',
         ];
         $allPermissions = array_merge(
             $SubsidiaryPermissions,

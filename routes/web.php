@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\HarianController;
+use App\Http\Controllers\HRD\EmployeeController;
+use App\Http\Controllers\HRD\HarianController;
+use App\Http\Controllers\HRD\ScanlogController;
+use App\Http\Controllers\HRD\SubsidiaryController;
+use App\Http\Controllers\HRD\VehicleController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ScanlogController;
-use App\Http\Controllers\SubsidiaryController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\VehicleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\RequestOrderController;
+use App\Http\Controllers\Purchasing\RequestOrderController;
 use App\Http\Controllers\RolePermissionController;
 
 /*
@@ -110,12 +110,12 @@ Route::redirect('/', '/login');
 
 // e-slip routes
 $routes = [
-    'ams-malang' => 'e-slip.ams',
-    'rmm-malang' => 'e-slip.rmm',
-    'eln-malang' => 'e-slip.eln1',
-    'eln-bwi'    => 'e-slip.eln2',
-    'haka-bwi'   => 'e-slip.haka',
-    'bofi-bwi'   => 'e-slip.bofi',
+    'ams-malang' => 'hrd.e-slip.ams',
+    'rmm-malang' => 'hrd.e-slip.rmm',
+    'eln-malang' => 'hrd.e-slip.eln1',
+    'eln-bwi'    => 'hrd.e-slip.eln2',
+    'haka-bwi'   => 'hrd.e-slip.haka',
+    'bofi-bwi'   => 'hrd.e-slip.bofi',
 ];
 
 foreach ($routes as $uri => $view) {

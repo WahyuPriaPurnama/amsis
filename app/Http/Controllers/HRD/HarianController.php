@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\HRD;
 
 use App\Exports\HarianExport;
+use App\Http\Controllers\Controller;
 use App\Imports\HarianImport;
-use App\Models\Employee;
-use App\Models\Harian;
-use App\Models\Scanlog;
+use App\Models\HRD\Employee;
+use App\Models\HRD\Harian;
+use App\Models\HRD\Scanlog;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -102,7 +103,7 @@ class HarianController extends Controller
     {
         $this->authorize('view', Employee::class);
         $harian = Harian::latest()->get();
-        return view('scanlog.harian', compact('harian'));
+        return view('hrd.scanlog.harian', compact('harian'));
     }
 
 

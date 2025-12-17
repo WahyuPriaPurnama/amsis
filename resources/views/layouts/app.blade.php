@@ -39,9 +39,9 @@
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     E-Slip
                                 </a>
-                                @include('partials.menu-eslip')
+                                @include('hrd.partials.menu-eslip')
                             </li>
-                            @canany(['employee.list', 'subsidiary.list', 'vehicle.list'])
+                            @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         HRD
@@ -59,6 +59,9 @@
                                             <li><a class="dropdown-item @yield('menuVehicles')"
                                                     href="{{ route('vehicles.index') }}">Kendaraan</a></li>
                                         @endcan
+                                        @can('asset.list')
+                                            <li><a href="#" class="dropdown-item">Asset</a></li>
+                                        @endcan
                                         {{-- <li><a class="dropdown-item @yield('menuScanlog')"
                                                 href="{{ route('scanlog.index') }}">Scanlog</a></li>
                                         <li><a class="dropdown-item @yield('menuHarian')"
@@ -66,16 +69,16 @@
                                     </ul>
                                 </li>
                             @endcanany
-                            @can('request-order.list')
+                            @canany(['request-order.list', 'request-payment.list'])
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         Pembelian
                                     </a>
-                                    @include('request_orders.partials.ro-menu')
+                                    @include('purchasing.partials.purchasing-menu')
                                 </li>
                             @endcan
                         </ul>
-                    </div> 
+                    </div>
                 @endauth
                 @guest
                     <a class="navbar-brand" href="{{ url('/') }}" id="amsis-logo">

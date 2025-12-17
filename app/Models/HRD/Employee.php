@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
-
+namespace App\Models\HRD;
+use App\Models\User;
+use App\Models\HRD\Subsidiary;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

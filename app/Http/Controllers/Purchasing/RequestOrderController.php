@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Purchasing;
 
-use App\Models\RequestOrder;
-use App\Models\Subsidiary;
+use App\Http\Controllers\Controller;
+use App\Models\Purchasing\RequestOrder;
+use App\Models\HRD\Subsidiary;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,7 @@ class RequestOrderController extends Controller
                 ->latest()
                 ->paginate(20);
 
-            return view('request_orders.index', compact('orders'));
+            return view('purchasing.request_order.index', compact('orders'));
         }
 
         // Jika tidak punya permission → abort
@@ -68,7 +69,7 @@ class RequestOrderController extends Controller
             $subsidiaries = Subsidiary::where('id', 5)->get();
         }
 
-        return view('request_orders.create', compact('subsidiaries'));
+        return view('purchasing.request_order.create', compact('subsidiaries'));
     }
 
     /**
@@ -118,7 +119,7 @@ class RequestOrderController extends Controller
         }
 
         return redirect()->route('request-order.index')
-            ->with('success', 'Request Order berhasil disimpan.');
+            ->with('alert', 'Request Order berhasil dibuat.');
     }
 
 
@@ -130,7 +131,7 @@ class RequestOrderController extends Controller
         // Ambil Request Order beserta relasi items dan user
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
 
-        return view('request_orders.show', compact('order'));
+        return view('purchasing.request_order.show', compact('order'));
     }
 
 
@@ -162,10 +163,10 @@ class RequestOrderController extends Controller
         $requestOrder->delete();
 
         return redirect()->route('request-order.index')
-            ->with('success', 'Request Order berhasil dihapus.');
+            ->with('alert', 'Request Order berhasil dihapus.');
     }
 
-    public function approveDivHead($id)
+    public function approveDivHead(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
         $this->authorize('approve', $requestOrder);
@@ -175,36 +176,50 @@ class RequestOrderController extends Controller
             'approved_by_div_head' => Auth::id(),
             'approved_by_divhead_at' => now(),
         ]);
+        if ($request->input('from') === 'show') {
+            return redirect()->route('request-order.show', $id)
+                ->with('alert', 'Request Order telah disetujui oleh Kepala Divisi.');
+        }
 
         return redirect()->route('request-order.index')
-            ->with('success', 'Request Order telah disetujui oleh Kepala Divisi.');
+            ->with('alert', 'Request Order telah disetujui oleh Kepala Divisi.');
     }
 
-    public function approveManager($id)
+    public function approveManager(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
         $this->authorize('approve', $requestOrder);
 
         if ($requestOrder->subsidiary_id == 2) {
-            // Plant Manager merangkap BOD
             $requestOrder->update([
-                'status' => 'approved_by_bod',
-                'approved_by_bod' => Auth::id(),
-                'approved_by_bod_at' => now(),
-            ]);
-
-            $requestOrder->update([
-                'status' => 'approved_by_manager',
-                'approved_by_manager' => Auth::id(),
+                'status'                 => 'approved_by_bod',
+                'approved_by_bod'        => Auth::id(),
+                'approved_by_bod_at'     => now(),
+                'approved_by_manager'    => Auth::id(),
                 'approved_by_manager_at' => now(),
             ]);
+            if ($request->input('from') === 'show') {
+                return redirect()->route('request-order.show', $id)
+                    ->with('alert', 'Request Order telah disetujui.');
+            }
+            return redirect()->route('request-order.index')
+                ->with('alert', 'Request Order telah disetujui.');
+        } else {
+            $requestOrder->update([
+                'status'                 => 'approved_by_manager',
+                'approved_by_manager'    => Auth::id(),
+                'approved_by_manager_at' => now(),
+            ]);
+            if ($request->input('from') === 'show') {
+                return redirect()->route('request-order.show', $id)
+                    ->with('alert', 'Request Order telah disetujui Plant Manager.');
+            }
+            return redirect()->route('request-order.index')
+                ->with('alert', 'Request Order telah disetujui Plant Manager.');
         }
-
-        return redirect()->route('request-order.index')
-            ->with('success', 'Request Order telah disetujui oleh Manager.');
     }
 
-    public function approveBod($id)
+    public function approveBod(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
         $this->authorize('approve', $requestOrder);
@@ -214,15 +229,18 @@ class RequestOrderController extends Controller
             'approved_by_bod' => Auth::id(),
             'approved_by_bod_at' => now(),
         ]);
-
+        if ($request->input('from') === 'show') {
+            return redirect()->route('request-order.show', $id)
+                ->with('alert', 'Request Order telah disetujui BOD.');
+        }
         return redirect()->route('request-order.index')
-            ->with('success', 'Request Order telah disetujui oleh BOD.');
+            ->with('alert', 'Request Order telah disetujui BOD.');
     }
     public function pdf($id)
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
-        $pdf = Pdf::loadView('request_orders.pdf', compact('order', 'timestamp'));
+        $pdf = Pdf::loadView('purchasing.request_order.pdf', compact('order', 'timestamp'));
         return $pdf->stream('RO-' . $order->request_number . '.pdf');
     }
 }
