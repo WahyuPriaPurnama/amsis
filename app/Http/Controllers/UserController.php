@@ -16,11 +16,21 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = User::index()->orderBy('name', 'asc');
+
+        // Jika ada input pencarian
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
         return view('auth.userlist', [
             'roles' => Role::with('permissions')->orderBy('name', 'asc')->get(),
-            'users' => User::with('roles')->orderBy('name', 'asc')->get(),
+            'users' => $query->paginate(20)->withQueryString(), // tetap paginasi
         ]);
     }
 

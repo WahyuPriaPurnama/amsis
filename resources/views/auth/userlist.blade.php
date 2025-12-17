@@ -6,13 +6,22 @@
             @slot('header')
                 User Management
             @endslot
-            <div class="d-flex gap-2 mb-3">
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUser"
-                    data-bs-toggle="tooltip" title="Tambah User">
-                    <i class="bi bi-person-fill-add"></i>
-                </button>
-                <x-buttons.excel href="{{ route('users.export') }}" class="btn btn-success">
-                </x-buttons.excel>
+            <div class="d-flex justify-content-between mb-3 gap-2">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUser"
+                        data-bs-toggle="tooltip" title="Tambah User">
+                        <i class="bi bi-person-fill-add"></i>
+                    </button>
+                    <x-buttons.excel href="{{ route('users.export') }}" class="btn btn-success">
+                    </x-buttons.excel>
+                </div>
+                <form method="GET" action="{{ route('users.index') }}">
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            placeholder="Cari nama atau email">
+                        <button class="btn btn-primary" type="submit">Cari</button>
+                    </div>
+                </form>
             </div>
             <!-- Modal -->
             <div class="modal fade" id="addUser" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -85,8 +94,9 @@
                 </div>
             </div>
 
+
             <div class="table-responsive">
-                <table class="table table-hover" id="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -100,7 +110,7 @@
                     <tbody>
                         @foreach ($users as $user)
                             <tr>
-                                <td> {{ $loop->iteration }}</td>
+                                <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td>
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->email }}</td>
                                 <td>{{ implode(', ', $user->getRoleNames()->toArray()) }}</td>
@@ -226,6 +236,7 @@
                                 </td>
                             </tr>
                         @endforeach
+                        {{ $users->links() }}
                     </tbody>
                 </table>
             </div>
