@@ -1,14 +1,14 @@
 @extends('layouts.app')
-@section('title', 'Data Request Order')
-@section('menuOrder', 'active')
+@section('title', 'Data Request Payment')
+@section('menuRP', 'active')
 @section('content')
     <div class="container-fluid mt-3">
         @component('components.card')
             <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
-                @can('request-order.create')
-                    <x-buttons.create href="{{ route('request-order.create') }}">Buat RO</x-buttons.create>
+                @can('request-payment.create')
+                    <x-buttons.create href="{{ route('request-payment.create') }}">Buat RFP</x-buttons.create>
                 @endcan
-                <form method="GET" action="{{ route('request-order.index') }}">
+                <form method="GET" action="{{ route('request-payment.index') }}">
                     <div class="input-group">
                         <input type="text" name="search" value="{{ request('search') }}" class="form-control"
                             placeholder="Cari...">
@@ -17,7 +17,7 @@
                 </form>
             </div>
             @slot('header')
-                List Request Order
+                List Request Payment
             @endslot
             <div class="table-responsive">
                 <table class="table table-hover display">
@@ -28,45 +28,45 @@
                             <th>Divisi</th>
                             <th>Tanggal</th>
                             <th>No. RO</th>
-                            <th>Nama Barang</th>
+                            <th>Deskripsi</th>
                             <th>Status</th>
                             <th>Menu</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($orders as $order)
+                        @foreach ($payments as $payment)
                             <tr>
-                                <th>{{ $orders->firstItem() + $loop->iteration - 1 }}</th>
-                                <td>{{ $order->subsidiary->name ?? '-' }}</td>
-                                <td>{{ $order->division }}</td>
-                                <td>{{ \Carbon\Carbon::parse($order->request_date)->format('d-m-Y') }}</td>
+                                <th>{{ $payments->firstItem() + $loop->iteration - 1 }}</th>
+                                <td>{{ $payment->subsidiary->name ?? '-' }}</td>
+                                <td>{{ $payment->division }}</td>
+                                <td>{{ \Carbon\Carbon::parse($payment->date)->format('d-m-Y') }}</td>
                                 <td>
-                                    @can('request-order.view')
-                                        <a href="{{ route('request-order.show', $order->id) }}" class="text-decoration-none"
+                                    @can('request-payment.view')
+                                        <a href="{{ route('request-payment.show', $payment->id) }}" class="text-decoration-none"
                                             data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
-                                            {{ $order->request_number }}
+                                            {{ $payment->payment_number }}
                                         </a>
                                     @else
                                         <div class="text-muted">
-                                            {{ $order->request_number }}
+                                            {{ $payment->payment_number }}
                                         </div>
                                     @endcan
                                 </td>
                                 <td>
                                     <ul class="mb-0">
-                                        @foreach ($order->items as $item)
+                                        @foreach ($payment->items as $item)
                                             <li>{{ $item->item_name }}</li>
                                         @endforeach
                                     </ul>
                                 </td>
                                 <td>
-                                    @switch($order->status)
+                                    @switch($payment->status)
                                         @case('pending')
                                             <span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>
                                         @break
 
                                         @case('approved_by_div_head')
-                                            @if ($order->subsidiary->id == 2)
+                                            @if ($payment->subsidiary->id == 2)
                                                 <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager / BOD</span>
                                             @else
                                                 <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
@@ -74,7 +74,7 @@
                                         @break
 
                                         @case('approved_by_manager')
-                                            @if ($order->subsidiary->id == 2)
+                                            @if ($payment->subsidiary->id == 2)
                                                 <span class="badge bg-success">Approved</span>
                                             @else
                                                 <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
@@ -86,23 +86,23 @@
                                         @break
 
                                         @default
-                                            <span class="badge bg-secondary">{{ $order->status }}</span>
+                                            <span class="badge bg-secondary">{{ $payment->status }}</span>
                                         @break
                                     @endswitch
                                 </td>
                                 <td>
-                                    @can('request-order.approve')
+                                    @can('request-payment.approve')
                                         @include('purchasing.partials.approve-button')
                                     @endcan
-                                    @if ($order->status === 'approved_by_bod')
-                                        <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                                    @if ($payment->status === 'approved_by_bod')
+                                        <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
                                     @endif
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-                {{ $orders->links() }}
+                {{ $payments->links() }}
             </div>
         @endcomponent
     </div>

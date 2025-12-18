@@ -11,15 +11,22 @@
                         <x-buttons.excel href="{{ route('employees.excel') }}">Export</x-buttons.excel>
                         <x-buttons.import data-bs-original-title="import excel" data-bs-toggle="modal"
                             data-bs-target="#importModal">Import</x-buttons.import>
+                        <x-buttons.pdf href="{{ route('employees.pdf') }}"></x-buttons.pdf>
                     </div>
+                    <form method="GET" action="{{ route('employees.index') }}">
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            placeholder="Cari nama, nip atau nik">
+                        <button class="btn btn-primary" type="submit">Cari</button>
+                    </div>
+                </form>
                 @endunless
-                <x-buttons.pdf href="{{ route('employees.pdf') }}"></x-buttons.pdf>
             </div>
             @slot('header')
                 🧑‍💼DATA KARYAWAN
             @endslot
             <div class="table-responsive">
-                <table class="table table-hover display" id="table">
+                <table class="table table-hover display">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -36,7 +43,7 @@
                     <tbody>
                         @forelse ($employees as $employee)
                             <tr>
-                                <th>{{ $employees->firstItem() + $loop->iteration - 1 }}</th>
+                                <td>{{ $employees->firstItem() + $loop->iteration - 1 }}</td>
                                 <td>{{ $employee->subsidiary->name }}</td>
                                 <td> {{ $employee->nip }}</td>
                                 <td><a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none"
@@ -92,6 +99,7 @@
                         </tr>
                     </tfoot>
                 </table>
+                {{ $employees->links() }}
             </div>
         @endcomponent
     </div>

@@ -28,9 +28,8 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $role = Role::findByName('eln-admin');
         $user = Auth::user();
 
         $fullAccessRoles = ['super-admin', 'holding-admin'];
@@ -42,9 +41,11 @@ class EmployeeController extends Controller
             'rmm-admin'   => 6,
         ];
 
-        $query = Employee::Index()->latest();
+        $query = Employee::query()->latest();
 
-        if (!(method_exists($user, 'hasAnyRole') ? $user->hasAnyRole($fullAccessRoles) : in_array($user->role, $fullAccessRoles))) {
+        if (!(method_exists($user, 'hasAnyRole')
+            ? $user->hasAnyRole($fullAccessRoles)
+            : in_array($user->role, $fullAccessRoles))) {
             $subsidiaryId = $this->getSubsidiaryIdByRole($user, $roleSubsidiaryMap);
 
             if ($subsidiaryId) {
@@ -54,13 +55,25 @@ class EmployeeController extends Controller
             }
         }
 
-        $employees = $query->paginate(1000);
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                    ->orWhere('nik', 'like', "%{$search}%")
+                    ->orWhere('nip', 'like', "%{$search}%");
+            });
+        }
+
+
+        $perPage = $request->input('per_page', 20);
+
+        $employees = $query->paginate($perPage)->withQueryString();
 
         return view('hrd.employee.index', compact('employees'));
     }
+
     protected function getSubsidiaryIdByRole($user, array $roleSubsidiaryMap): ?int
     {
-        // Gunakan Spatie jika tersedia, fallback ke properti 'role'
+
         $role = method_exists($user, 'getRoleNames')
             ? $user->getRoleNames()->first()
             : $user->role;
@@ -85,7 +98,7 @@ class EmployeeController extends Controller
             'rmm-admin'   => 6,
         ];
 
-        // Tentukan subsidiaries berdasarkan role
+
         if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole($fullAccessRoles)) {
             $subsidiaries = Subsidiary::all();
         } elseif (method_exists($user, 'hasRole')) {
@@ -102,7 +115,7 @@ class EmployeeController extends Controller
                 abort(403, 'Role tidak dikenali');
             }
         } else {
-            // Fallback jika trait belum aktif
+
             $subsidiaries = Subsidiary::where('id', 5)->get();
         }
 
@@ -115,10 +128,8 @@ class EmployeeController extends Controller
     {
         $data = $request->validated();
 
-        // Simpan hanya sekali
         $employee = Employee::create($data);
 
-        // Buat email dari nama
         $fullname = Str::slug($employee->nama, '.');
         $username = strtolower($fullname);
         $email = $username;
@@ -129,7 +140,6 @@ class EmployeeController extends Controller
             $counter++;
         }
 
-        // Buat user
         $user = User::updateOrCreate(
             ['employee_id' => $employee->id],
             [
@@ -141,12 +151,10 @@ class EmployeeController extends Controller
             ]
         );
 
-        // Assign role
         if (!$user->hasRole('employee')) {
             $user->assignRole('employee');
         }
 
-        // Upload dokumen
         $documents = [
             'pp' => 'public/foto_profil',
             'ktp' => 'public/KTP',

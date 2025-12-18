@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\HRD;
 
 use App\Http\Controllers\Controller;
-use App\Models\Asset;
+use App\Models\HRD\Asset;
 use Illuminate\Http\Request;
 
 class AssetController extends Controller
@@ -13,7 +13,7 @@ class AssetController extends Controller
      */
     public function index()
     {
-        //
+        return view('hrd.asset.index');
     }
 
     /**

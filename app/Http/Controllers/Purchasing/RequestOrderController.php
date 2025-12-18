@@ -15,20 +15,36 @@ class RequestOrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
-        // Pastikan user punya permission 'view request orders'
         if ($user->can('request-order.list')) {
-            $orders = RequestOrder::with(['items', 'requester', 'subsidiary'])
-                ->latest()
-                ->paginate(20);
+            $query = RequestOrder::with(['items', 'requester', 'subsidiary'])
+                ->latest();
 
-            return view('purchasing.request_order.index', compact('orders'));
+            if (!$user->hasRole(['super-admin', 'holding-admin']) && $user->subsidiary_id) {
+                $query->where('subsidiary_id', $user->subsidiary_id);
+            }
+
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('request_number', 'like', "%{$search}%")
+                        ->orWhere('division', 'like', "%{$search}%")
+                        ->orWhereHas('subsidiary', function ($sub) use ($search) {
+                            $sub->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('items', function ($item) use ($search) {
+                            $item->where('item_name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $orders = $query->paginate(20)->appends(['search' => $search]);
+
+            return view('purchasing.request_order.index', compact('orders', 'search'));
         }
 
-        // Jika tidak punya permission → abort
         abort(403, 'Anda tidak memiliki izin untuk melihat Request Order.');
     }
 
@@ -48,30 +64,27 @@ class RequestOrderController extends Controller
             'rmm-admin'   => 6,
         ];
 
-        // Tentukan subsidiaries berdasarkan role
-        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole($fullAccessRoles)) {
+        if ($user->hasAnyRole($fullAccessRoles)) {
+            // Full access: semua subsidiaries
             $subsidiaries = Subsidiary::all();
-        } elseif (method_exists($user, 'hasRole')) {
-            $subsidiaries = collect();
-
-            foreach ($roleSubsidiaryMap as $role => $id) {
-                if ($user->hasRole($role)) {
-                    $subsidiaries = Subsidiary::where('id', $id)->get();
-                    break;
-                }
-            }
-
-            if ($subsidiaries->isEmpty()) {
-                abort(403, 'Role tidak dikenali');
+        } elseif ($user->hasAnyRole(array_keys($roleSubsidiaryMap))) {
+            // Admin role: sesuai mapping
+            $subsidiaryId = collect($roleSubsidiaryMap)
+                ->get($user->roles->pluck('name')->first());
+            $subsidiaries = Subsidiary::where('id', $subsidiaryId)->get();
+        } elseif ($user->hasAnyRole(['employee', 'div-head'])) {
+            // Employee: hanya subsidiary miliknya sendiri
+            if ($user->subsidiary_id) {
+                $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+            } else {
+                abort(403, 'Employee tidak memiliki subsidiary.');
             }
         } else {
-            // Fallback jika trait belum aktif
-            $subsidiaries = Subsidiary::where('id', 5)->get();
+            abort(403, 'Role tidak dikenali.');
         }
 
         return view('purchasing.request_order.create', compact('subsidiaries'));
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -84,16 +97,17 @@ class RequestOrderController extends Controller
             'request_number'    => [
                 'required',
                 'string',
-                Rule::unique('request_orders')->where(function ($query) use ($request) {
-                    return $query->where('subsidiary_id', $request->subsidiary_id);
-                }),
+                Rule::unique('request_orders')->where(
+                    fn($q) =>
+                    $q->where('subsidiary_id', $request->subsidiary_id)
+                ),
             ],
             'purpose'           => 'nullable|string|max:500',
             'items'             => 'required|array|min:1',
-            'items.*.item_name' => 'required|string|max:255',
+            'items.*.item_name' => 'required|string|max:255|distinct',
             'items.*.quantity'  => 'required|integer|min:1',
             'items.*.unit'      => 'required|string|max:50',
-            'items.*.remark' => 'nullable|string|max:255',
+            'items.*.remark'    => 'nullable|string|max:255',
         ], [
             'request_number.unique' => 'Nomor RO sudah digunakan di plant ini.',
         ]);
@@ -104,23 +118,26 @@ class RequestOrderController extends Controller
             'division'       => $validated['division'],
             'request_date'   => $validated['request_date'],
             'request_number' => $validated['request_number'],
-            'purpose'        => $validated['purpose'],
+            'purpose'        => $validated['purpose'] ?? null,
             'status'         => 'pending',
             'requested_by'   => Auth::id(),
         ]);
 
-        // Simpan detail barang
-        foreach ($validated['items'] as $item) {
-            $ro->items()->create([
+        // Simpan detail barang dengan createMany
+        $ro->items()->createMany(
+            collect($validated['items'])->map(fn($item) => [
                 'item_name' => $item['item_name'],
                 'quantity'  => $item['quantity'],
                 'unit'      => $item['unit'],
-            ]);
-        }
+                'remark'    => $item['remark'] ?? null,
+            ])->toArray()
+        );
 
-        return redirect()->route('request-order.index')
-            ->with('alert', 'Request Order berhasil dibuat.');
+        return redirect()
+            ->route('request-order.index')
+            ->with('success', 'Request Order berhasil dibuat.');
     }
+
 
 
     /**

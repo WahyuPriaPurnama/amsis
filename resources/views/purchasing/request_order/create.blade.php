@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Buat RO')
-@section('menuRO', 'active')
+@section('title', 'Buat Request Order')
+@section('menuOrder', 'active')
 @section('content')
     <div class="container mt-3" x-data="{
         items: {{ json_encode(old('items', [['item_name' => '', 'quantity' => 1, 'unit' => '', 'remark' => '']])) }},
@@ -18,7 +18,6 @@
                 if (!$refs.division.value) errors.division = 'Divisi wajib diisi';
                 if (!$refs.request_date.value) errors.request_date = 'Tanggal wajib diisi';
                 if (!$refs.request_number.value) errors.request_number = 'Nomor wajib diisi';
-                if (!$refs.purpose.value) errors.purpose = 'Tujuan wajib diisi';
 
                 items.forEach((item, i) => {
                     if (!item.item_name) errors[`item_name_${i}`] = 'Nama barang wajib diisi';
@@ -129,15 +128,13 @@
                 <div class="row mb-3">
                     <div class="col-12">
                         <label for="purpose" class="form-label">Note</label>
-                        <input type="text" name="purpose" id="purpose" x-ref="purpose" value="{{ old('purpose') }}"
-                            placeholder="Purpose" class="form-control @error('purpose') is-invalid @enderror">
-                        <small class="text-danger" x-text="errors.purpose"></small>
+                        <input type="text" name="purpose" value="{{ old('purpose') }}" placeholder="Note...."
+                            class="form-control @error('purpose') is-invalid @enderror">
                         @error('purpose')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
                 </div>
-
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>

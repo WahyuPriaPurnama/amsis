@@ -9,7 +9,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HRD\AssetController;
 use App\Http\Controllers\Purchasing\RequestOrderController;
+use App\Http\Controllers\Purchasing\RequestPaymentController;
 use App\Http\Controllers\RolePermissionController;
 
 /*
@@ -99,6 +101,9 @@ Route::middleware('auth')->group(function () {
     Route::post('request-order/approve-bod/{id}', [RequestOrderController::class, 'approveBod'])->name('request-order.approve_bod');
     Route::get('request-order/{id}/pdf', [RequestOrderController::class, 'pdf'])
         ->name('request-order.pdf');
+
+    Route::resource('request-payment', RequestPaymentController::class);
+    Route::resource('asset', AssetController::class);
 });
 
 

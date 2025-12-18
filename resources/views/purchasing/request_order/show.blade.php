@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Detail RO')
-@section('menuRO', 'active')
+@section('title', 'Detail Request Order')
+@section('menuOrder', 'active')
 
 @section('content')
     <div class="container mt-3">

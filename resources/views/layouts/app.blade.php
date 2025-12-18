@@ -39,34 +39,14 @@
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     E-Slip
                                 </a>
-                                @include('partials.menu-eslip')
+                                @include('hrd.partials.eslip-menu')
                             </li>
                             @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                         HRD
                                     </a>
-                                    <ul class="dropdown-menu">
-                                        @can('employee.list')
-                                            <li><a class="dropdown-item @yield('menuEmployees')"
-                                                    href="{{ route('employees.index') }}">Karyawan</a></li>
-                                        @endcan
-                                        @can('subsidiary.list')
-                                            <li><a class="dropdown-item @yield('menuSubsidiaries')"
-                                                    href="{{ route('subsidiaries.index') }}">Perusahaan</a></li>
-                                        @endcan
-                                        @can('vehicle.list')
-                                            <li><a class="dropdown-item @yield('menuVehicles')"
-                                                    href="{{ route('vehicles.index') }}">Kendaraan</a></li>
-                                        @endcan
-                                        @can('asset.list')
-                                            <li><a href="#" class="dropdown-item">Asset</a></li>
-                                        @endcan
-                                        {{-- <li><a class="dropdown-item @yield('menuScanlog')"
-                                                href="{{ route('scanlog.index') }}">Scanlog</a></li>
-                                        <li><a class="dropdown-item @yield('menuHarian')"
-                                                href="{{ route('karyawan-harian.index') }}">Karyawan</a></li> --}}
-                                    </ul>
+                                    @include('hrd.partials.hrd-menu')
                                 </li>
                             @endcanany
                             @canany(['request-order.list', 'request-payment.list'])
@@ -96,7 +76,7 @@
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                     E-Slip
                                 </a>
-                                @include('partials.menu-eslip')
+                                @include('hrd.partials.eslip-menu')
                             </li>
                         </ul>
                     </div>

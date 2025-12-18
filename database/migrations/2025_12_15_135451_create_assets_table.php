@@ -14,17 +14,18 @@ return new class extends Migration
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
             $table->string('code');
-            $table->string('accounting_code')->nullable();
+            $table->enum('condition', ['Baik', 'Rusak', 'Lainnya'])->default('Baik');
+            $table->enum('owner', ['Umum', 'Engineering', 'QC & Lab']);
             $table->enum('category', ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja']);
-            $table->string('name');
+            $table->string('delivery_receipt')->nullable();
+            $table->string('manual_book')->nullable();
+            $table->string('accounting_code')->nullable();
             $table->text('description')->nullable();
-            $table->enum('owner', ['General', 'Engineering', 'QC & Lab']);
             $table->string('photo')->nullable();
             $table->integer('quantity')->default(1);
             $table->string('unit');
             $table->date('usage_date')->nullable();
             $table->date('purchase_date')->nullable();
-            $table->enum('condition', ['Baik', 'Rusak', 'Hilang'])->default('Baik');
             $table->decimal('purchase_value', 15, 2)->default(0);
             $table->decimal('depreciation_value', 15, 2)->default(0);
             $table->decimal('total_value', 15, 2)->default(0);

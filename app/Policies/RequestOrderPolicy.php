@@ -21,9 +21,9 @@ class RequestOrderPolicy
         if ($user->hasRole('super-admin')) {
             return true;
         }
-        // Subsidiary khusus: Plant Manager merangkap BOD
+
         if ($order->subsidiary_id == 2 && $order->status == 'approved_by_div_head' && $user->hasRole('plant-manager')) {
-            return true; // langsung dianggap approve BOD juga
+            return true;
         }
 
         return match ($order->status) {

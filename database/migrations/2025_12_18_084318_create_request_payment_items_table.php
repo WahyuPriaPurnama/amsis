@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('request_order_items', function (Blueprint $table) {
+        Schema::create('request_payment_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('request_order_id')
-                ->constrained('request_orders')
+            $table->foreignId('request_payment_id')
+                ->constrained('request_payments')
                 ->onDelete('cascade');
             $table->string('item_name');
-            $table->unsignedInteger('quantity');
+            $table->integer('quantity');
             $table->string('unit');
+            $table->decimal('unit_price', 15, 2);
+            $table->decimal('amount', 15, 2);
             $table->string('remark')->nullable();
             $table->timestamps();
         });
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('request_payment_items');
     }
 };
