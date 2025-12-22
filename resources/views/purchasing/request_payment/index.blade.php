@@ -27,7 +27,7 @@
                             <th>Plant</th>
                             <th>Divisi</th>
                             <th>Tanggal</th>
-                            <th>No. RO</th>
+                            <th>No. RFP</th>
                             <th>Deskripsi</th>
                             <th>Status</th>
                             <th>Menu</th>
