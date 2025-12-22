@@ -256,6 +256,7 @@ class RequestOrderController extends Controller
     public function pdf($id)
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
+        $timestamp = now()->format('d/m/Y H:i:s');
         $pdf = Pdf::loadView('purchasing.request_order.pdf', compact('order', 'timestamp'));
         return $pdf->stream('RO-' . $order->request_number . '.pdf');
     }
