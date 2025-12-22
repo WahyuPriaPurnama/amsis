@@ -66,19 +66,11 @@
                                         @break
 
                                         @case('approved_by_div_head')
-                                            @if ($order->subsidiary->id == 2)
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager / BOD</span>
-                                            @else
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
-                                            @endif
+                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
                                         @break
 
                                         @case('approved_by_manager')
-                                            @if ($order->subsidiary->id == 2)
-                                                <span class="badge bg-success">Approved</span>
-                                            @else
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
-                                            @endif
+                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
                                         @break
 
                                         @case('approved_by_bod')
@@ -92,7 +84,7 @@
                                 </td>
                                 <td>
                                     @can('request-order.approve')
-                                        @include('purchasing.partials.approve-button')
+                                        @include('purchasing.partials.order-approve-button')
                                     @endcan
                                     @if ($order->status === 'approved_by_bod')
                                         <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>

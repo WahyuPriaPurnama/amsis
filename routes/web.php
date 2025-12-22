@@ -94,15 +94,41 @@ Route::middleware('auth')->group(function () {
         Route::post('slip/{pin}', [HarianController::class, 'cetakSlip'])->name('karyawan-cetak-slip');
     });
 
-    Route::resource('request-order', RequestOrderController::class);
-    Route::post('request-order/approve/{id}', [RequestOrderController::class, 'approveDivHead'])
-        ->name('request-order.approve_div_head');
-    Route::post('request-order/approve-manager/{id}', [RequestOrderController::class, 'approveManager'])->name('request-order.approve_manager');
-    Route::post('request-order/approve-bod/{id}', [RequestOrderController::class, 'approveBod'])->name('request-order.approve_bod');
-    Route::get('request-order/{id}/pdf', [RequestOrderController::class, 'pdf'])
-        ->name('request-order.pdf');
+    Route::prefix('request-order')->name('request-order.')->group(function () {
+        Route::resource('/', RequestOrderController::class)->parameters([
+            '' => 'request_order'
+        ]);
 
-    Route::resource('request-payment', RequestPaymentController::class);
+        Route::post('approve/{id}', [RequestOrderController::class, 'approveDivHead'])
+            ->name('approve_div_head');
+
+        Route::post('approve-manager/{id}', [RequestOrderController::class, 'approveManager'])
+            ->name('approve_manager');
+
+        Route::post('approve-bod/{id}', [RequestOrderController::class, 'approveBod'])
+            ->name('approve_bod');
+
+        Route::get('{id}/pdf', [RequestOrderController::class, 'pdf'])
+            ->name('pdf');
+    });
+
+    // Request Payment
+    Route::prefix('request-payment')->name('request-payment.')->group(function () {
+        Route::resource('/', RequestPaymentController::class)->parameters([
+            '' => 'request_payment'
+        ]);
+
+        Route::post('approve/{id}', [RequestPaymentController::class, 'approveManager'])
+            ->name('approve_manager');
+
+        Route::post('approve-bod/{id}', [RequestPaymentController::class, 'approveBod'])
+            ->name('approve_bod');
+
+        Route::get('{id}/pdf', [RequestPaymentController::class, 'pdf'])
+            ->name('pdf');
+    });
+
+    // Asset
     Route::resource('asset', AssetController::class);
 });
 

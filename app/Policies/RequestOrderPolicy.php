@@ -22,10 +22,6 @@ class RequestOrderPolicy
             return true;
         }
 
-        if ($order->subsidiary_id == 2 && $order->status == 'approved_by_div_head' && $user->hasRole('plant-manager')) {
-            return true;
-        }
-
         return match ($order->status) {
             'pending' => $user->hasRole('div-head'),
             'approved_by_div_head' => $user->hasRole('plant-manager'),

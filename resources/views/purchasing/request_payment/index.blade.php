@@ -62,23 +62,11 @@
                                 <td>
                                     @switch($payment->status)
                                         @case('pending')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>
-                                        @break
-
-                                        @case('approved_by_div_head')
-                                            @if ($payment->subsidiary->id == 2)
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager / BOD</span>
-                                            @else
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
-                                            @endif
+                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Manager</span>
                                         @break
 
                                         @case('approved_by_manager')
-                                            @if ($payment->subsidiary->id == 2)
-                                                <span class="badge bg-success">Approved</span>
-                                            @else
-                                                <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
-                                            @endif
+                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
                                         @break
 
                                         @case('approved_by_bod')
@@ -92,7 +80,7 @@
                                 </td>
                                 <td>
                                     @can('request-payment.approve')
-                                        @include('purchasing.partials.approve-button')
+                                        @include('purchasing.partials.payment-approve-button')
                                     @endcan
                                     @if ($payment->status === 'approved_by_bod')
                                         <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>

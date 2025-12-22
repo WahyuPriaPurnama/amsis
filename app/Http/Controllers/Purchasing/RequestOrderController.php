@@ -112,7 +112,6 @@ class RequestOrderController extends Controller
             'request_number.unique' => 'Nomor RO sudah digunakan di plant ini.',
         ]);
 
-        // Simpan header Request Order
         $ro = RequestOrder::create([
             'subsidiary_id'  => $validated['subsidiary_id'],
             'division'       => $validated['division'],
@@ -123,7 +122,6 @@ class RequestOrderController extends Controller
             'requested_by'   => Auth::id(),
         ]);
 
-        // Simpan detail barang dengan createMany
         $ro->items()->createMany(
             collect($validated['items'])->map(fn($item) => [
                 'item_name' => $item['item_name'],
@@ -145,7 +143,7 @@ class RequestOrderController extends Controller
      */
     public function show($id)
     {
-        // Ambil Request Order beserta relasi items dan user
+
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
 
         return view('purchasing.request_order.show', compact('order'));
@@ -173,10 +171,9 @@ class RequestOrderController extends Controller
      */
     public function destroy(RequestOrder $requestOrder)
     {
-        // Hapus item terkait
+
         $requestOrder->items()->delete();
 
-        // Hapus header Request Order
         $requestOrder->delete();
 
         return redirect()->route('request-order.index')
@@ -186,77 +183,79 @@ class RequestOrderController extends Controller
     public function approveDivHead(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
-        $this->authorize('approve', $requestOrder);
+        if (!auth()->user()->hasRole('div-head') && !auth()->user()->hasRole('super-admin')) {
+            return redirect()->route('request-order.index')
+                ->with('alert2', 'Hanya Kepala Divisi yang berhak melakukan approve.');
+        }
 
         $requestOrder->update([
             'status' => 'approved_by_div_head',
             'approved_by_div_head' => Auth::id(),
             'approved_by_divhead_at' => now(),
         ]);
+
+        $message = 'Request Order telah disetujui oleh Kepala Divisi.';
         if ($request->input('from') === 'show') {
             return redirect()->route('request-order.show', $id)
-                ->with('alert', 'Request Order telah disetujui oleh Kepala Divisi.');
+                ->with('alert', $message);
         }
 
         return redirect()->route('request-order.index')
-            ->with('alert', 'Request Order telah disetujui oleh Kepala Divisi.');
+            ->with('alert', $message);
     }
 
     public function approveManager(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
-        $this->authorize('approve', $requestOrder);
 
-        if ($requestOrder->subsidiary_id == 2) {
-            $requestOrder->update([
-                'status'                 => 'approved_by_bod',
-                'approved_by_bod'        => Auth::id(),
-                'approved_by_bod_at'     => now(),
-                'approved_by_manager'    => Auth::id(),
-                'approved_by_manager_at' => now(),
-            ]);
-            if ($request->input('from') === 'show') {
-                return redirect()->route('request-order.show', $id)
-                    ->with('alert', 'Request Order telah disetujui.');
-            }
+        if (!auth()->user()->hasRole('plant-manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
-                ->with('alert', 'Request Order telah disetujui.');
-        } else {
-            $requestOrder->update([
-                'status'                 => 'approved_by_manager',
-                'approved_by_manager'    => Auth::id(),
-                'approved_by_manager_at' => now(),
-            ]);
-            if ($request->input('from') === 'show') {
-                return redirect()->route('request-order.show', $id)
-                    ->with('alert', 'Request Order telah disetujui Plant Manager.');
-            }
-            return redirect()->route('request-order.index')
-                ->with('alert', 'Request Order telah disetujui Plant Manager.');
+                ->with('alert2', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
+
+        $requestOrder->update([
+            'status'                 => 'approved_by_manager',
+            'approved_by_manager'    => Auth::id(),
+            'approved_by_manager_at' => now(),
+        ]);
+
+        $message = 'Request Order telah disetujui Plant Manager.';
+
+        if ($request->input('from') === 'show') {
+            return redirect()->route('request-order.show', $id)
+                ->with('alert', $message);
+        }
+
+        return redirect()->route('request-order.index')
+            ->with('alert', $message);
     }
 
     public function approveBod(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
-        $this->authorize('approve', $requestOrder);
+
+        if (!auth()->user()->hasRole('bod') && !auth()->user()->hasRole('super-admin')) {
+            return redirect()->route('request-order.index')
+                ->with('alert2', 'Hanya BOD yang berhak melakukan approve.');
+        }
 
         $requestOrder->update([
             'status' => 'approved_by_bod',
             'approved_by_bod' => Auth::id(),
             'approved_by_bod_at' => now(),
         ]);
+
+        $message = 'Request Order telah disetujui BOD.';
         if ($request->input('from') === 'show') {
             return redirect()->route('request-order.show', $id)
-                ->with('alert', 'Request Order telah disetujui BOD.');
+                ->with('alert', $message);
         }
         return redirect()->route('request-order.index')
-            ->with('alert', 'Request Order telah disetujui BOD.');
+            ->with('alert', $message);
     }
     public function pdf($id)
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
-        $timestamp = now()->format('d/m/Y H:i:s');
         $pdf = Pdf::loadView('purchasing.request_order.pdf', compact('order', 'timestamp'));
         return $pdf->stream('RO-' . $order->request_number . '.pdf');
     }

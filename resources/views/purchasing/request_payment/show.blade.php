@@ -1,38 +1,26 @@
 @extends('layouts.app')
-@section('title', 'Detail Request Order')
-@section('menuOrder', 'active')
+@section('title', 'Detail Request Payment')
+@section('menuPayment', 'active')
 
 @section('content')
     <div class="container mt-3">
         @component('components.card')
             @slot('header')
-                Detail Request Order
+                Detail Request Payment
             @endslot
             <div class="row mt-3">
                 <div class="col-12 col-md-8 mb-2 mb-md-0">
-                    @switch($order->status)
+                    @switch($payment->status)
                         @case('pending')
                             <span class="badge bg-warning text-dark fs-5 w-100 text-center">
-                                Menunggu Persetujuan Kepala Divisi
-                            </span>
-                        @break
-
-                        @case('approved_by_div_head')
-                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
-                                Menunggu Persetujuan Plant Manager
+                                Menunggu Persetujuan Manager
                             </span>
                         @break
 
                         @case('approved_by_manager')
-                            @if ($order->subsidiary->id == 2)
-                                <span class="badge bg-success fs-5 w-100 text-center">
-                                    Approved
-                                </span>
-                            @else
-                                <span class="badge bg-warning text-dark fs-5 w-100 text-center">
-                                    Menunggu Persetujuan BOD
-                                </span>
-                            @endif
+                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
+                                Menunggu Persetujuan BOD
+                            </span>
                         @break
 
                         @case('approved_by_bod')
@@ -40,29 +28,29 @@
                         @break
 
                         @default
-                            <span class="badge bg-secondary fs-5 w-100 text-center">{{ $order->status }}</span>
+                            <span class="badge bg-secondary fs-5 w-100 text-center">{{ $payment->status }}</span>
                         @break
                     @endswitch
                 </div>
-                @can('request-order.delete')
+                @can('request-payment.delete')
                     <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center">
-                        <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
+                        <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
                     </div>
                 @endcan
             </div>
             {{-- Data umum --}}
             <div class="row mb-3">
                 <div class="col-md-3">
-                    <strong>Plant:</strong> {{ $order->subsidiary->name ?? '-' }}
+                    <strong>Plant:</strong> {{ $payment->subsidiary->name ?? '-' }}
                 </div>
                 <div class="col-md-3">
-                    <strong>Divisi:</strong> {{ $order->division }}
+                    <strong>Divisi:</strong> {{ $payment->division }}
                 </div>
                 <div class="col-md-3">
-                    <strong>Tanggal:</strong> {{ $order->request_date }}
+                    <strong>Tanggal:</strong> {{ $payment->date }}
                 </div>
                 <div class="col-md-3">
-                    <strong>Nomor RO:</strong> {{ $order->request_number }}
+                    <strong>Nomor Payment:</strong> {{ $payment->payment_number }}
                 </div>
             </div>
 
@@ -76,66 +64,67 @@
                             <th>Nama Barang</th>
                             <th>Qty</th>
                             <th>Satuan</th>
-                            <th>Keterangan</th>
+                            <th>Harga Satuan</th>
+                            <th>Jumlah Harga</th>
+                            <th>Due Date</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($order->items as $item)
+                        @foreach ($payment->items as $item)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $item->item_name }}</td>
                                 <td>{{ $item->quantity }}</td>
                                 <td>{{ $item->unit }}</td>
-                                <td>{{ $item->remark ?? '-' }}</td>
+                                <td>{{ number_format($item->unit_price, 2) }}</td>
+                                <td>{{ number_format($item->amount, 2) }}</td>
+                                <td>{{ $item->due_date ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="text-end fw-bold">Grand Total</td>
+                            <td class="fw-bold">{{ number_format($payment->grand_total, 2) }}</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="row mb-3">
                 <div class="col-md-12">
-                    <strong>Note:</strong> {{ $order->purpose }}
+                    <strong>Note:</strong> {{ $payment->purpose }}
                 </div>
             </div>
-            {{-- Status & User --}}
+
             <div class="row mt-3">
                 <div class="col-md-3">
-                    <strong>Dibuat Oleh:</strong> {{ $order->user->name ?? '-' }}
+                    <strong>Dibuat Oleh:</strong> {{ $payment->requester->name ?? '-' }}
                 </div>
                 <div class="col-md-3">
-                    <strong>Kepala Divisi:</strong> {{ $order->divHead->name ?? '-' }}
+                    <strong>Manager:</strong> {{ $payment->plantManager->name ?? '-' }}
                 </div>
                 <div class="col-md-3">
-                    <strong>Plant Manager:</strong> {{ $order->plantManager->name ?? '-' }}
-                </div>
-                <div class="col-md-3">
-                    <strong>BOD:</strong> {{ $order->bod->name ?? '-' }}
+                    <strong>BOD:</strong> {{ $payment->bod->name ?? '-' }}
                 </div>
             </div>
 
             <div class="mt-3 d-flex justify-content-between">
-                <a href="{{ route('request-order.index') }}" class="btn btn-secondary">Kembali</a>
+                <a href="{{ route('request-payment.index') }}" class="btn btn-secondary">Kembali</a>
                 <div class="d-flex gap-1">
-                    <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
-                    @can('request-order.approve')
-                        @if ($order->status === 'pending')
-                            <form action="{{ route('request-order.approve_div_head', ['id' => $order->id, 'from' => 'show']) }}"
+                    <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
+                    @can('request-payment.approve')
+                        @if ($payment->status === 'pending')
+                            <form action="{{ route('request-payment.approve_manager', ['id' => $payment->id, 'from' => 'show']) }}"
                                 method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
-                                    Approve Kadiv
+                                    Approve Manager
                                 </button>
                             </form>
-                        @elseif($order->status === 'approved_by_div_head')
-                            <form action="{{ route('request-order.approve_manager', ['id' => $order->id, 'from' => 'show']) }}"
-                                method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-success">
-                                    Approve Plant Mgr
-                                </button>
-                            </form>
-                        @elseif($order->status === 'approved_by_manager')
-                            <form action="{{ route('request-order.approve_bod', ['id' => $order->id, 'from' => 'show']) }}"
+                        @endif
+                        @if ($payment->status === 'approved_by_manager')
+                            <form action="{{ route('request-payment.approve_bod', ['id' => $payment->id, 'from' => 'show']) }}"
                                 method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">

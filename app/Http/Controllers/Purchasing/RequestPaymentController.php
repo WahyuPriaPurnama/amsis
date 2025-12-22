@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Purchasing;
 use App\Http\Controllers\Controller;
 use App\Models\HRD\Subsidiary;
 use App\Models\Purchasing\RequestPayment;
+use App\Models\Purchasing\RequestPaymentItem;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RequestPaymentController extends Controller
 {
@@ -14,18 +17,36 @@ class RequestPaymentController extends Controller
      */
     public function index(Request $request)
     {
-        $payments = RequestPayment::orderBy('created_at', 'desc')->paginate(20);
-        if ($request->input('search')) {
-            $search = $request->input('search');
-            $payments = RequestPayment::where('payment_number', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%")
-                ->orderBy('created_at', 'desc')
-                ->paginate(20)
-                ->withQueryString();
-        }
-        return view('purchasing.request_payment.index', compact('payments'));
-    }
+        $user = auth()->user();
 
+        if ($user->can('request-payment.list')) {
+            $query = RequestPayment::with(['items', 'requester', 'subsidiary'])
+                ->latest();
+
+            // Jika bukan super-admin / holding-admin, batasi subsidiary
+            if (!$user->hasRole(['super-admin', 'holding-admin']) && $user->subsidiary_id) {
+                $query->where('subsidiary_id', $user->subsidiary_id);
+            }
+
+            // Jika ada pencarian
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('payment_number', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%")
+                        ->orWhereHas('subsidiary', function ($sub) use ($search) {
+                            $sub->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('items', function ($item) use ($search) {
+                            $item->where('item_name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $payments = $query->paginate(20)->appends(['search' => $search]);
+
+            return view('purchasing.request_payment.index', compact('payments', 'search'));
+        }
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -33,13 +54,16 @@ class RequestPaymentController extends Controller
     {
         $user = auth()->user();
 
-        // Pastikan user punya permission
         if (!$user->can('request-payment.create')) {
             abort(403, 'Anda tidak memiliki izin untuk membuat Request Payment.');
         }
 
-        // Ambil daftar subsidiary (plant) untuk dropdown
-        $subsidiaries = Subsidiary::orderBy('name')->get();
+        if ($user->hasRole(['super-admin', 'holding-admin'])) {
+            $subsidiaries = Subsidiary::orderBy('name')->get();
+        } else {
+
+            $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+        }
 
         return view('purchasing.request_payment.create', compact('subsidiaries'));
     }
@@ -49,15 +73,71 @@ class RequestPaymentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        // Validasi input
+        $validated = $request->validate([
+            'payment_number'    => 'required|string|max:50',
+            'date'              => 'required|date',
+            'division'          => 'required|string|max:100',
+            'purpose'           => 'nullable|string|max:255',
+            'subsidiary_id'     => 'required|exists:subsidiaries,id',
+            'attachment'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'items'             => 'required|array|min:1',
+            'items.*.item_name' => 'required|string|max:255',
+            'items.*.quantity'  => 'required|integer|min:1',
+            'items.*.unit'      => 'required|string|max:50',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.due_date'    => 'nullable|date',
+        ]);
+
+        $grandTotal = collect($validated['items'])->reduce(function ($carry, $item) {
+            return $carry + ($item['quantity'] * $item['unit_price']);
+        }, 0);
+
+        // Simpan header Request Payment
+        $payment = new RequestPayment();
+        $payment->payment_number = $validated['payment_number'];
+        $payment->date           = $validated['date'];
+        $payment->division       = $validated['division'];
+        $payment->purpose        = $validated['purpose'];
+        $payment->subsidiary_id  = $validated['subsidiary_id'];
+        $payment->requested_by   = Auth::id();
+        $payment->grand_total    = $grandTotal;
+
+        // Upload lampiran jika ada
+        if ($request->hasFile('attachment')) {
+            $payment->attachment = $request->file('attachment')
+                ->store('attachments/request-payments', 'public');
+        }
+
+        $payment->save();
+
+        // Simpan detail item
+        foreach ($validated['items'] as $item) {
+            RequestPaymentItem::create([
+                'request_payment_id' => $payment->id,
+                'item_name'          => $item['item_name'],
+                'quantity'           => $item['quantity'],
+                'unit'               => $item['unit'],
+                'unit_price'         => $item['unit_price'],
+                'amount'             => $item['quantity'] * $item['unit_price'],
+                'due_date'             => $item['due_date'] ?? null,
+            ]);
+        }
+
+        return redirect()->route('request-payment.index')
+            ->with('alert', 'Request Payment berhasil dibuat.');
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(RequestPayment $requestPayment)
+    public function show($id)
     {
-        //
+        $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id); {
+            return view('purchasing.request_payment.show', compact('payment'));
+        }
     }
 
     /**
@@ -81,6 +161,60 @@ class RequestPaymentController extends Controller
      */
     public function destroy(RequestPayment $requestPayment)
     {
-        //
+        $requestPayment->items()->delete();
+        $requestPayment->delete();
+        return redirect()->route('request-payment.index')
+            ->with('alert', 'Request Payment berhasil dihapus.');
+    }
+
+    public function approveManager(Request $request, $id)
+    {
+        $payment = RequestPayment::findOrFail($id);
+
+        if (!auth()->user()->hasRole('plant-manager') && !auth()->user()->hasRole('super-admin')) {
+            return redirect()->route('request-payment.index')
+                ->with('alert2', 'Hanya Plant Manager yang berhak melakukan approve.');
+        }
+
+        $payment->update([
+            'status'                 => 'approved_by_manager',
+            'approved_by_manager'    => auth()->id(),
+            'approved_by_manager_at' => now(),
+        ]);
+        $message = 'Request Order telah disetujui Plant Manager.';
+
+        if ($request->input('from') === 'show') {
+            return redirect()->route('request-order.show', $id)
+                ->with('alert', $message);
+        }
+
+        return redirect()->route('request-payment.index')
+            ->with('alert', $message);
+    }
+    public function approveBod($id)
+    {
+        $payment = RequestPayment::findOrFail($id);
+
+        if (!auth()->user()->hasRole('bod') && !auth()->user()->hasRole('super-admin')) {
+            return redirect()->route('request-payment.index')
+                ->with('alert2', 'Hanya BOD yang berhak melakukan approve.');
+        }
+
+        $payment->update([
+            'status'              => 'approved_by_bod',
+            'approved_by_bod'     => auth()->id(),
+            'approved_by_bod_at'  => now(),
+        ]);
+
+        return redirect()->route('request-payment.index')
+            ->with('alert', 'Request Payment berhasil disetujui oleh BOD.');
+    }
+
+    public function pdf($id)
+    {
+        $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id);
+        $timestamp = now()->format('d/m/Y H:i:s');
+        $pdf = Pdf::loadView('purchasing.request_payment.pdf', compact('payment', 'timestamp'));
+        return $pdf->stream('Request_Payment_' . $payment->payment_number . '.pdf');
     }
 }

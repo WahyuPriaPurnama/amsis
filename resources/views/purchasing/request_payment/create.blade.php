@@ -83,19 +83,30 @@
 
                 {{-- Barang dinamis --}}
                 <h5 class="fw-semibold mb-3">Detail Pembayaran</h5>
+
+                <div class="row fw-semibold mb-2">
+                    <div class="col-md-4">Deskripsi</div>
+                    <div class="col-md-1">QTY</div>
+                    <div class="col-md-1">Satuan</div>
+                    <div class="col-md-2">Harga Satuan</div>
+                    <div class="col-md-2">Harga Total</div>
+                    <div class="col-md-1">Due Date</div>
+                    <div class="col-md-1 text-center">Menu</div>
+                </div>
+
                 <template x-for="(item, index) in items" :key="index">
                     <div class="row mb-2">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <input type="text" class="form-control" placeholder="Nama Item"
                                 :name="`items[${index}][item_name]`" x-model="item.item_name">
                             <small class="text-danger" x-text="errors[`item_name_${index}`]"></small>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <input type="number" class="form-control" placeholder="Qty" :name="`items[${index}][quantity]`"
                                 x-model.number="item.quantity">
                             <small class="text-danger" x-text="errors[`quantity_${index}`]"></small>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <input type="text" class="form-control" placeholder="Satuan" :name="`items[${index}][unit]`"
                                 x-model="item.unit">
                             <small class="text-danger" x-text="errors[`unit_${index}`]"></small>
@@ -110,36 +121,41 @@
                                 :name="`items[${index}][amount]`" :value="(item.quantity * item.unit_price).toFixed(2)"
                                 readonly>
                         </div>
+                        <div class="col-md-1">
+                            <input type="date" class="form-control" :name="`items[${index}][due_date]`"
+                                x-model="item.due_date">
+                            <small class="text-danger" x-text="errors[`due_date_${index}`]"></small>
+                        </div>
                         <div class="col-md-1 text-center">
                             <button type="button" class="btn btn-danger btn-sm" @click="items.splice(index,1)"
                                 x-show="items.length > 1">Hapus</button>
                         </div>
                     </div>
                 </template>
-
                 <button type="button" class="btn btn-success mb-3"
                     @click="items.push({ item_name: '', quantity: 1, unit: '', unit_price: 0, amount: 0 })">
-                    + Tambah Item
+                    + Tambah
                 </button>
 
                 {{-- Purpose --}}
                 <div class="row mb-3">
-                    <div class="col-12">
-                        <label for="purpose" class="form-label">Tujuan Pembayaran</label>
-                        <input type="text" name="purpose" value="{{ old('purpose') }}"
-                            placeholder="Tujuan pembayaran..." class="form-control @error('purpose') is-invalid @enderror">
+                    <div class="col-8">
+                        <label for="purpose" class="form-label">Note:</label>
+                        <input type="text" name="purpose" value="{{ old('purpose') }}" placeholder="Note..."
+                            class="form-control @error('purpose') is-invalid @enderror">
                         @error('purpose')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-                </div>
 
-                {{-- Attachment --}}
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <label for="attachment" class="form-label">Lampiran</label>
+                    <div class="col-4">
+                        <label for="attachment" class="form-label">Lampiran:</label>
                         <input type="file" name="attachment"
                             class="form-control @error('attachment') is-invalid @enderror">
+                        <small class="form-text text-muted">
+                            Contoh: Invoice, kwitansi, atau dokumen pendukung lainnya.
+                        </small>
+
                         @error('attachment')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
@@ -149,7 +165,7 @@
                 {{-- Grand Total --}}
                 <div class="row mb-3">
                     <div class="col-12 text-end">
-                        <h5>Total: <span x-text="grandTotal.toFixed(2)"></span></h5>
+                        <h5>Grand Total: <span x-text="grandTotal.toFixed(2)"></span></h5>
                         <input type="hidden" name="grand_total" :value="grandTotal.toFixed(2)">
                     </div>
                 </div>

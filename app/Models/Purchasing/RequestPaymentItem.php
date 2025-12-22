@@ -12,7 +12,9 @@ class RequestPaymentItem extends Model
         'quantity',
         'unit',
         'unit_price',
-        'total_price',
+        'amount',
+        'due_date',
+
     ];
 
     public function requestPayment()

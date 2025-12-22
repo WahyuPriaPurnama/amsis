@@ -39,7 +39,7 @@ class RequestPayment extends Model
         return $this->belongsTo(User::class, 'requested_by');
     }
 
-    public function manager()
+    public function plantManager()
     {
         return $this->belongsTo(User::class, 'approved_by_manager');
     }

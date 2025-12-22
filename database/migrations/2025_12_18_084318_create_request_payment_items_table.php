@@ -20,8 +20,8 @@ return new class extends Migration
             $table->integer('quantity');
             $table->string('unit');
             $table->decimal('unit_price', 15, 2);
-            $table->decimal('amount', 15, 2);
-            $table->string('remark')->nullable();
+            $table->decimal('amount', 15, 2)->default(0);
+            $table->date('due_date')->nullable();
             $table->timestamps();
         });
     }

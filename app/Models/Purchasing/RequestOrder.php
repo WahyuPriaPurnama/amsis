@@ -76,10 +76,6 @@ class RequestOrder extends Model
     }
     public function getStatusLabelAttribute(): string
     {
-        if ($this->status === 'approved_by_div_head' && $this->subsidiary_id == 2) {
-            return '<span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager / BOD</span>';
-        }
-
         return match ($this->status) {
             'pending' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>',
             'approved_by_div_head' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>',

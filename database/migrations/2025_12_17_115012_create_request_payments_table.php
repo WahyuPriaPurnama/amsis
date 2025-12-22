@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('payment_number');
             $table->date('date');
             $table->string('division');
-            $table->string('purpose');
+            $table->string('purpose')->nullable();
             $table->decimal('grand_total', 15, 2);
             $table->string('status')->default('pending')->index();
             $table->string('attachment')->nullable();
