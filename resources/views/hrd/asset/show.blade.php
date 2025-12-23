@@ -34,7 +34,8 @@
 
             {{-- Baris 4 --}}
             <div class="row g-3 mb-3">
-                <div class="col-12 col-md-3"><strong>Nilai Pembelian:</strong><br>{{ number_format($asset->purchase_value, 2) }}
+                <div class="col-12 col-md-3"><strong>Nilai
+                        Pembelian:</strong><br>{{ number_format($asset->purchase_value, 2) }}
                 </div>
                 <div class="col-12 col-md-3"><strong>Nilai
                         Penyusutan:</strong><br>{{ number_format($asset->depreciation_value, 2) }}</div>
@@ -87,10 +88,12 @@
             <div class="d-flex justify-content-between">
                 <a href="{{ route('asset.index') }}" class="btn btn-secondary">Kembali</a>
                 <div class="d-flex align-items-center">
-                    @can('request-order.delete')
+                    @can('asset.delete')
                         <x-buttons.delete2 :href="route('asset.destroy', $asset->id)" />
                     @endcan
-                    <a href="{{ route('asset.edit', $asset->id) }}" class="btn btn-primary ms-2">Edit</a>
+                    @can('asset.edit')
+                        <a href="{{ route('asset.edit', $asset->id) }}" class="btn btn-primary ms-2">Edit</a>
+                    @endcan
                 </div>
             </div>
         @endcomponent

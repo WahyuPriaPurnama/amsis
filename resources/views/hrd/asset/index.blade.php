@@ -4,9 +4,19 @@
 @section('content')
     <div class="container-fluid mt-3">
         @component('components.card')
-            <div class="button-action mb-3 d-flex">
-                <x-buttons.create href="{{ route('asset.create') }}" />
+            <div class="button-action mb-3 d-flex justify-content-between">
+                @can('asset.create')
+                    <x-buttons.create href="{{ route('asset.create') }}" />
+                @endcan
+                <form method="GET" action="{{ route('asset.index') }}">
+                    <div class="input-group">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            placeholder="Cari nama atau kode ...">
+                        <button class="btn btn-primary" type="submit">Cari</button>
+                    </div>
+                </form>
             </div>
+
             @slot('header')
                 LIST ASSET
             @endslot
@@ -29,8 +39,13 @@
                             <tr>
                                 <td>{{ $assets->firstItem() + $loop->iteration - 1 }}</td>
                                 <td>{{ $asset->subsidiary->name }}</td>
-                                <td><a href="{{ route('asset.show', $asset->id) }}"class="text-decoration-none"
-                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">{{ $asset->code }}</a>
+                                <td>
+                                    @can('asset.view')
+                                        <a href="{{ route('asset.show', $asset->id) }}"class="text-decoration-none"
+                                            data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">{{ $asset->code }}</a>
+                                    @else
+                                        {{ $asset->code }}
+                                    @endcan
                                 </td>
                                 <td>{{ $asset->name }}</td>
                                 <td>{{ $asset->condition }}</td>
@@ -45,6 +60,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                {{ $assets->links() }}
             </div>
         @endcomponent
     </div>
