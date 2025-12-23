@@ -32,11 +32,6 @@
                         @break
                     @endswitch
                 </div>
-                @can('request-payment.delete')
-                    <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center">
-                        <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
-                    </div>
-                @endcan
             </div>
             {{-- Data umum --}}
             <div class="row mb-3">
@@ -92,13 +87,12 @@
                 </table>
             </div>
             <div class="row mb-3">
-                <div class="col-md-10">
+                <div class="col-md-12">
                     <strong>Note:</strong> {{ $payment->purpose }}
                 </div>
-                <div class="col-md-2">
-                    <a href="{{ route('request-payment.attachment', $payment->id) }}"
-                        class="btn btn-primary">Lampiran</a>
-                </div>
+
+
+
             </div>
 
             <div class="row mt-3">
@@ -116,6 +110,13 @@
             <div class="mt-3 d-flex justify-content-between">
                 <a href="{{ route('request-payment.index') }}" class="btn btn-secondary">Kembali</a>
                 <div class="d-flex gap-1">
+                    @can('request-payment.delete')
+                        <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
+                    @endcan
+                    @if ($payment->attachment)
+                        <a href="{{ route('request-payment.attachment', $payment->id) }}" target="_blank"
+                            class="btn btn-primary">Lampiran</a>
+                    @endif
                     <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
                     @can('request-payment.approve')
                         @if ($payment->status === 'pending')

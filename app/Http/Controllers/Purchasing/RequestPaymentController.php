@@ -9,6 +9,7 @@ use App\Models\Purchasing\RequestPaymentItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class RequestPaymentController extends Controller
 {
@@ -221,14 +222,18 @@ class RequestPaymentController extends Controller
     public function attachment($id)
     {
         $requestPayment = RequestPayment::findOrFail($id);
-        $filename = $requestPayment->attachment;
 
-        $path = storage_path('app/public/attachments/request-payments/' . $filename);
-
-        if (!file_exists($path)) {
-            abort(404);
+      //  dd(Storage::disk('public')->path('attachments/request-payments/' . $requestPayment->attachment));
+        if (!$requestPayment->attachment) {
+            abort(404, 'Lampiran tidak tersedia');
         }
 
-        return response()->file($path);
+        $path =$requestPayment->attachment;
+
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+
+        return response()->file(Storage::disk('public')->path($path));
     }
 }
