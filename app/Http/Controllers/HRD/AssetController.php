@@ -74,11 +74,33 @@ class AssetController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
     public function store(AssetRequest $request)
     {
-        $asset = Asset::create($request->validated() + [
-            'user_id' => Auth::id(),
-        ]);
+        $data = $request->validated();
+        $data['user_id'] = Auth::id();
+        if ($request->hasFile('attachment')) {
+            $data['attachment'] = $request->file('attachment')
+                ->store('assets/attachments', 'public');
+        }
+
+        if ($request->hasFile('photo')) {
+            $data['photo'] = $request->file('photo')
+                ->store('assets/photos', 'public');
+        }
+
+        if ($request->hasFile('delivery_receipt')) {
+            $data['delivery_receipt'] = $request->file('delivery_receipt')
+                ->store('assets/delivery_receipts', 'public');
+        }
+
+        if ($request->hasFile('manual_book')) {
+            $data['manual_book'] = $request->file('manual_book')
+                ->store('assets/manual_books', 'public');
+        }
+
+
+        $asset = Asset::create($data);
 
         return redirect()->route('asset.index')->with('success', 'Asset berhasil ditambahkan.');
     }
@@ -106,7 +128,6 @@ class AssetController extends Controller
     public function update(AssetRequest $request, Asset $asset)
     {
         $asset->update($request->validated());
-
         return redirect()->route('asset.index')->with('success', 'Asset berhasil diperbarui.');
     }
 
