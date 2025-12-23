@@ -8,6 +8,7 @@ use App\Models\HRD\Asset;
 use App\Models\HRD\Subsidiary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AssetController extends Controller
 {
@@ -136,8 +137,59 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
+
+        $fileFields = [
+            'attachment',
+            'photo',
+            'delivery_receipt',
+            'manual_book',
+        ];
+
+        foreach ($fileFields as $field) {
+            if ($asset->$field) {
+                Storage::disk('public')->delete($asset->$field);
+            }
+        }
+
         $asset->delete();
 
         return redirect()->route('asset.index')->with('success', 'Asset berhasil dihapus.');
+    }
+
+    public function photo($id)
+    {
+        $asset = Asset::findOrFail($id);
+        if (!$asset->photo || !Storage::disk('public')->exists($asset->photo)) {
+            abort(404, 'File tidak ditemukan');
+        }
+        return response()->file(Storage::disk('public')->path($asset->photo));
+    }
+
+    public function attachment($id)
+    {
+        $asset = Asset::findOrFail($id);
+        $path = $asset->attachment;
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+        return response()->file(Storage::disk('public')->path($path));
+    }
+    public function delivery_receipt($id)
+    {
+        $asset = Asset::findOrFail($id);
+        $path = $asset->delivery_receipt;
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+        return response()->file(Storage::disk('public')->path($path));
+    }
+    public function manual_book($id)
+    {
+        $asset = Asset::findOrFail($id);
+        $path = $asset->manual_book;
+        if (!Storage::disk('public')->exists($path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+        return response()->file(Storage::disk('public')->path($path));
     }
 }

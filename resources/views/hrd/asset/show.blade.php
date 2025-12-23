@@ -48,7 +48,8 @@
                 <div class="col-12 col-md-3">
                     <strong>Tanda Terima:</strong><br>
                     @if ($asset->delivery_receipt)
-                        <a href="{{ asset('storage/' . $asset->delivery_receipt) }}" target="_blank">Lihat File</a>
+                        <a href="{{ route('asset.delivery_receipt', $asset->id) }}" target="_blank"
+                            class="btn btn-primary">Lihat</a>
                     @else
                         -
                     @endif
@@ -56,7 +57,8 @@
                 <div class="col-12 col-md-3">
                     <strong>Manual Book:</strong><br>
                     @if ($asset->manual_book)
-                        <a href="{{ asset('storage/' . $asset->manual_book) }}" target="_blank">Lihat File</a>
+                        <a href="{{ route('asset.manual_book', $asset->id) }}" target="_blank"
+                            class="btn btn-primary">Lihat</a>
                     @else
                         -
                     @endif
@@ -64,8 +66,7 @@
                 <div class="col-12 col-md-3">
                     <strong>Foto Aset:</strong><br>
                     @if ($asset->photo)
-                        <img src="{{ asset('storage/' . $asset->photo) }}" alt="Foto Aset" class="img-fluid"
-                            style="max-height:150px;">
+                        <a href="{{ route('asset.photo', $asset->id) }}" target="_blank" class="btn btn-primary">Lihat</a>
                     @else
                         -
                     @endif
@@ -73,7 +74,7 @@
                 <div class="col-12 col-md-3">
                     <strong>Lampiran:</strong><br>
                     @if ($asset->attachment)
-                        <a href="{{ asset('storage/' . $asset->attachment) }}" target="_blank">Lihat File</a>
+                        <a href="{{ route('asset.attachment', $asset->id) }}" target="_blank" class="btn btn-primary">Lihat</a>
                     @else
                         -
                     @endif

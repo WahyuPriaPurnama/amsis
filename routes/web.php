@@ -124,6 +124,10 @@ Route::middleware('auth')->group(function () {
 
     // Asset
     Route::resource('asset', AssetController::class);
+    Route::get('asset/photo/{id}', [AssetController::class, 'photo'])->name('asset.photo');
+    Route::get('asset/attachment/{id}', [AssetController::class, 'attachment'])->name('asset.attachment');
+    Route::get('asset/delivery-receipt/{id}', [AssetController::class, 'delivery_receipt'])->name('asset.delivery_receipt');
+    Route::get('asset/manual-book/{id}', [AssetController::class, 'manual_book'])->name('asset.manual_book');
 });
 
 

@@ -223,13 +223,11 @@ class RequestPaymentController extends Controller
     {
         $requestPayment = RequestPayment::findOrFail($id);
 
-      //  dd(Storage::disk('public')->path('attachments/request-payments/' . $requestPayment->attachment));
         if (!$requestPayment->attachment) {
             abort(404, 'Lampiran tidak tersedia');
         }
 
-        $path =$requestPayment->attachment;
-
+        $path = $requestPayment->attachment;
         if (!Storage::disk('public')->exists($path)) {
             abort(404, 'File tidak ditemukan');
         }
