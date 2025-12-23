@@ -17,59 +17,59 @@ class AssetController extends Controller
      */
     public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        $fullAccessRoles = ['super-admin', 'holding-admin'];
-        $roleSubsidiaryMap = [
-            'eln-admin'   => 2,
-            'eln2-admin'  => 3,
-            'bofi-admin'  => 4,
-            'haka-admin'  => 5,
-            'rmm-admin'   => 6,
-        ];
+        // cek permission untuk asset
+        if ($user->can('asset.list')) {
+            $query = Asset::with(['subsidiary', 'user']) // relasi yang relevan
+                ->latest();
 
-        // Ganti model Employee -> Asset
-        $query = Asset::query()->latest();
-
-        // Batasi akses berdasarkan role
-        if (!(method_exists($user, 'hasAnyRole')
-            ? $user->hasAnyRole($fullAccessRoles)
-            : in_array($user->role, $fullAccessRoles))) {
-
-            $subsidiaryId = $this->getSubsidiaryIdByRole($user, $roleSubsidiaryMap);
-
-            if ($subsidiaryId) {
-                $query->whereHas('subsidiary', fn($q) => $q->where('id', $subsidiaryId));
-            } else {
-                abort(403, 'Role tidak dikenali');
+            // batasi akses berdasarkan role & subsidiary
+            if (!$user->hasRole(['super-admin', 'holding-admin']) && $user->subsidiary_id) {
+                $query->where('subsidiary_id', $user->subsidiary_id);
             }
+
+            // pencarian
+            if ($search = $request->input('search')) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('code', 'like', "%{$search}%")
+                        ->orWhere('name', 'like', "%{$search}%")
+                        ->orWhere('category', 'like', "%{$search}%")
+                        ->orWhere('location', 'like', "%{$search}%")
+                        ->orWhereHas('subsidiary', function ($sub) use ($search) {
+                            $sub->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            $assets = $query->paginate(20)->appends(['search' => $search]);
+
+            return view('hrd.asset.index', compact('assets', 'search'));
         }
 
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('code', 'like', "%{$search}%")
-                    ->orWhere('category', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhere('location', 'like', "%{$search}%");
-            });
-        }
-
-        $perPage = $request->input('per_page', 20);
-
-        $assets = $query->paginate($perPage)->withQueryString();
-
-        return view('hrd.asset.index', compact('assets'));
+        abort(403, 'Anda tidak memiliki izin untuk melihat Asset.');
     }
-
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        $subsidiaries = Subsidiary::all();
-        return view('hrd.asset.create', compact('subsidiaries'));
+        $user = auth()->user();
+
+        // jika user super-admin atau holding-admin boleh lihat semua
+        if ($user->hasRole(['super-admin', 'holding-admin'])) {
+            $subsidiaries = Subsidiary::all();
+        } else {
+            // hanya subsidiary asal user
+            $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+        }
+
+        $categories = ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja'];
+        $conditions = ['Baik', 'Rusak', 'Lainnya'];
+        $owners     = ['Umum', 'Engineering', 'QC & Lab'];
+
+        return view('hrd.asset.create', compact('subsidiaries', 'categories', 'conditions', 'owners'));
     }
 
     /**
@@ -111,6 +111,19 @@ class AssetController extends Controller
      */
     public function show(Asset $asset)
     {
+        $user = auth()->user();
+
+        // batasi akses: hanya super-admin/holding-admin atau asset milik subsidiary user
+        if (
+            !$user->hasRole(['super-admin', 'holding-admin']) &&
+            $user->subsidiary_id !== $asset->subsidiary_id
+        ) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat Asset ini.');
+        }
+
+        // eager load relasi agar view lebih efisien
+        $asset->load(['subsidiary', 'user']);
+
         return view('hrd.asset.show', compact('asset'));
     }
 
@@ -119,7 +132,21 @@ class AssetController extends Controller
      */
     public function edit(Asset $asset)
     {
-        $subsidiaries = Subsidiary::all();
+        $user = auth()->user();
+
+        // super-admin & holding-admin boleh lihat semua subsidiary
+        if ($user->hasRole(['super-admin', 'holding-admin'])) {
+            $subsidiaries = Subsidiary::all();
+        } else {
+            // hanya subsidiary asal user
+            $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+
+            // tambahan: kalau asset bukan milik subsidiary user, tolak akses
+            if ($asset->subsidiary_id !== $user->subsidiary_id) {
+                abort(403, 'Anda tidak memiliki izin untuk mengedit Asset ini.');
+            }
+        }
+
         return view('hrd.asset.edit', compact('asset', 'subsidiaries'));
     }
 
@@ -191,5 +218,23 @@ class AssetController extends Controller
             abort(404, 'File tidak ditemukan');
         }
         return response()->file(Storage::disk('public')->path($path));
+    }
+    protected function getSubsidiaryIdByRole($user, array $roleSubsidiaryMap)
+    {
+        // Jika user pakai Spatie Permission
+        if (method_exists($user, 'hasRole')) {
+            foreach ($roleSubsidiaryMap as $role => $subsidiaryId) {
+                if ($user->hasRole($role)) {
+                    return $subsidiaryId;
+                }
+            }
+        }
+
+        // Jika user punya property role biasa
+        if (!empty($user->role) && isset($roleSubsidiaryMap[$user->role])) {
+            return $roleSubsidiaryMap[$user->role];
+        }
+
+        return null; // tidak dikenali
     }
 }
