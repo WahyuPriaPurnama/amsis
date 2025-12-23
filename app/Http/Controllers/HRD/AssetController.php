@@ -3,33 +3,84 @@
 namespace App\Http\Controllers\HRD;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssetRequest;
 use App\Models\HRD\Asset;
+use App\Models\HRD\Subsidiary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AssetController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('hrd.asset.index');
+        $user = Auth::user();
+
+        $fullAccessRoles = ['super-admin', 'holding-admin'];
+        $roleSubsidiaryMap = [
+            'eln-admin'   => 2,
+            'eln2-admin'  => 3,
+            'bofi-admin'  => 4,
+            'haka-admin'  => 5,
+            'rmm-admin'   => 6,
+        ];
+
+        // Ganti model Employee -> Asset
+        $query = Asset::query()->latest();
+
+        // Batasi akses berdasarkan role
+        if (!(method_exists($user, 'hasAnyRole')
+            ? $user->hasAnyRole($fullAccessRoles)
+            : in_array($user->role, $fullAccessRoles))) {
+
+            $subsidiaryId = $this->getSubsidiaryIdByRole($user, $roleSubsidiaryMap);
+
+            if ($subsidiaryId) {
+                $query->whereHas('subsidiary', fn($q) => $q->where('id', $subsidiaryId));
+            } else {
+                abort(403, 'Role tidak dikenali');
+            }
+        }
+
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kode', 'like', "%{$search}%")
+                    ->orWhere('kategori', 'like', "%{$search}%")
+                    ->orWhere('nama_asset', 'like', "%{$search}%")
+                    ->orWhere('lokasi', 'like', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 20);
+
+        $assets = $query->paginate($perPage)->withQueryString();
+
+        return view('hrd.asset.index', compact('assets'));
     }
+
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-        //
+        $subsidiaries = Subsidiary::all();
+        return view('hrd.asset.create', compact('subsidiaries'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(AssetRequest $request)
     {
-        //
+        $asset = Asset::create($request->validated() + [
+            'user_id' => Auth::id(),
+        ]);
+
+        return redirect()->route('asset.index')->with('success', 'Asset berhasil ditambahkan.');
     }
 
     /**
@@ -37,7 +88,7 @@ class AssetController extends Controller
      */
     public function show(Asset $asset)
     {
-        //
+        return view('hrd.asset.show', compact('asset'));
     }
 
     /**
@@ -45,15 +96,18 @@ class AssetController extends Controller
      */
     public function edit(Asset $asset)
     {
-        //
+        $subsidiaries = Subsidiary::all();
+        return view('hrd.asset.edit', compact('asset', 'subsidiaries'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Asset $asset)
+    public function update(AssetRequest $request, Asset $asset)
     {
-        //
+        $asset->update($request->validated());
+
+        return redirect()->route('asset.index')->with('success', 'Asset berhasil diperbarui.');
     }
 
     /**
@@ -61,6 +115,8 @@ class AssetController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        //
+        $asset->delete();
+
+        return redirect()->route('asset.index')->with('success', 'Asset berhasil dihapus.');
     }
 }

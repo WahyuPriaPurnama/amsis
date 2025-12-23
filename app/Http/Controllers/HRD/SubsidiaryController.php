@@ -44,7 +44,7 @@ class SubsidiaryController extends Controller
             $subsidiary->update(['kop_footer' => $kop_footer->hashName()]);
         }
 
-        return redirect()->route('subsidiaries.index')->with('alert', 'Input data berhasil');
+        return redirect()->route('subsidiaries.index')->with('success', 'Input data berhasil');
     }
 
     public function show(Subsidiary $subsidiary)
@@ -84,19 +84,19 @@ class SubsidiaryController extends Controller
             $subsidiary->update(['kop_footer' => $kop_footer->hashName()]);
         }
 
-        return redirect()->route('subsidiaries.index')->with('alert', "Update data {$subsidiary->name} berhasil");
+        return redirect()->route('subsidiaries.index')->with('success', "Update data {$subsidiary->name} berhasil");
     }
 
     public function destroy(Subsidiary $subsidiary)
     {
         if ($subsidiary->employees()->count() > 0) {
-            return redirect()->route('subsidiaries.index')->with('alert2', "Tidak dapat menghapus {$subsidiary->name} karena masih ada karyawan di plant tersebut.");
+            return redirect()->route('subsidiaries.index')->with('error', "Tidak dapat menghapus {$subsidiary->name} karena masih ada karyawan di plant tersebut.");
         }
         Storage::disk('local')->delete("public/subsidiary/logo/{$subsidiary->logo}");
         Storage::disk('local')->delete("public/subsidiary/kop_header/{$subsidiary->kop_header}");
         Storage::disk('local')->delete("public/subsidiary/kop_footer/{$subsidiary->kop_footer}");
         $subsidiary->delete();
 
-        return redirect()->route('subsidiaries.index')->with('alert', "Hapus data {$subsidiary->name} berhasil");
+        return redirect()->route('subsidiaries.index')->with('success', "Hapus data {$subsidiary->name} berhasil");
     }
 }

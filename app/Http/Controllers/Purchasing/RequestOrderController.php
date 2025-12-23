@@ -177,7 +177,7 @@ class RequestOrderController extends Controller
         $requestOrder->delete();
 
         return redirect()->route('request-order.index')
-            ->with('alert', 'Request Order berhasil dihapus.');
+            ->with('success', 'Request Order berhasil dihapus.');
     }
 
     public function approveDivHead(Request $request, $id)
@@ -185,7 +185,7 @@ class RequestOrderController extends Controller
         $requestOrder = RequestOrder::findOrFail($id);
         if (!auth()->user()->hasRole('div-head') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
-                ->with('alert2', 'Hanya Kepala Divisi yang berhak melakukan approve.');
+                ->with('error', 'Hanya Kepala Divisi yang berhak melakukan approve.');
         }
 
         $requestOrder->update([
@@ -197,11 +197,11 @@ class RequestOrderController extends Controller
         $message = 'Request Order telah disetujui oleh Kepala Divisi.';
         if ($request->input('from') === 'show') {
             return redirect()->route('request-order.show', $id)
-                ->with('alert', $message);
+                ->with('success', $message);
         }
 
         return redirect()->route('request-order.index')
-            ->with('alert', $message);
+            ->with('success', $message);
     }
 
     public function approveManager(Request $request, $id)
@@ -210,7 +210,7 @@ class RequestOrderController extends Controller
 
         if (!auth()->user()->hasRole('plant-manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
-                ->with('alert2', 'Hanya Plant Manager yang berhak melakukan approve.');
+                ->with('error', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
 
         $requestOrder->update([
@@ -223,11 +223,11 @@ class RequestOrderController extends Controller
 
         if ($request->input('from') === 'show') {
             return redirect()->route('request-order.show', $id)
-                ->with('alert', $message);
+                ->with('success', $message);
         }
 
         return redirect()->route('request-order.index')
-            ->with('alert', $message);
+            ->with('success', $message);
     }
 
     public function approveBod(Request $request, $id)
@@ -236,7 +236,7 @@ class RequestOrderController extends Controller
 
         if (!auth()->user()->hasRole('bod') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
-                ->with('alert2', 'Hanya BOD yang berhak melakukan approve.');
+                ->with('error', 'Hanya BOD yang berhak melakukan approve.');
         }
 
         $requestOrder->update([
@@ -248,16 +248,16 @@ class RequestOrderController extends Controller
         $message = 'Request Order telah disetujui BOD.';
         if ($request->input('from') === 'show') {
             return redirect()->route('request-order.show', $id)
-                ->with('alert', $message);
+                ->with('success', $message);
         }
         return redirect()->route('request-order.index')
-            ->with('alert', $message);
+            ->with('success', $message);
     }
     public function pdf($id)
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
         $pdf = Pdf::loadView('purchasing.request_order.pdf', compact('order', 'timestamp'));
-        return $pdf->stream('RO-' . $order->request_number . '.pdf');
+        return $pdf->stream('Request_Order_' . $order->subsidiary->name . '_' . $order->request_number . '.pdf');
     }
 }

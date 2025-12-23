@@ -30,7 +30,7 @@ class ScanlogController extends Controller
         $scanlogs = Scanlog::with('harian')->get();
 
         if ($scanlogs->isEmpty()) {
-            return redirect()->route('hrd.scanlog.index')->with('alert2', 'Database kosong. Tidak ada data scanlog yang tersedia.');
+            return redirect()->route('hrd.scanlog.index')->with('error', 'Database kosong. Tidak ada data scanlog yang tersedia.');
         }
 
         $pinTidakDitemukan = [];
@@ -49,7 +49,7 @@ class ScanlogController extends Controller
             ? 'Gaji berhasil diproses! Namun, beberapa PIN tidak ditemukan: ' . implode(', ', $pinTidakDitemukan)
             : 'Gaji berhasil diproses!';
 
-        return redirect()->route('hrd.scanlog.index')->with('alert', $pesan);
+        return redirect()->route('hrd.scanlog.index')->with('success', $pesan);
     }
 
     public function import(Request $request)
@@ -67,9 +67,9 @@ class ScanlogController extends Controller
         $path = $file->storeAs('public/excel/', $nama_file);
         try {
             $import = Excel::import(new ScanlogImport(), storage_path('app/public/excel/' . $nama_file));
-            $pesan = ['alert' => 'data berhasil diimport!'];
+            $pesan = ['success' => 'data berhasil diimport!'];
         } catch (\Exception $e) {
-            $pesan = ['alert2' => 'data gagal diimport!'];
+            $pesan = ['error' => 'data gagal diimport!'];
             Log::error('Gagal import: ' . $e->getMessage());
         }
         //remove from server
@@ -141,7 +141,7 @@ class ScanlogController extends Controller
     {
         $datas = Scanlog::where('status', 0)->get();
         if ($datas->isEmpty()) {
-            return redirect()->route('hrd.scanlog.index')->with('alert2', 'tidak ada data yang perlu diproses');
+            return redirect()->route('hrd.scanlog.index')->with('error', 'tidak ada data yang perlu diproses');
         }
         $berhasil = 0;
         foreach ($datas as $data) {
@@ -180,16 +180,16 @@ class ScanlogController extends Controller
         $pesan = $berhasil > 0
             ? "Berhasil, {$berhasil} data berhasil dikonversi ke jam."
             : "Gagal mengonversi data ke jam.";
-        $alert = $berhasil > 0 ? 'alert' : 'alert2';
+        $alert = $berhasil > 0 ? 'success' : 'error';
         return redirect()->route('hrd.scanlog.index')->with($alert, $pesan);
     }
 
     public function truncate()
     {
         if (!Scanlog::exists()) {
-            return redirect()->route('hrd.scanlog.index')->with('alert2', 'tidak ada data yang perlu dihapus');
+            return redirect()->route('hrd.scanlog.index')->with('error', 'tidak ada data yang perlu dihapus');
         }
         Scanlog::truncate();
-        return redirect()->route('hrd.scanlog.index')->with('alert', 'data berhasil dikosongkan!');
+        return redirect()->route('hrd.scanlog.index')->with('success', 'data berhasil dikosongkan!');
     }
 }

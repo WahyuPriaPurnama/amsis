@@ -1,12 +1,12 @@
-@if (session()->has('alert'))
+@if (session()->has('success'))
     <div class="alert alert-success alert-dismissible fade show my-3">
-        {{ session()->get('alert') }}
+        {{ session()->get('success') }}
 
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-@elseif(session()->has('alert2'))
+@elseif(session()->has('error'))
     <div class="alert alert-danger alert-dismissible fade show my-3">
-        {{ session()->get('alert2') }}
+        {{ session()->get('error') }}
 
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>

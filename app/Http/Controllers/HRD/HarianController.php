@@ -25,7 +25,7 @@ class HarianController extends Controller
         $start = $request->start_date;
         $end = $request->end_date;
         if (!Scanlog::where('pin', $pin)->whereBetween('tgl', [$start, $end])->exists()) {
-            return redirect()->back()->with('alert2', 'Tidak ada data scanlog untuk PIN ' . $pin . ' pada rentang tanggal yang dipilih.');
+            return redirect()->back()->with('error', 'Tidak ada data scanlog untuk PIN ' . $pin . ' pada rentang tanggal yang dipilih.');
         }
         $slips = Scanlog::with('harian')->whereHas('harian', function ($query) use ($pin) {
             $query->where('pin', $pin);
@@ -79,10 +79,10 @@ class HarianController extends Controller
 
         if ($import) {
             //redirect
-            return redirect()->route('karyawan-harian.index')->with(['alert' => 'Data Berhasil Diimport!']);
+            return redirect()->route('karyawan-harian.index')->with(['success' => 'Data Berhasil Diimport!']);
         } else {
             //redirect
-            return redirect()->route('karyawan-harian.index')->with(['alert2' => 'Data Gagal Diimport!']);
+            return redirect()->route('karyawan-harian.index')->with(['error' => 'Data Gagal Diimport!']);
         }
     }
 
@@ -94,7 +94,7 @@ class HarianController extends Controller
     public function truncate()
     {
         Harian::truncate();
-        return redirect()->route('karyawan-harian.index')->with(['alert' => 'Data Berhasil Dikosongkan!']);
+        return redirect()->route('karyawan-harian.index')->with(['success' => 'Data Berhasil Dikosongkan!']);
     }
     /**
      * Display a listing of the resource.

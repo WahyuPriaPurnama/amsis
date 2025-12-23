@@ -9,7 +9,7 @@
          <li><a class="dropdown-item @yield('menuVehicles')" href="{{ route('vehicles.index') }}">Kendaraan</a></li>
      @endcan
      @can('asset.list')
-         <li><a href="{{route('asset.index')}}" class="dropdown-item @yield('menuAsset')">Data Aset</a></li>
+         <li><a href="{{ route('asset.index') }}" class="dropdown-item @yield('menuAsset')">Data Aset</a></li>
      @endcan
      {{-- <li><a class="dropdown-item @yield('menuScanlog')"
                                                 href="{{ route('scanlog.index') }}">Scanlog</a></li>

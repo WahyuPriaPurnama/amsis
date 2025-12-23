@@ -77,7 +77,7 @@ class VehicleController extends Controller
             $service = $this->fileUpload($request, 'public/vehicles/service', 'f_service');
             $data->update(['f_service' => $service->hashName()]);
         }
-        return redirect()->route('vehicles.index')->with('alert', 'data berhasil disimpan');
+        return redirect()->route('vehicles.index')->with('success', 'data berhasil disimpan');
     }
 
     /**
@@ -143,7 +143,7 @@ class VehicleController extends Controller
         }
 
         return redirect()->route('vehicles.show', ['vehicle' => $vehicle->id])
-            ->with($vehicle ? 'alert' : 'alert2', $vehicle ? 'update data berhasil' : 'update data gagal');
+            ->with($vehicle ? 'success' : 'error', $vehicle ? 'update data berhasil' : 'update data gagal');
     }
 
     /**
@@ -163,7 +163,7 @@ class VehicleController extends Controller
 
         return redirect()->route('vehicles.index')
             ->with(
-                $vehicle ? 'alert' : 'alert2',
+                $vehicle ? 'success' : 'error',
                 "hapus data {$vehicle->jenis_kendaraan} " . ($vehicle ? 'berhasil' : 'gagal')
             );
     }

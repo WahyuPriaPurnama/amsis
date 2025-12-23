@@ -14,13 +14,15 @@ return new class extends Migration
         Schema::create('assets', function (Blueprint $table) {
             $table->id();
             $table->string('code');
+            $table->text('name');
+            $table->text('description')->nullable();
             $table->enum('condition', ['Baik', 'Rusak', 'Lainnya'])->default('Baik');
             $table->enum('owner', ['Umum', 'Engineering', 'QC & Lab']);
+            $table->string('location');
             $table->enum('category', ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja']);
             $table->string('delivery_receipt')->nullable();
             $table->string('manual_book')->nullable();
             $table->string('accounting_code')->nullable();
-            $table->text('description')->nullable();
             $table->string('photo')->nullable();
             $table->integer('quantity')->default(1);
             $table->string('unit');

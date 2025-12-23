@@ -4,22 +4,23 @@
 @section('content')
     <div class="container-fluid mt-3">
         @component('components.card')
-            <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
+            <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between">
                 @unless (auth()->user()->hasRole('employee'))
                     <div class="d-flex gap-2 flex-wrap">
-                        <x-buttons.create href="{{ route('employees.create') }}"></x-buttons.create>
+                        <x-buttons.create href="{{ route('employees.create') }}" />
                         <x-buttons.excel href="{{ route('employees.excel') }}">Export</x-buttons.excel>
-                        <x-buttons.import data-bs-original-title="import excel" data-bs-toggle="modal"
+                        <x-buttons.import data-bs-original-title="Import Excel" data-bs-toggle="modal"
                             data-bs-target="#importModal">Import</x-buttons.import>
-                        <x-buttons.pdf href="{{ route('employees.pdf') }}"></x-buttons.pdf>
+                        <x-buttons.pdf href="{{ route('employees.pdf') }}" />
                     </div>
+
                     <form method="GET" action="{{ route('employees.index') }}">
-                    <div class="input-group">
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                            placeholder="Cari nama, nip atau nik">
-                        <button class="btn btn-primary" type="submit">Cari</button>
-                    </div>
-                </form>
+                        <div class="input-group">
+                            <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                                placeholder="Cari nama, NIP atau NIK">
+                            <button class="btn btn-primary" type="submit">Cari</button>
+                        </div>
+                    </form>
                 @endunless
             </div>
             @slot('header')

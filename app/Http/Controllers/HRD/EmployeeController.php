@@ -174,7 +174,7 @@ class EmployeeController extends Controller
 
         return redirect()
             ->route('employee.index')
-            ->with('alert', "Input data {$employee->nama} berhasil");
+            ->with('success', "Input data {$employee->nama} berhasil");
     }
 
     /**
@@ -284,9 +284,9 @@ class EmployeeController extends Controller
         }
 
         if ($employee) {
-            return redirect()->route('employees.show', ['employee' => $employee->id])->with('alert', "update data $request->nama berhasil");
+            return redirect()->route('employees.show', ['employee' => $employee->id])->with('success', "update data $request->nama berhasil");
         } else {
-            return redirect()->route('employees.show', ['employee' => $employee->id])->with('alert2', "update data $request->nama gagal");
+            return redirect()->route('employees.show', ['employee' => $employee->id])->with('error', "update data $request->nama gagal");
         }
     }
 
@@ -306,9 +306,9 @@ class EmployeeController extends Controller
         $employee->delete();
 
         if ($employee) {
-            return redirect()->route('employees.index')->with('alert', "hapus data $employee->nama berhasil");
+            return redirect()->route('employees.index')->with('success', "hapus data $employee->nama berhasil");
         } else {
-            return redirect()->route('employees.index')->with('alert2', "hapus data $employee->nama gagal");
+            return redirect()->route('employees.index')->with('error', "hapus data $employee->nama gagal");
         }
     }
 
@@ -370,9 +370,9 @@ class EmployeeController extends Controller
         try {
             Excel::import(new EmployeeImport, $request->file('file'));
 
-            return back()->with('alert', 'Import berhasil. Data pegawai telah ditambahkan.');
+            return back()->with('success', 'Import berhasil. Data pegawai telah ditambahkan.');
         } catch (\Exception $e) {
-            return back()->with('alert2', 'Terjadi kesalahan saat import: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat import: ' . $e->getMessage());
         }
     }
 

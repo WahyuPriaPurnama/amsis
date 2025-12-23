@@ -92,8 +92,12 @@
                 </table>
             </div>
             <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="col-md-10">
                     <strong>Note:</strong> {{ $payment->purpose }}
+                </div>
+                <div class="col-md-2">
+                    <a href="{{ route('request-payment.attachment', $payment->id) }}"
+                        class="btn btn-primary">Lampiran</a>
                 </div>
             </div>
 

@@ -126,7 +126,7 @@ class RequestPaymentController extends Controller
         }
 
         return redirect()->route('request-payment.index')
-            ->with('alert', 'Request Payment berhasil dibuat.');
+            ->with('success', 'Request Payment berhasil dibuat.');
     }
 
 
@@ -164,7 +164,7 @@ class RequestPaymentController extends Controller
         $requestPayment->items()->delete();
         $requestPayment->delete();
         return redirect()->route('request-payment.index')
-            ->with('alert', 'Request Payment berhasil dihapus.');
+            ->with('success', 'Request Payment berhasil dihapus.');
     }
 
     public function approveManager(Request $request, $id)
@@ -173,7 +173,7 @@ class RequestPaymentController extends Controller
 
         if (!auth()->user()->hasRole('plant-manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-payment.index')
-                ->with('alert2', 'Hanya Plant Manager yang berhak melakukan approve.');
+                ->with('error', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
 
         $payment->update([
@@ -185,11 +185,11 @@ class RequestPaymentController extends Controller
 
         if ($request->input('from') === 'show') {
             return redirect()->route('request-order.show', $id)
-                ->with('alert', $message);
+                ->with('success', $message);
         }
 
         return redirect()->route('request-payment.index')
-            ->with('alert', $message);
+            ->with('success', $message);
     }
     public function approveBod($id)
     {
@@ -197,7 +197,7 @@ class RequestPaymentController extends Controller
 
         if (!auth()->user()->hasRole('bod') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-payment.index')
-                ->with('alert2', 'Hanya BOD yang berhak melakukan approve.');
+                ->with('error', 'Hanya BOD yang berhak melakukan approve.');
         }
 
         $payment->update([
@@ -207,7 +207,7 @@ class RequestPaymentController extends Controller
         ]);
 
         return redirect()->route('request-payment.index')
-            ->with('alert', 'Request Payment berhasil disetujui oleh BOD.');
+            ->with('success', 'Request Payment berhasil disetujui oleh BOD.');
     }
 
     public function pdf($id)
@@ -215,6 +215,20 @@ class RequestPaymentController extends Controller
         $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
         $pdf = Pdf::loadView('purchasing.request_payment.pdf', compact('payment', 'timestamp'));
-        return $pdf->stream('Request_Payment_' . $payment->payment_number . '.pdf');
+        return $pdf->stream('Request_Payment_' . $payment->subsidiary->name . '_' . $payment->payment_number . '.pdf');
+    }
+
+    public function attachment($id)
+    {
+        $requestPayment = RequestPayment::findOrFail($id);
+        $filename = $requestPayment->attachment;
+
+        $path = storage_path('app/public/attachments/request-payments/' . $filename);
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
     }
 }

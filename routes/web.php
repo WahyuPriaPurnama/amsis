@@ -98,16 +98,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('/', RequestOrderController::class)->parameters([
             '' => 'request_order'
         ]);
-
         Route::post('approve/{id}', [RequestOrderController::class, 'approveDivHead'])
             ->name('approve_div_head');
-
         Route::post('approve-manager/{id}', [RequestOrderController::class, 'approveManager'])
             ->name('approve_manager');
-
         Route::post('approve-bod/{id}', [RequestOrderController::class, 'approveBod'])
             ->name('approve_bod');
-
         Route::get('{id}/pdf', [RequestOrderController::class, 'pdf'])
             ->name('pdf');
     });
@@ -117,15 +113,13 @@ Route::middleware('auth')->group(function () {
         Route::resource('/', RequestPaymentController::class)->parameters([
             '' => 'request_payment'
         ]);
-
         Route::post('approve/{id}', [RequestPaymentController::class, 'approveManager'])
             ->name('approve_manager');
-
         Route::post('approve-bod/{id}', [RequestPaymentController::class, 'approveBod'])
             ->name('approve_bod');
-
         Route::get('{id}/pdf', [RequestPaymentController::class, 'pdf'])
             ->name('pdf');
+        Route::get('attachment/{id}', [RequestPaymentController::class, 'attachment'])->name('attachment');
     });
 
     // Asset
