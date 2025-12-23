@@ -155,21 +155,19 @@ class AssetController extends Controller
      */
     public function update(AssetRequest $request, Asset $asset)
     {
-        // Update field non-file
+
         $asset->update($request->except(['attachment', 'photo', 'delivery_receipt', 'manual_books']));
 
-        // Daftar field file yang perlu diproses
         $fileFields = ['attachment', 'photo', 'delivery_receipt', 'manual_books'];
 
         foreach ($fileFields as $field) {
             if ($request->hasFile($field)) {
-                // Hapus file lama jika ada
+
                 if ($asset->$field) {
-                    Storage::delete($asset->$field);
+                    Storage::disk('public')->delete($asset->$field);
                 }
 
-                // Simpan file baru
-                $path = $request->file($field)->store("assets/{$field}");
+                $path = $request->file($field)->store("assets/{$field}", 'public');
                 $asset->update([$field => $path]);
             }
         }
