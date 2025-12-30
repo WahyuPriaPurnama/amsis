@@ -24,12 +24,9 @@ class RequestPaymentController extends Controller
             $query = RequestPayment::with(['items', 'requester', 'subsidiary'])
                 ->latest();
 
-            // Jika bukan super-admin / holding-admin, batasi subsidiary
-            if (!$user->hasRole(['super-admin', 'holding-admin']) && $user->subsidiary_id) {
-                $query->where('subsidiary_id', $user->subsidiary_id);
-            }
+            // ⚠️ Tidak ada filter subsidiary di sini
+            // Jadi semua request payment akan ditampilkan
 
-            // Jika ada pencarian
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('payment_number', 'like', "%{$search}%")
@@ -47,6 +44,8 @@ class RequestPaymentController extends Controller
 
             return view('purchasing.request_payment.index', compact('payments', 'search'));
         }
+
+        abort(403, 'Anda tidak memiliki izin untuk melihat Request Payment.');
     }
     /**
      * Show the form for creating a new resource.
