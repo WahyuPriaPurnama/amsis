@@ -79,9 +79,7 @@
                                     @endswitch
                                 </td>
                                 <td>
-                                    @can('request-payment.approve')
-                                        @include('purchasing.partials.payment-approve-button')
-                                    @endcan
+                                    @include('purchasing.partials.payment-approve-button')
                                     @if ($payment->status === 'approved_by_bod')
                                         <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
                                     @endif
