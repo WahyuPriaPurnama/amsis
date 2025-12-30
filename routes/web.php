@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/roles/{id}/edit', [RolePermissionController::class, 'edit'])->name('roles.edit');
     Route::put('/admin/roles/{id}', [RolePermissionController::class, 'update'])->name('roles.update');
     Route::delete('/admin/roles/{id}', [RolePermissionController::class, 'destroy'])->name('roles.destroy');
+    Route::post('/admin/roles/assign-subsidiary', [RolePermissionController::class, 'assignSubsidiary'])
+        ->name('roles.assign.subsidiary');
 
     Route::resource('subsidiaries', SubsidiaryController::class);
     Route::get('/users/export', [UserController::class, 'export'])->name('users.export');

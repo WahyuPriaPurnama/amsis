@@ -23,10 +23,26 @@ class RequestOrderController extends Controller
             $query = RequestOrder::with(['items', 'requester', 'subsidiary'])
                 ->latest();
 
-            if (!$user->hasRole(['super-admin', 'holding-admin']) && $user->subsidiary_id) {
-                $query->where('subsidiary_id', $user->subsidiary_id);
+            // 🔑 Filter subsidiary berdasarkan role
+            if (!$user->hasAnyRole(['super-admin', 'holding-admin'])) {
+                // Ambil semua subsidiary dari role yang dimiliki user
+                $subsidiaryIds = $user->roles
+                    ->flatMap(fn($role) => $role->subsidiaries->pluck('id'))
+                    ->unique();
+
+                // Kalau user punya subsidiary_id langsung (misalnya employee/div-head)
+                if ($subsidiaryIds->isEmpty() && $user->subsidiary_id) {
+                    $subsidiaryIds = collect([$user->subsidiary_id]);
+                }
+
+                if ($subsidiaryIds->isNotEmpty()) {
+                    $query->whereIn('subsidiary_id', $subsidiaryIds);
+                } else {
+                    abort(403, 'Anda tidak memiliki akses ke subsidiary manapun.');
+                }
             }
 
+            // 🔍 Search filter
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('request_number', 'like', "%{$search}%")
@@ -55,32 +71,23 @@ class RequestOrderController extends Controller
     {
         $user = Auth::user();
 
-        $fullAccessRoles = ['super-admin', 'holding-admin'];
-        $roleSubsidiaryMap = [
-            'eln-admin'   => 2,
-            'eln2-admin'  => 3,
-            'bofi-admin'  => 4,
-            'haka-admin'  => 5,
-            'rmm-admin'   => 6,
-        ];
-
-        if ($user->hasAnyRole($fullAccessRoles)) {
-            // Full access: semua subsidiaries
+        // Full access role → semua subsidiaries
+        if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
             $subsidiaries = Subsidiary::all();
-        } elseif ($user->hasAnyRole(array_keys($roleSubsidiaryMap))) {
-            // Admin role: sesuai mapping
-            $subsidiaryId = collect($roleSubsidiaryMap)
-                ->get($user->roles->pluck('name')->first());
-            $subsidiaries = Subsidiary::where('id', $subsidiaryId)->get();
-        } elseif ($user->hasAnyRole(['employee', 'div-head'])) {
-            // Employee: hanya subsidiary miliknya sendiri
-            if ($user->subsidiary_id) {
-                $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
-            } else {
-                abort(403, 'Employee tidak memiliki subsidiary.');
-            }
         } else {
-            abort(403, 'Role tidak dikenali.');
+            // Ambil semua subsidiaries dari role yang dimiliki user
+            $subsidiaries = $user->roles
+                ->flatMap(fn($role) => $role->subsidiaries)
+                ->unique('id');
+
+            // Kalau employee/div-head → fallback ke subsidiary_id miliknya
+            if ($subsidiaries->isEmpty() && $user->subsidiary_id) {
+                $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+            }
+
+            if ($subsidiaries->isEmpty()) {
+                abort(403, 'Role tidak dikenali atau tidak punya subsidiary.');
+            }
         }
 
         return view('purchasing.request_order.create', compact('subsidiaries'));
@@ -183,7 +190,7 @@ class RequestOrderController extends Controller
     public function approveDivHead(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
-        if (!auth()->user()->hasRole('div-head') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('approve.division') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
                 ->with('error', 'Hanya Kepala Divisi yang berhak melakukan approve.');
         }
@@ -208,7 +215,7 @@ class RequestOrderController extends Controller
     {
         $requestOrder = RequestOrder::findOrFail($id);
 
-        if (!auth()->user()->hasRole('plant-manager') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('approve.manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
                 ->with('error', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
@@ -234,7 +241,7 @@ class RequestOrderController extends Controller
     {
         $requestOrder = RequestOrder::findOrFail($id);
 
-        if (!auth()->user()->hasRole('bod') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('approve.bod') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
                 ->with('error', 'Hanya BOD yang berhak melakukan approve.');
         }

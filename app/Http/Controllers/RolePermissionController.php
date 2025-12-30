@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HRD\Subsidiary;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -12,9 +13,10 @@ class RolePermissionController extends Controller
     public function index()
     {
         return view('admin.roles.index', [
-            'roles' => Role::with('permissions')->orderBy('name','asc')->get(),
-            'permissions' => Permission::orderBy('name','asc')->get(),
-            'users' => User::with('roles')->orderBy('name','asc')->get(),
+            'roles' => Role::with('permissions')->orderBy('name', 'asc')->get(),
+            'permissions' => Permission::orderBy('name', 'asc')->get(),
+            'users' => User::with('roles')->orderBy('name', 'asc')->get(),
+            'subsidiaries'=>Subsidiary::orderBy('name','asc')->get(),
         ]);
     }
 
@@ -80,5 +82,21 @@ class RolePermissionController extends Controller
         $role->delete();
 
         return back()->with('alert', 'Role berhasil dihapus.');
+    }
+
+    public function assignSubsidiary(Request $request)
+    {
+        $request->validate([
+            'role_id' => 'required|exists:roles,id',
+            'subsidiaries' => 'required|array',
+            'subsidiaries.*' => 'exists:subsidiaries,id',
+        ]);
+
+        $role = Role::findOrFail($request->role_id);
+
+        // Sinkronisasi pivot role_subsidiary
+        $role->subsidiaries()->sync($request->subsidiaries);
+
+        return back()->with('success', 'Subsidiaries assigned to role successfully.');
     }
 }

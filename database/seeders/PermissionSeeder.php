@@ -55,7 +55,9 @@ class PermissionSeeder extends Seeder
             'request-order.create',
             'request-order.edit',
             'request-order.delete',
-            'request-order.approve',
+            'request-order.approve-division',
+            'request-order.approve-manager',
+            'request-order.approve-bod',
         ];
         $RequestPaymentPermissions = [
             'request-payment.list',
@@ -63,8 +65,11 @@ class PermissionSeeder extends Seeder
             'request-payment.create',
             'request-payment.edit',
             'request-payment.delete',
-            'request-payment.approve',
+            'request-payment.approve-manager',
+            'request-payment.approve-bod',
         ];
+
+        
         $allPermissions = array_merge(
             $SubsidiaryPermissions,
             $UserPermissions,
@@ -72,7 +77,7 @@ class PermissionSeeder extends Seeder
             $EmployeePermissions,
             $AssetPermissions,
             $RequestOrderPermissions,
-            $RequestPaymentPermissions
+            $RequestPaymentPermissions,
         );
         foreach ($allPermissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);

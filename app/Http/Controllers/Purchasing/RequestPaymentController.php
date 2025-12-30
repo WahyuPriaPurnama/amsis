@@ -24,8 +24,16 @@ class RequestPaymentController extends Controller
             $query = RequestPayment::with(['items', 'requester', 'subsidiary'])
                 ->latest();
 
-            // ⚠️ Tidak ada filter subsidiary di sini
-            // Jadi semua request payment akan ditampilkan
+            // 🔑 Tambahkan filter berdasarkan role_subsidiary jika diperlukan
+            if (!$user->hasRole(['super-admin', 'holding-admin'])) {
+                $subsidiaryIds = $user->roles
+                    ->flatMap(fn($role) => $role->subsidiaries->pluck('id'))
+                    ->unique();
+
+                if ($subsidiaryIds->isNotEmpty()) {
+                    $query->whereIn('subsidiary_id', $subsidiaryIds);
+                }
+            }
 
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
@@ -58,11 +66,23 @@ class RequestPaymentController extends Controller
             abort(403, 'Anda tidak memiliki izin untuk membuat Request Payment.');
         }
 
-        if ($user->hasRole(['super-admin', 'holding-admin'])) {
+        if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
+            // Full access: semua subsidiaries
             $subsidiaries = Subsidiary::orderBy('name')->get();
         } else {
+            // Ambil subsidiaries dari role yang dimiliki user
+            $subsidiaries = $user->roles
+                ->flatMap(fn($role) => $role->subsidiaries)
+                ->unique('id');
 
-            $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+            // Fallback: kalau kosong, pakai subsidiary_id langsung dari user
+            if ($subsidiaries->isEmpty() && $user->subsidiary_id) {
+                $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
+            }
+
+            if ($subsidiaries->isEmpty()) {
+                abort(403, 'Anda tidak memiliki akses ke subsidiary manapun.');
+            }
         }
 
         return view('purchasing.request_payment.create', compact('subsidiaries'));
@@ -171,7 +191,7 @@ class RequestPaymentController extends Controller
     {
         $payment = RequestPayment::findOrFail($id);
 
-        if (!auth()->user()->hasRole('plant-manager') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('approve.manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-payment.index')
                 ->with('error', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
@@ -195,7 +215,7 @@ class RequestPaymentController extends Controller
     {
         $payment = RequestPayment::findOrFail($id);
 
-        if (!auth()->user()->hasRole('bod') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('approve.bod') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-payment.index')
                 ->with('error', 'Hanya BOD yang berhak melakukan approve.');
         }
