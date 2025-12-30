@@ -24,7 +24,6 @@ class RequestPaymentController extends Controller
             $query = RequestPayment::with(['items', 'requester', 'subsidiary'])
                 ->latest();
 
-            // 🔑 Tambahkan filter berdasarkan role_subsidiary jika diperlukan
             if (!$user->hasRole(['super-admin', 'holding-admin'])) {
                 $subsidiaryIds = $user->roles
                     ->flatMap(fn($role) => $role->subsidiaries->pluck('id'))
@@ -32,6 +31,8 @@ class RequestPaymentController extends Controller
 
                 if ($subsidiaryIds->isNotEmpty()) {
                     $query->whereIn('subsidiary_id', $subsidiaryIds);
+                } else {
+                    abort(403, 'Anda tidak memiliki akses ke subsidiary manapun.');
                 }
             }
 
@@ -67,15 +68,15 @@ class RequestPaymentController extends Controller
         }
 
         if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
-            // Full access: semua subsidiaries
+
             $subsidiaries = Subsidiary::orderBy('name')->get();
         } else {
-            // Ambil subsidiaries dari role yang dimiliki user
+
             $subsidiaries = $user->roles
                 ->flatMap(fn($role) => $role->subsidiaries)
                 ->unique('id');
 
-            // Fallback: kalau kosong, pakai subsidiary_id langsung dari user
+
             if ($subsidiaries->isEmpty() && $user->subsidiary_id) {
                 $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
             }

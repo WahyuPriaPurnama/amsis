@@ -30,11 +30,6 @@ class RequestOrderController extends Controller
                     ->flatMap(fn($role) => $role->subsidiaries->pluck('id'))
                     ->unique();
 
-                // Kalau user punya subsidiary_id langsung (misalnya employee/div-head)
-                if ($subsidiaryIds->isEmpty() && $user->subsidiary_id) {
-                    $subsidiaryIds = collect([$user->subsidiary_id]);
-                }
-
                 if ($subsidiaryIds->isNotEmpty()) {
                     $query->whereIn('subsidiary_id', $subsidiaryIds);
                 } else {
@@ -42,7 +37,7 @@ class RequestOrderController extends Controller
                 }
             }
 
-            // 🔍 Search filter
+
             if ($search = $request->input('search')) {
                 $query->where(function ($q) use ($search) {
                     $q->where('request_number', 'like', "%{$search}%")
