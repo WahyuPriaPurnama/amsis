@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Data Request Payment')
-@section('menuRP', 'active')
+@section('menuPayment', 'active')
 @section('content')
     <div class="container-fluid mt-3">
         @component('components.card')

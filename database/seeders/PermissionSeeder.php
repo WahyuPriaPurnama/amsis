@@ -20,6 +20,7 @@ class PermissionSeeder extends Seeder
             'employee.create',
             'employee.edit',
             'employee.delete',
+            'employee-organization.edit',
         ];
         $SubsidiaryPermissions = [
             'subsidiary.list',

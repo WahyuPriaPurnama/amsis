@@ -48,7 +48,6 @@ class RequestPaymentController extends Controller
                         });
                 });
             }
-
             $payments = $query->paginate(20)->appends(['search' => $search]);
 
             return view('purchasing.request_payment.index', compact('payments', 'search'));
@@ -192,7 +191,7 @@ class RequestPaymentController extends Controller
     {
         $payment = RequestPayment::findOrFail($id);
 
-        if (!auth()->user()->can('approve.manager') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('request-payment.approve-manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-payment.index')
                 ->with('error', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
@@ -216,7 +215,7 @@ class RequestPaymentController extends Controller
     {
         $payment = RequestPayment::findOrFail($id);
 
-        if (!auth()->user()->can('approve.bod') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('request-payment.approve-bod') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-payment.index')
                 ->with('error', 'Hanya BOD yang berhak melakukan approve.');
         }

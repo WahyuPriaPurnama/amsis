@@ -185,7 +185,7 @@ class RequestOrderController extends Controller
     public function approveDivHead(Request $request, $id)
     {
         $requestOrder = RequestOrder::findOrFail($id);
-        if (!auth()->user()->can('approve.division') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('request-order.approve-division') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
                 ->with('error', 'Hanya Kepala Divisi yang berhak melakukan approve.');
         }
@@ -210,7 +210,7 @@ class RequestOrderController extends Controller
     {
         $requestOrder = RequestOrder::findOrFail($id);
 
-        if (!auth()->user()->can('approve.manager') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('request-order.approve-manager') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
                 ->with('error', 'Hanya Plant Manager yang berhak melakukan approve.');
         }
@@ -236,7 +236,7 @@ class RequestOrderController extends Controller
     {
         $requestOrder = RequestOrder::findOrFail($id);
 
-        if (!auth()->user()->can('approve.bod') && !auth()->user()->hasRole('super-admin')) {
+        if (!auth()->user()->can('request-order.approve-bod') && !auth()->user()->hasRole('super-admin')) {
             return redirect()->route('request-order.index')
                 ->with('error', 'Hanya BOD yang berhak melakukan approve.');
         }

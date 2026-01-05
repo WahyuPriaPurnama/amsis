@@ -20,7 +20,6 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
-use Spatie\Permission\Models\Role;
 
 class EmployeeController extends Controller
 {
@@ -193,49 +192,24 @@ class EmployeeController extends Controller
     {
         $user = Auth::user();
 
-        // Subsidiary mapping by role
-        $roleSubsidiaryMap = [
-            'eln-admin'   => 2,
-            'eln2-admin'  => 3,
-            'bofi-admin'  => 4,
-            'haka-admin'  => 5,
-            'rmm-admin'   => 6,
-        ];
-
-        // Full access roles
+        // Roles dengan full access
         $fullAccessRoles = ['super-admin', 'holding-admin'];
 
-        // Determine subsidiaries based on role
-        if (method_exists($user, 'hasAnyRole') && $user->hasAnyRole($fullAccessRoles)) {
+        // Tentukan subsidiaries
+        if ($user->hasAnyRole($fullAccessRoles)) {
+            // Full access → semua subsidiary
             $subsidiaries = Subsidiary::all();
-        } elseif (method_exists($user, 'hasRole')) {
-            foreach ($roleSubsidiaryMap as $role => $id) {
-                if ($user->hasRole($role)) {
-                    $subsidiaries = Subsidiary::where('id', $id)->get();
-                    break;
-                }
-            }
-
-            // Karyawan hanya bisa lihat subsidiary miliknya sendiri
-            if ($user->hasAnyRole(['employee', 'div-head', 'manager', 'bod'])) {
-                $subsidiaries = Subsidiary::where('id', $employee->subsidiary_id)->get();
-            }
-
-            // Fallback jika tidak cocok dengan role manapun
-            if (!isset($subsidiaries)) {
-                $subsidiaries = Subsidiary::where('id', 5)->get();
-            }
         } else {
-            // Fallback jika trait belum aktif
-            $subsidiaries = Subsidiary::where('id', 5)->get();
+            // Selain itu → hanya subsidiary asal user/employee
+            $subsidiaries = Subsidiary::where('id', $employee->subsidiary_id)->get();
         }
 
-        // Cek apakah user adalah karyawan dan sedang edit datanya sendiri
-        $isEmployee = $user->hasRole('employee') && $user->employee_id === $employee->id;
-        $isLeader = $user->hasAnyRole(['div-head', 'manager', 'bod']);
-        return view('hrd.employee.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader'));
-    }
+        // Flags
+        $isEmployee = !$user->hasAnyRole($fullAccessRoles) && $user->employee_id === $employee->id;
+        $isLeader   = $user->hasAnyRole($fullAccessRoles);
 
+        return view('hrd.employee.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader','user'));
+    }
     /**
      * Update the specified resource in storage.
      */
