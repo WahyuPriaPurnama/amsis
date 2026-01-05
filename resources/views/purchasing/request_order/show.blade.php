@@ -123,7 +123,7 @@
                                 method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
-                                    Approve Kadiv
+                                    Approve Divisi
                                 </button>
                             </form>
                         @elseif($order->status === 'approved_by_div_head')
@@ -131,7 +131,7 @@
                                 method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success">
-                                    Approve Plant Mgr
+                                    Approve Manager
                                 </button>
                             </form>
                         @elseif($order->status === 'approved_by_manager')

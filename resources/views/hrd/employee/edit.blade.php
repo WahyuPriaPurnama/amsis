@@ -28,8 +28,7 @@
                         <label for="nip" class="form-label">NIP</label>
 
                         <input type="text" id="nip" name="nip" value="{{ old('nip', $employee->nip) }}"
-                            class="form-control @error('nip') is-invalid @enderror"{{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
-
+                            class="form-control @error('nip') is-invalid @enderror"{{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
                             aria-describedby="nipHelp">
                         @error('nip')
                             <div class="invalid-feedback">
@@ -41,8 +40,8 @@
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="nama" class="form-label">Nama Lengkap</label>
                         <input type="text" id="nama" name="nama" value="{{ old('nama', $employee->nama) }}"
-                            class="form-control @error('nama') is-invalid @enderror" {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
-
+                            class="form-control @error('nama') is-invalid @enderror"
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
                             aria-describedby="namaHelp" placeholder="Contoh: Roberto Karlos">
                         <div id="namaHelp" class="form-text">sesuai KTP</div>
                         @error('nama')
@@ -84,8 +83,8 @@
                     <div class="col-12 col-md-3 mb-3">
                         <label for="divisi" class="form-label">Divisi</label>
                         <input type="text" id="divisi" name="divisi" value="{{ old('divisi', $employee->divisi) }}"
-                            class="form-control @error('divisi') is-invalid @enderror" {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
->
+                            class="form-control @error('divisi') is-invalid @enderror"
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
                         @error('divisi')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -98,8 +97,8 @@
                         <label for="departemen" class="form-label">Departemen</label>
                         <input type="text" id="departemen" name="departemen"
                             value="{{ old('departemen', $employee->departemen) }}"
-                            class="form-control @error('departemen') is-invalid @enderror" {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
->
+                            class="form-control @error('departemen') is-invalid @enderror"
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
                         @error('departemen')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -109,8 +108,8 @@
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="seksi" class="form-label">Seksi</label>
                         <input type="text" id="seksi" name="seksi" value="{{ old('seksi', $employee->seksi) }}"
-                            class="form-control @error('seksi') is-invalid @enderror" {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
->
+                            class="form-control @error('seksi') is-invalid @enderror"
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
                         @error('seksi')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -120,8 +119,8 @@
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="posisi" class="form-label">Jabatan</label>
                         <input type="text" id="posisi" name="posisi" value="{{ old('posisi', $employee->posisi) }}"
-                            class="form-control @error('posisi') is-invalid @enderror" {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
->
+                            class="form-control @error('posisi') is-invalid @enderror"
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
                         @error('posisi')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -130,8 +129,8 @@
                         <label for="tgl_masuk" class="form-label">Tanggal Masuk Kerja</label>
                         <input type="date" id="tgl_masuk" name="tgl_masuk"
                             value="{{ old('tgl_masuk', $employee->tgl_masuk) }}"
-                            class="form-control @error('tgl_masuk') is-invalid @enderror" {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
->
+                            class="form-control @error('tgl_masuk') is-invalid @enderror"
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
                         @error('tgl_masuk')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -178,8 +177,8 @@
                         <label for="awal_kontrak" class="form-label">Awal Kontrak</label>
                         <input type="date" id="awal_kontrak" name="awal_kontrak" x-model="awalKontrak"
                             :value="awalKontrak" class="form-control @error('awal_kontrak') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
- aria-describedby="kontrakHelp">
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
+                            aria-describedby="kontrakHelp">
                         @error('awal_kontrak')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -190,8 +189,8 @@
                         <label for="akhir_kontrak" class="form-label">Akhir Kontrak</label>
                         <input type="date" id="akhir_kontrak" name="akhir_kontrak" x-model="akhirKontrak"
                             :value="akhirKontrak" class="form-control @error('akhir_kontrak') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->hasRole('employee-organization.edit') ? 'readonly' : '' }}
- aria-describedby="kontrakHelp">
+                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
+                            aria-describedby="kontrakHelp">
                         @error('akhir_kontrak')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -234,12 +233,12 @@
                         <label class="form-label">Jenis Kelamin</label>
                         <div class="form-check me-3">
                             <input class="form-check-input @error('jenis_kelamin') is-invalid @enderror" type="radio"
-                                name="jenis_kelamin" id="laki_laki" value="L" @checked($employee->jenis_kelamin == 'L')>
+                                name="jenis_kelamin" id="laki_laki" value="L" @checked(old('jenis_kelamin', $employee->jenis_kelamin) == 'L')>
                             <label class="form-check-label" for="laki_laki">Laki-laki</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input @error('jenis_kelamin') is-invalid @enderror" type="radio"
-                                name="jenis_kelamin" id="perempuan" value="P" @checked($employee->jenis_kelamin == 'P')>
+                                name="jenis_kelamin" id="perempuan" value="P" @checked(old('jenis_kelamin', $employee->jenis_kelamin) == 'P')>
                             <label class="form-check-label" for="perempuan">Perempuan</label>
                         </div>
                         @error('jenis_kelamin')
