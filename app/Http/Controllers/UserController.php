@@ -132,7 +132,7 @@ class UserController extends Controller
 
     public function editPassword()
     {
-        return view('employees.change-password');
+        return view('hrd.employee.change-password');
     }
 
     public function updatePassword(Request $request)
