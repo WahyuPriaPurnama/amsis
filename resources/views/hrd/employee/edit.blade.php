@@ -54,26 +54,23 @@
                     {{-- Subsidiary (Plant) --}}
                     <div class="col-12 col-md-3 mb-3">
                         <label for="subsidiary_id" class="form-label">Plant</label>
-                        @if ($isLeader || $isEmployee)
-                            <select class="form-select" disabled>
-                                @foreach ($subsidiaries as $subsidiary)
-                                    <option value="{{ $subsidiary->id }}" @selected($subsidiary->id == $employee->subsidiary_id)>
-                                        {{ $subsidiary->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+
+                        @php $disabled = ($isLeader || $isEmployee); @endphp
+
+                        <select name="subsidiary_id" id="subsidiary_id"
+                            class="form-select @error('subsidiary_id') is-invalid @enderror" {{ $disabled ? 'disabled' : '' }}>
+                            <option value="">Pilih Plant</option>
+                            @foreach ($subsidiaries as $subsidiary)
+                                <option value="{{ $subsidiary->id }}" @selected($subsidiary->id == old('subsidiary_id', $employee->subsidiary_id))>
+                                    {{ $subsidiary->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @if ($disabled)
                             <input type="hidden" name="subsidiary_id" value="{{ $employee->subsidiary_id }}">
-                        @else
-                            <select name="subsidiary_id" id="subsidiary_id"
-                                class="form-select @error('subsidiary_id') is-invalid @enderror">
-                                <option value="">Pilih Plant</option>
-                                @foreach ($subsidiaries as $subsidiary)
-                                    <option value="{{ $subsidiary->id }}" @selected($subsidiary->id == old('subsidiary_id', $employee->subsidiary_id))>
-                                        {{ $subsidiary->name }}
-                                    </option>
-                                @endforeach
-                            </select>
                         @endif
+
                         @error('subsidiary_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

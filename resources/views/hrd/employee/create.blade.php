@@ -37,8 +37,6 @@
                         @enderror
                     </div>
 
-
-
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
                         <label for="subsidiary_id" class="form-label">Plant</label>
                         <select class="form-select @error('subsidiary_id') is-invalid @enderror" name="subsidiary_id"

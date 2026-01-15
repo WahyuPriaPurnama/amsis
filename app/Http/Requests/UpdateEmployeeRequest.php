@@ -23,72 +23,36 @@ class UpdateEmployeeRequest extends FormRequest
     {
         $employee = $this->route('employee');
         return [
-            //organisasi
+            // Gunakan 'sometimes' untuk field yang bisa di-disabled di view
             'nip' => 'required|unique:employees,nip,' . $employee->id,
-            'nama' => 'required',
-            'subsidiary_id' => 'required|integer|exists:subsidiaries,id',
+            'nama' => 'required|string|max:255',
+            'subsidiary_id' => 'sometimes|required|integer|exists:subsidiaries,id',
+            'status_peg' => 'sometimes|required|string',
+
+            // Field organisasi lainnya
             'divisi' => 'required|string|max:100',
             'departemen' => 'required|string|max:100',
             'seksi' => 'required|string|max:100',
             'posisi' => 'required|string|max:100',
-            'status_peg' => 'required|string',
             'tgl_masuk' => 'required|date',
-            'awal_kontrak' => 'nullable|date',
-            'akhir_kontrak' => 'nullable|date',
-            //biodata
+            'awal_kontrak' => 'nullable|required_if:status_peg,PKWT|date',
+            'akhir_kontrak' => 'nullable|required_if:status_peg,PKWT|date',
+
+            // Biodata & Kontak
             'nik' => 'required|string|unique:employees,nik,' . $employee->id,
-            'tmpt_lahir' => 'required|string',
-            'tgl_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:L,P',
-            'alamat' => 'required|string',
-            'no_telp' => 'required|string',
             'email' => 'required|email|unique:employees,email,' . $employee->id,
-            'pend_trkhr' => 'nullable|string',
-            'jurusan' => 'nullable|string',
-            'thn_lulus' => 'nullable|string',
-            'nama_ibu' => 'required|string',
-            'npwp' => 'nullable|string',
+            'jenis_kelamin' => 'required|in:L,P',
             'status' => 'required|string',
-            'jml_ank' => 'nullable|string',
-            'nama_kd' => 'required|string',
-            'no_kd' => 'required|string',
-            'hubungan' => 'required|string',
-            'pp' => 'nullable|mimes:png,jpg,jpeg|max:2048',
-            'ktp' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
-            'kk' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
-            'npwp2' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
-            'bpjs_kes' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
-            'bpjs_ket' => 'nullable|mimes:png,jpg,jpeg,pdf|max:2048',
-            'ttd' => 'nullable|mimes:png,jpg,jpeg|max:2048',
-        ];
-    }
+            'jml_ank' => 'nullable|integer|min:0',
 
-    public function messages()
-    {
-        return [
-            'required' => 'wajib diisi',
-            'unique' => 'tidak boleh sama',
-            'nip.unique' => 'NIP sudah terdaftar',
-            'nik.unique' => 'NIK sudah terdaftar',
-            'email.unique' => 'Email sudah terdaftar',
-            'pp.mimes' => 'format yang diizinkan png, jpg dan jpeg',
-            'mimes' => 'format yang diizinkan png, jpg, jpeg dan pdf',
-            'max' => 'ukuran file maksimum 2 MB',
-            'email' => 'format email tidak valid',
-            'string' => 'harus berupa teks'
+            // Validasi File (digabungkan agar rapi)
+            'pp' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'ktp' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'kk' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'npwp2' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bpjs_kes' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bpjs_ket' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'ttd' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ];
-    }
-
-    protected function prepareForValidation()
-    {
-        $this->merge([
-            'nama' => ucwords(strtolower($this->nama)),
-            'tmpt_lahir' => ucwords(strtolower($this->tmpt_lahir)),
-            'jurusan' => ucwords(strtolower($this->jurusan)),
-            'nama_ibu' => ucwords(strtolower($this->nama_ibu)),
-            'nama_kd' => ucwords(strtolower($this->nama_kd)),
-            'hubungan' => ucwords(strtolower($this->hubungan)),
-            'email' => strtolower($this->email),
-        ]);
     }
 }

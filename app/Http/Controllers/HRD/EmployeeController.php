@@ -208,62 +208,50 @@ class EmployeeController extends Controller
         $isEmployee = !$user->hasAnyRole($fullAccessRoles) && $user->employee_id === $employee->id;
         $isLeader   = $user->hasAnyRole($fullAccessRoles);
 
-        return view('hrd.employee.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader','user'));
+        return view('hrd.employee.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader', 'user'));
     }
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateEmployeeRequest $request, Employee $employee)
     {
+        try {
+            \DB::transaction(function () use ($request, $employee) {
+                // 1. Update data teks
+                $employee->update($request->validated());
 
-        $employee->update($request->validated());
+                // 2. Definisi mapping file [nama_input => path_storage]
+                $fileFields = [
+                    'pp'       => 'public/foto_profil',
+                    'ktp'      => 'public/KTP',
+                    'npwp2'    => 'public/NPWP',
+                    'kk'       => 'public/Kartu Keluarga',
+                    'bpjs_kes' => 'public/BPJS Kesehatan',
+                    'bpjs_ket' => 'public/BPJS Ketenagakerjaan',
+                    'ttd'      => 'public/ttd',
+                ];
 
-        if ($request->file('pp')) {
-            Storage::disk('local')->delete('public/foto_profil/' . $employee->pp);
-            $pp = $this->fileUpload($request, 'public/foto_profil/', 'pp');
-            $employee->update(['pp' => $pp->hashName()]);
-        }
-        if ($request->file('ktp')) {
-            Storage::disk('local')->delete('public/KTP/' . $employee->ktp);
-            $ktp = $this->fileUpload($request, 'public/KTP/', 'ktp');
-            $employee->update(['ktp' => $ktp->hashName()]);
-        }
-        if ($request->file('npwp2')) {
-            Storage::disk('local')->delete('public/NPWP/' . $employee->npwp2);
-            $npwp = $this->fileUpload($request, 'public/NPWP/', 'npwp2');
-            $employee->update(['npwp2' => $npwp->hashName()]);
-        }
+                // 3. Loop proses upload
+                foreach ($fileFields as $field => $path) {
+                    if ($request->hasFile($field)) {
+                        // Hapus file lama jika ada
+                        if ($employee->$field) {
+                            Storage::disk('local')->delete($path . '/' . $employee->$field);
+                        }
 
-        if ($request->file('kk')) {
-            Storage::disk('local')->delete('public/Kartu Keluarga/' . $employee->kk);
-            $kk = $this->fileUpload($request, 'public/Kartu Keluarga/', 'kk');
-            $employee->update(['kk' => $kk->hashName()]);
-        }
+                        // Upload file baru
+                        $file = $this->fileUpload($request, $path, $field);
+                        $employee->update([$field => $file->hashName()]);
+                    }
+                }
+            });
 
-        if ($request->file('bpjs_kes')) {
-            Storage::disk('local')->delete('public/BPJS Kesehatan/' . $employee->bpjs_kes);
-            $bpjs_kes = $this->fileUpload($request, 'public/BPJS Kesehatan/', 'bpjs_kes');
-            $employee->update(['bpjs_kes' => $bpjs_kes->hashName()]);
-        }
-
-        if ($request->file('bpjs_ket')) {
-            Storage::disk('local')->delete('public/BPJS Ketenagakerjaan/' . $employee->kbpjs_ket);
-            $bpjs_ket = $this->fileUpload($request, 'public/BPJS Ketenagakerjaan/', 'bpjs_ket');
-            $employee->update(['bpjs_ket' => $bpjs_ket->hashName()]);
-        }
-        if ($request->file('ttd')) {
-            Storage::disk('local')->delete('public/ttd/' . $employee->ttd);
-            $ttd = $this->fileUpload($request, 'public/ttd/', 'ttd');
-            $employee->update(['ttd' => $ttd->hashName()]);
-        }
-
-        if ($employee) {
-            return redirect()->route('employees.show', ['employee' => $employee->id])->with('success', "update data $request->nama berhasil");
-        } else {
-            return redirect()->route('employees.show', ['employee' => $employee->id])->with('error', "update data $request->nama gagal");
+            return redirect()->route('employees.show', $employee->id)
+                ->with('success', "Update data {$employee->nama} berhasil");
+        } catch (\Exception $e) {
+            return back()->with('error', "Gagal memperbarui data: " . $e->getMessage());
         }
     }
-
     /**
      * Remove the specified resource from storage.
      */
