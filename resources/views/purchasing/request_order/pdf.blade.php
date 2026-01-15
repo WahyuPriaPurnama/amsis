@@ -22,6 +22,11 @@
             padding: 5px;
             text-align: left;
         }
+
+        .no-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
     </style>
 </head>
 
@@ -73,142 +78,145 @@
     </table>
     <strong>Note:</strong> {{ $order->purpose ?? '-' }}
 
+    <div class="no-break">
+        <table
+            style=" width:80%; transform:scale(0.8);transform-origin:top left; border:1px solid #000; border-collapse:collapse; text-align:center;">
+            <tr>
+                <td rowspan="2"
+                    style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>Request By</i></strong>
+                </td>
+                <td colspan="3"
+                    style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>Approved By Plant</i></strong>
+                </td>
+            </tr>
+            <tr>
+                <td
+                    style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>Head of Division</i></strong>
+                </td>
+                <td
+                    style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>Plant Manager</i></strong>
+                </td>
+                <td
+                    style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>BOD</i></strong>
+                </td>
+            </tr>
 
-    <table
-        style=" width:80%; transform:scale(0.8);transform-origin:top left; border:1px solid #000; border-collapse:collapse; text-align:center;">
-        <tr>
-            <td rowspan="2"
-                style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>Request By</i></strong>
-            </td>
-            <td colspan="3"
-                style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>Approved By Plant</i></strong>
-            </td>
-        </tr>
-        <tr>
-            <td
-                style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>Head of Division</i></strong>
-            </td>
-            <td
-                style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>Plant Manager</i></strong>
-            </td>
-            <td
-                style="width:25%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>BOD</i></strong>
-            </td>
-        </tr>
+            {{-- Baris tanda tangan --}}
+            <tr>
+                <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                    @if ($order->requester && $order->requester->employee && $order->requester->employee->ttd)
+                        <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->requester->employee->ttd)) }}"
+                            style="width:100px; height:auto;">
+                    @endif
+                </td>
+                <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                    @if ($order->divHead && $order->divHead->employee && $order->divHead->employee->ttd)
+                        <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->divHead->employee->ttd)) }}"
+                            style="width:100px; height:auto;">
+                    @endif
+                </td>
+                <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                    @if ($order->plantManager && $order->plantManager->employee && $order->plantManager->employee->ttd)
+                        <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->plantManager->employee->ttd)) }}"
+                            style="width:100px; height:auto;">
+                    @endif
+                </td>
+                <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                    @if ($order->bod && $order->bod->employee && $order->bod->employee->ttd)
+                        <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->bod->employee->ttd)) }}"
+                            style="width:100px; height:auto;">
+                    @endif
+                </td>
+            </tr>
 
-        {{-- Baris tanda tangan --}}
-        <tr>
-            <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-                @if ($order->requester && $order->requester->employee && $order->requester->employee->ttd)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->requester->employee->ttd)) }}"
-                        style="width:100px; height:auto;">
-                @endif
-            </td>
-            <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-                @if ($order->divHead && $order->divHead->employee && $order->divHead->employee->ttd)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->divHead->employee->ttd)) }}"
-                        style="width:100px; height:auto;">
-                @endif
-            </td>
-            <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-                @if ($order->plantManager && $order->plantManager->employee && $order->plantManager->employee->ttd)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->plantManager->employee->ttd)) }}"
-                        style="width:100px; height:auto;">
-                @endif
-            </td>
-            <td style="border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-                @if ($order->bod && $order->bod->employee && $order->bod->employee->ttd)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/ttd/' . $order->bod->employee->ttd)) }}"
-                        style="width:100px; height:auto;">
-                @endif
-            </td>
-        </tr>
-
-        {{-- Baris nama + timestamp --}}
-        <tr>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none; text-align:center">
-                {{ $order->user->name ?? '-' }} <br>
-                <small>{{ $order->created_at }}</small>
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                {{ $order->divHead->name ?? '-' }} <br>
-                <small>{{ $order->approved_by_divhead_at }}</small>
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                {{ $order->plantManager->name ?? '-' }} <br>
-                <small>{{ $order->approved_by_manager_at }}</small>
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                {{ $order->bod->name ?? '-' }} <br>
-                <small>{{ $order->approved_by_bod_at }}</small>
-            </td>
-        </tr>
-    </table>
-    <table
-        style="width:100%;transform:scale(0.8);transform-origin:top left; border:1px solid #000; border-collapse:collapse; text-align:center;">
-        <tr>
-            <td
-                style="width:20%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>Received By</i></strong>
-            </td>
-            <td colspan="4"
-                style="width:20%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
-                <strong><i>Approve by Head Office</i></strong>
-            </td>
-        </tr>
+            {{-- Baris nama + timestamp --}}
+            <tr>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none; text-align:center">
+                    {{ $order->user->name ?? '-' }} <br>
+                    <small>{{ $order->created_at }}</small>
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    {{ $order->divHead->name ?? '-' }} <br>
+                    <small>{{ $order->approved_by_divhead_at }}</small>
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    {{ $order->plantManager->name ?? '-' }} <br>
+                    <small>{{ $order->approved_by_manager_at }}</small>
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    {{ $order->bod->name ?? '-' }} <br>
+                    <small>{{ $order->approved_by_bod_at }}</small>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="no-break">
+        <table
+            style="width:100%;transform:scale(0.8);transform-origin:top left; border:1px solid #000; border-collapse:collapse; text-align:center;">
+            <tr>
+                <td
+                    style="width:20%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>Received By</i></strong>
+                </td>
+                <td colspan="4"
+                    style="width:20%; border-left:1px solid #000; border-right:1px solid #000;text-align:center;background-color:lightgray">
+                    <strong><i>Approve by Head Office</i></strong>
+                </td>
+            </tr>
 
 
-        {{-- Baris tanda tangan --}}
-        <tr>
-            <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-            </td>
-            <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-            </td>
-            <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-            </td>
-            <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-            </td>
-            <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
-            </td>
-        </tr>
+            {{-- Baris tanda tangan --}}
+            <tr>
+                <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                </td>
+                <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                </td>
+                <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                </td>
+                <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                </td>
+                <td style="height:100px;border-left:1px solid #000; border-right:1px solid #000;border-bottom:none">
+                </td>
+            </tr>
 
-        {{-- Baris nama + timestamp --}}
-        <tr>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none; text-align:center">
-                Purchasing
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                M. Bobsaid<br>
-                <small>Purchasing Manager</small>
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                Mahfudi<br>
-                <small>Operations Director</small>
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                Sestri Mahanani<br>
-                <small>Finance Director</small>
-            </td>
-            <td
-                style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
-                Ahmad Musyafak<br>
-                <small>Director</small>
-            </td>
-        </tr>
-    </table>
+            {{-- Baris nama + timestamp --}}
+            <tr>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none; text-align:center">
+                    Purchasing
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    M. Bobsaid<br>
+                    <small>Purchasing Manager</small>
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    Mahfudi<br>
+                    <small>Operations Director</small>
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    Sestri Mahanani<br>
+                    <small>Finance Director</small>
+                </td>
+                <td
+                    style="border-left:1px solid #000; border-right:1px solid #000; border-top:none; border-bottom:none;text-align:center">
+                    Ahmad Musyafak<br>
+                    <small>Director</small>
+                </td>
+            </tr>
+        </table>
+    </div>
     @if ($order->subsidiary->kop_footer)
         <div style="position: absolute; bottom: 30px; left: 0; width: 100%; text-align: center;">
             <img src="data:image/png;base64,{{ base64_encode(Storage::get('public/subsidiary/kop_footer/' . $order->subsidiary->kop_footer)) }}"
