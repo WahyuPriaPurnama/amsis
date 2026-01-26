@@ -19,7 +19,7 @@ class AssetRequest extends FormRequest
             'condition'          => 'required|in:Baik,Rusak,Lainnya',
             'owner'              => 'required|in:Umum,Engineering,QC & Lab',
             'location'           => 'required|string|max:255',
-            'category'           => 'required|in:Tanah & Bangunan,Mesin,Furniture & Fixture,Kendaraan,Alat Kerja',
+            'category'           => 'required|in:Tanah & Bangunan,Mesin,Furniture & Fixture,Kendaraan,Alat Kerja,Fasilitas',
             'accounting_code'    => 'nullable|string|max:255',
             'quantity'           => 'required|integer|min:1',
             'unit'               => 'required|string|max:50',

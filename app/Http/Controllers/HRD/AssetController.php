@@ -65,7 +65,7 @@ class AssetController extends Controller
             $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
         }
 
-        $categories = ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja'];
+        $categories = ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja','Fasilitas'];
         $conditions = ['Baik', 'Rusak', 'Lainnya'];
         $owners     = ['Umum', 'Engineering', 'QC & Lab'];
 
