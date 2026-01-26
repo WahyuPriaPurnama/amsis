@@ -102,7 +102,7 @@
                     <div class="col-12 col-md-3">
                         <label class="form-label">Kategori</label>
                         <select name="category" class="form-select @error('category') is-invalid @enderror">
-                            @foreach (['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja'] as $opt)
+                            @foreach (['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja','Fasilitas'] as $opt)
                                 <option value="{{ $opt }}" {{ old('category') == $opt ? 'selected' : '' }}>
                                     {{ $opt }}</option>
                             @endforeach
