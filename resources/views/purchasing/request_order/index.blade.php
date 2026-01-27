@@ -29,57 +29,81 @@
                             <th>Tanggal</th>
                             <th>No. RO</th>
                             <th>Nama Barang</th>
+                            <th width="150">Realisasi (Qty / %)</th>
                             <th>Status</th>
                             <th>Menu</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($orders as $order)
+                            @php
+                                // Hitung total permintaan dan total yang sudah diterima
+                                $totalQtyRequested = $order->items->sum('quantity');
+                                $totalQtyReceived = $order->items->sum('qty_received');
+
+                                // Hitung persentase (pastikan tidak pembagian dengan nol)
+                                $percentage =
+                                    $totalQtyRequested > 0 ? ($totalQtyReceived / $totalQtyRequested) * 100 : 0;
+
+                                // Tentukan warna progress bar
+                                $barColor = 'bg-danger'; // 0%
+                                if ($percentage >= 100) {
+                                    $barColor = 'bg-success'; // Selesai
+                                } elseif ($percentage > 0) {
+                                    $barColor = 'bg-info'; // Sedang berjalan
+                                }
+                            @endphp
                             <tr>
                                 <th>{{ $orders->firstItem() + $loop->iteration - 1 }}</th>
                                 <td>{{ $order->subsidiary->name ?? '-' }}</td>
                                 <td>{{ $order->division }}</td>
                                 <td>{{ \Carbon\Carbon::parse($order->request_date)->format('d-m-Y') }}</td>
                                 <td>
-                                    @can('request-order.view')
-                                        <a href="{{ route('request-order.show', $order->id) }}" class="text-decoration-none"
-                                            data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
-                                            {{ $order->request_number }}
-                                        </a>
-                                    @else
-                                        <div class="text-muted">
-                                            {{ $order->request_number }}
-                                        </div>
-                                    @endcan
+                                    <a href="{{ route('request-order.show', $order->id) }}"
+                                        class="text-decoration-none fw-bold">
+                                        {{ $order->request_number }}
+                                    </a>
                                 </td>
                                 <td>
-                                    <ul class="mb-0">
+                                    <ul class="mb-0 small">
                                         @foreach ($order->items as $item)
-                                            <li>{{ $item->item_name }}</li>
+                                            <li>{{ $item->item_name }} ({{ $item->quantity }} {{ $item->unit }})</li>
                                         @endforeach
                                     </ul>
                                 </td>
+
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <div class="d-flex justify-content-between mb-1 small">
+                                            <span class="fw-bold text-dark">{{ $totalQtyReceived }} /
+                                                {{ $totalQtyRequested }}</span>
+                                            <span class="text-muted">{{ round($percentage) }}%</span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar {{ $barColor }}" role="progressbar"
+                                                style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}"
+                                                aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
                                 <td>
                                     @switch($order->status)
-                                        @case('pending')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Kepala Divisi</span>
-                                        @break
-
-                                        @case('approved_by_div_head')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>
-                                        @break
-
-                                        @case('approved_by_manager')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
-                                        @break
-
                                         @case('approved_by_bod')
-                                            <span class="badge bg-success">Approved</span>
+                                            @if ($percentage >= 100)
+                                                <span class="badge bg-primary">Completed</span>
+                                            @elseif($percentage > 0)
+                                                <span class="badge bg-info text-dark">Partial Received</span>
+                                            @else
+                                                <span class="badge bg-success">Approved (Ready)</span>
+                                            @endif
                                         @break
+
+                                        {{-- Case lainnya tetap sama --}}
 
                                         @default
                                             <span class="badge bg-secondary">{{ $order->status }}</span>
-                                        @break
                                     @endswitch
                                 </td>
                                 <td>

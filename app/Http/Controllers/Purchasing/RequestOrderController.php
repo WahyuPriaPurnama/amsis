@@ -267,36 +267,34 @@ class RequestOrderController extends Controller
         if (!Auth::user()->can('request-order.receive')) {
             abort(403);
         }
+
         $validated = $request->validate([
             'items' => 'required|array',
             'items.*.id' => 'required|exists:request_order_items,id',
-
-            // Qty boleh kosong (null), tapi jika diisi harus minimal 1
-            'items.*.qty_received' => 'nullable|integer|min:1',
-
-            // Tanggal wajib diisi HANYA JIKA qty_received diisi
+            'items.*.qty_received' => 'nullable|integer|min:0', // Izinkan 0 jika salah input
             'items.*.date_received' => 'required_with:items.*.qty_received|nullable|date',
-
             'items.*.po_date' => 'nullable|date',
             'items.*.po_number' => 'nullable|string|max:100',
             'items.*.receipt_attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
         try {
-            return DB::transaction(function () use ($request, $requestOrder, $validated) {
-
+            DB::transaction(function () use ($request, $requestOrder, $validated) {
                 foreach ($validated['items'] as $index => $itemData) {
-                    // 1. Lewati jika qty_received kosong (barang belum datang)
-                    if (empty($itemData['qty_received'])) {
+                    // Lewati jika qty_received tidak diisi sama sekali (null)
+                    if ($itemData['qty_received'] === null) {
                         continue;
                     }
 
                     $item = $requestOrder->items()->findOrFail($itemData['id']);
 
-                    // 2. Filter data untuk update (buang null values)
-                    $updateData = collect($itemData)->except(['receipt_attachment'])->filter()->toArray();
+                    // Gunakan filter manual agar angka 0 tidak ikut terhapus
+                    $updateData = collect($itemData)
+                        ->except(['receipt_attachment'])
+                        ->filter(fn($value) => !is_null($value))
+                        ->toArray();
 
-                    // 3. Logic File Upload (tetap seperti kode Anda)
+                    // Logika File Upload
                     if ($request->hasFile("items.$index.receipt_attachment")) {
                         if ($item->receipt_attachment && Storage::disk('public')->exists($item->receipt_attachment)) {
                             Storage::disk('public')->delete($item->receipt_attachment);
@@ -308,13 +306,25 @@ class RequestOrderController extends Controller
                     $item->update($updateData);
                 }
 
-                return redirect()->route('request-order.show', $requestOrder->id)->with('success', 'Realisasi penerimaan barang berhasil disimpan.');
+                // --- LOGIKA UPDATE STATUS REQUEST ORDER ---
+                $requestOrder->refresh(); // Ambil data terbaru setelah update items
+
+                $totalRequested = $requestOrder->items->sum('quantity');
+                $totalReceived = $requestOrder->items->sum('qty_received');
+
+                if ($totalReceived >= $totalRequested) {
+                    $requestOrder->update(['status' => 'completed']);
+                } elseif ($totalReceived > 0) {
+                    $requestOrder->update(['status' => 'partial']);
+                }
             });
+
+            return redirect()->route('request-order.show', $requestOrder->id)
+                ->with('success', 'Realisasi penerimaan barang berhasil diperbarui.');
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
         }
     }
-
     /**
      * Remove the specified resource from storage.
      */

@@ -1,6 +1,15 @@
 @extends('layouts.app')
 @section('title', 'Realisasi Penerimaan Barang')
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
     <div class="container mt-3" x-data="receiveForm()">
         <form action="{{ route('request-order.update-receive', $requestOrder->id) }}" method="POST"
             enctype="multipart/form-data">

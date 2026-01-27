@@ -56,6 +56,7 @@ class PermissionSeeder extends Seeder
             'request-order.create',
             'request-order.edit',
             'request-order.delete',
+            'request-order.receive',
             'request-order.approve-division',
             'request-order.approve-manager',
             'request-order.approve-bod',
