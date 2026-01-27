@@ -4,15 +4,35 @@
 @section('content')
     <div class="container-fluid mt-3">
         @component('components.card')
-            <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between flex-wrap">
+            <div class="button-action mb-3 d-flex gap-2 flex-wrap justify-content-between">
                 @can('request-order.create')
                     <x-buttons.create href="{{ route('request-order.create') }}">Buat RO</x-buttons.create>
                 @endcan
-                <form method="GET" action="{{ route('request-order.index') }}">
+
+                <form method="GET" action="{{ route('request-order.index') }}" class="d-flex gap-2">
+                    {{-- Filter Dropdown Plant --}}
+                    <select name="subsidiary_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Semua Plant --</option>
+                        @foreach ($allSubsidiaries as $sub)
+                            <option value="{{ $sub->id }}" {{ request('subsidiary_id') == $sub->id ? 'selected' : '' }}>
+                                {{ $sub->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    {{-- Input Search --}}
                     <div class="input-group">
                         <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                            placeholder="Cari...">
-                        <button class="btn btn-primary" type="submit">Cari</button>
+                            placeholder="Cari No. RO / Divisi...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        {{-- Tombol Reset untuk membersihkan semua filter --}}
+                        @if (request('search') || request('subsidiary_id'))
+                            <a href="{{ route('request-order.index') }}" class="btn btn-outline-secondary" title="Reset Filter">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        @endif
                     </div>
                 </form>
             </div>
@@ -37,20 +57,17 @@
                     <tbody>
                         @foreach ($orders as $order)
                             @php
-                                // Hitung total permintaan dan total yang sudah diterima
                                 $totalQtyRequested = $order->items->sum('quantity');
                                 $totalQtyReceived = $order->items->sum('qty_received');
-
-                                // Hitung persentase (pastikan tidak pembagian dengan nol)
                                 $percentage =
                                     $totalQtyRequested > 0 ? ($totalQtyReceived / $totalQtyRequested) * 100 : 0;
 
                                 // Tentukan warna progress bar
-                                $barColor = 'bg-danger'; // 0%
+                                $barColor = 'bg-danger';
                                 if ($percentage >= 100) {
-                                    $barColor = 'bg-success'; // Selesai
+                                    $barColor = 'bg-success';
                                 } elseif ($percentage > 0) {
-                                    $barColor = 'bg-info'; // Sedang berjalan
+                                    $barColor = 'bg-info';
                                 }
                             @endphp
                             <tr>
@@ -64,14 +81,18 @@
                                         {{ $order->request_number }}
                                     </a>
                                 </td>
-                                <td>
-                                    <ul class="mb-0 small">
+                                <td style="min-width: 250px;"> {{-- Set minimal lebar agar tetap terbaca --}}
+                                    <ul class="mb-0 small ps-3">
                                         @foreach ($order->items as $item)
-                                            <li>{{ $item->item_name }} ({{ $item->quantity }} {{ $item->unit }})</li>
+                                            <li class="text-wrap" style="word-break: break-word;">
+                                                <span class="fw-bold">{{ $item->item_name }}</span>
+                                                <span class="text-muted">({{ $item->quantity }} {{ $item->unit }})</span>
+                                            </li>
                                         @endforeach
                                     </ul>
                                 </td>
 
+                                {{-- Realisasi (Qty / %) --}}
                                 <td>
                                     <div class="d-flex flex-column">
                                         <div class="d-flex justify-content-between mb-1 small">
@@ -88,29 +109,45 @@
                                     </div>
                                 </td>
 
+                                {{-- Status Dinamis --}}
                                 <td>
-                                    @switch($order->status)
-                                        @case('approved_by_bod')
-                                            @if ($percentage >= 100)
-                                                <span class="badge bg-primary">Completed</span>
-                                            @elseif($percentage > 0)
-                                                <span class="badge bg-info text-dark">Partial Received</span>
-                                            @else
-                                                <span class="badge bg-success">Approved (Ready)</span>
-                                            @endif
-                                        @break
+                                    @if ($percentage >= 100 || $order->status === 'completed')
+                                        <span class="badge bg-primary"><i class="bi bi-check-all me-1"></i>Selesai</span>
+                                    @elseif($percentage > 0 || $order->status === 'partial')
+                                        <span class="badge bg-info text-dark"><i class="bi bi-truck me-1"></i>Parsial</span>
+                                    @else
+                                        @switch($order->status)
+                                            @case('pending')
+                                                <span class="badge bg-warning text-dark">Wait Div Head</span>
+                                            @break
 
-                                        {{-- Case lainnya tetap sama --}}
+                                            @case('approved_by_div_head')
+                                                <span class="badge bg-warning text-dark">Wait Manager</span>
+                                            @break
 
-                                        @default
-                                            <span class="badge bg-secondary">{{ $order->status }}</span>
-                                    @endswitch
-                                </td>
-                                <td>
-                                    @include('purchasing.partials.order-approve-button')
-                                    @if ($order->status === 'approved_by_bod')
-                                        <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                                            @case('approved_by_manager')
+                                                <span class="badge bg-warning text-dark">Wait BOD</span>
+                                            @break
+
+                                            @case('approved_by_bod')
+                                                <span class="badge bg-success">Approved</span>
+                                            @break
+
+                                            @default
+                                                <span class="badge bg-secondary">{{ $order->status }}</span>
+                                        @endswitch
                                     @endif
+                                </td>
+
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        @include('purchasing.partials.order-approve-button')
+
+                                        {{-- Tombol PDF muncul jika sudah diapprove atau sudah ada realisasi --}}
+                                        @if (in_array($order->status, ['approved_by_bod', 'completed', 'partial']) || $percentage > 0)
+                                            <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

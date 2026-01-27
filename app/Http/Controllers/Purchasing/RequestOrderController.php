@@ -22,45 +22,42 @@ class RequestOrderController extends Controller
         $user = auth()->user();
 
         if ($user->can('request-order.list')) {
-            $query = RequestOrder::with(['items', 'requester', 'subsidiary'])
-                ->latest();
+            $query = RequestOrder::with(['items', 'requester', 'subsidiary'])->latest();
 
-            // 🔑 Filter subsidiary berdasarkan role
-            if (!$user->hasAnyRole(['super-admin', 'holding-admin'])) {
-                // Ambil semua subsidiary dari role yang dimiliki user
-                $subsidiaryIds = $user->roles
-                    ->flatMap(fn($role) => $role->subsidiaries->pluck('id'))
-                    ->unique();
-
-                if ($subsidiaryIds->isNotEmpty()) {
-                    $query->whereIn('subsidiary_id', $subsidiaryIds);
-                } else {
-                    abort(403, 'Anda tidak memiliki akses ke subsidiary manapun.');
-                }
+            // 1. Ambil daftar subsidiary untuk pilihan di dropdown filter
+            // Jika bukan super-admin, hanya ambil subsidiary yang diizinkan untuk user tersebut
+            if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
+                $allSubsidiaries = \App\Models\HRD\Subsidiary::all();
+            } else {
+                $subsidiaryIds = $user->roles->flatMap(fn($role) => $role->subsidiaries->pluck('id'))->unique();
+                $allSubsidiaries = \App\Models\HRD\Subsidiary::whereIn('id', $subsidiaryIds)->get();
+                $query->whereIn('subsidiary_id', $subsidiaryIds);
             }
 
+            // 2. Filter berdasarkan Dropdown Plant (Subsidiary)
+            if ($subsidiaryId = $request->input('subsidiary_id')) {
+                $query->where('subsidiary_id', $subsidiaryId);
+            }
 
-            if ($search = $request->input('search')) {
+            // 3. Filter Search (Tetap ada)
+            $search = $request->input('search');
+            if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('request_number', 'like', "%{$search}%")
                         ->orWhere('division', 'like', "%{$search}%")
-                        ->orWhereHas('subsidiary', function ($sub) use ($search) {
-                            $sub->where('name', 'like', "%{$search}%");
-                        })
                         ->orWhereHas('items', function ($item) use ($search) {
                             $item->where('item_name', 'like', "%{$search}%");
                         });
                 });
             }
 
-            $orders = $query->paginate(20)->appends(['search' => $search]);
+            $orders = $query->paginate(50)->appends($request->all()); // Simpan semua parameter filter di link paginasi
 
-            return view('purchasing.request_order.index', compact('orders', 'search'));
+            return view('purchasing.request_order.index', compact('orders', 'search', 'allSubsidiaries'));
         }
 
-        abort(403, 'Anda tidak memiliki izin untuk melihat Request Order.');
+        abort(403);
     }
-
     /**
      * Show the form for creating a new resource.
      */
