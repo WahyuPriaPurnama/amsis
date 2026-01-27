@@ -9,6 +9,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class RequestOrderController extends Controller
 {
@@ -87,58 +89,83 @@ class RequestOrderController extends Controller
 
         return view('purchasing.request_order.create', compact('subsidiaries'));
     }
-    /**
-     * Store a newly created resource in storage.
-     */
+
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'subsidiary_id'     => 'required|exists:subsidiaries,id',
-            'division'          => 'required|string|max:100',
-            'request_date'      => 'required|date',
-            'request_number'    => [
+            'subsidiary_id'      => 'required|exists:subsidiaries,id',
+            'division'           => 'required|string|max:100',
+            'request_date'       => 'required|date',
+            'request_number'     => [
                 'required',
                 'string',
                 Rule::unique('request_orders')->where(
-                    fn($q) =>
-                    $q->where('subsidiary_id', $request->subsidiary_id)
+                    fn($q) => $q->where('subsidiary_id', $request->subsidiary_id)
                 ),
             ],
-            'purpose'           => 'nullable|string|max:500',
-            'items'             => 'required|array|min:1',
-            'items.*.item_name' => 'required|string|max:255|distinct',
-            'items.*.quantity'  => 'required|integer|min:1',
-            'items.*.unit'      => 'required|string|max:50',
-            'items.*.remark'    => 'nullable|string|max:255',
+            'purpose'            => 'nullable|string|max:500',
+            'attachment'         => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+            'items'              => 'required|array|min:1',
+            'items.*.item_name'  => 'required|string|max:255|distinct',
+            'items.*.quantity'   => 'required|integer|min:1',
+            'items.*.unit'       => 'required|string|max:50',
+            'items.*.remark'     => 'nullable|string|max:255',
+            'items.*.date_received' => 'nullable|date',
+            'items.*.qty_received'  => 'nullable|integer|min:0',
+            'items.*.receipt_attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'items.*.po_date'       => 'nullable|date',
+            'items.*.po_number'     => 'nullable|string|max:100',
         ], [
             'request_number.unique' => 'Nomor RO sudah digunakan di plant ini.',
         ]);
 
-        $ro = RequestOrder::create([
-            'subsidiary_id'  => $validated['subsidiary_id'],
-            'division'       => $validated['division'],
-            'request_date'   => $validated['request_date'],
-            'request_number' => $validated['request_number'],
-            'purpose'        => $validated['purpose'] ?? null,
-            'status'         => 'pending',
-            'requested_by'   => Auth::id(),
-        ]);
+        try {
+            return DB::transaction(function () use ($request, $validated) {
 
-        $ro->items()->createMany(
-            collect($validated['items'])->map(fn($item) => [
-                'item_name' => $item['item_name'],
-                'quantity'  => $item['quantity'],
-                'unit'      => $item['unit'],
-                'remark'    => $item['remark'] ?? null,
-            ])->toArray()
-        );
+                // 1. Handle File Attachment Utama (Header)
+                $attachmentPath = null;
+                if ($request->hasFile('attachment')) {
+                    $attachmentPath = $request->file('attachment')->store('attachments/ro', 'public');
+                }
 
-        return redirect()
-            ->route('request-order.index')
-            ->with('success', 'Request Order berhasil dibuat.');
+                // 2. Simpan Data Header (Request Order)
+                $ro = RequestOrder::create([
+                    'subsidiary_id'  => $validated['subsidiary_id'],
+                    'division'       => $validated['division'],
+                    'request_date'   => $validated['request_date'],
+                    'request_number' => $validated['request_number'],
+                    'purpose'        => $validated['purpose'] ?? null,
+                    'attachment'     => $attachmentPath,
+                    'status'         => 'pending',
+                    'requested_by'   => Auth::id(),
+                ]);
+
+                // 3. Handle Items & File Attachment per Item
+                foreach ($validated['items'] as $index => $itemData) {
+                    $itemFilePath = null;
+
+                    // Cek apakah ada file yang diupload pada index item ini
+                    if ($request->hasFile("items.$index.receipt_attachment")) {
+                        $itemFilePath = $request->file("items.$index.receipt_attachment")
+                            ->store('attachments/ro_items', 'public');
+                    }
+
+                    // Masukkan path file ke dalam array data sebelum disimpan
+                    $itemData['receipt_attachment'] = $itemFilePath;
+
+                    // Simpan item satu per satu
+                    $ro->items()->create($itemData);
+                }
+
+                return redirect()
+                    ->route('request-order.index')
+                    ->with('success', 'Request Order berhasil dibuat.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+        }
     }
-
-
 
     /**
      * Display the specified resource.
@@ -165,7 +192,127 @@ class RequestOrderController extends Controller
      */
     public function update(Request $request, RequestOrder $requestOrder)
     {
-        //
+        if (!Auth::user()->can('request-order.edit')) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:request_order_items,id',
+            'items.*.date_received' => 'required|date', // Wajib diisi saat barang datang
+            'items.*.qty_received'  => 'required|integer|min:1', // Minimal terima 1
+            'items.*.po_date'       => 'nullable|date',
+            'items.*.po_number'     => 'nullable|string|max:100',
+            'items.*.receipt_attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $requestOrder, $validated) {
+
+                foreach ($validated['items'] as $index => $itemData) {
+                    $item = $requestOrder->items()->findOrFail($itemData['id']);
+
+                    // VALIDASI: Cek agar qty yang diterima tidak melebihi qty permintaan (quantity)
+                    // Jika sistem kamu mengizinkan penerimaan bertahap, logika ini perlu disesuaikan
+                    if ($itemData['qty_received'] > $item->quantity) {
+                        throw new \Exception("Jumlah diterima untuk barang [{$item->item_name}] melebihi jumlah permintaan.");
+                    }
+
+                    $updateData = collect($itemData)->except(['receipt_attachment'])->toArray();
+
+                    // Logic File Upload
+                    if ($request->hasFile("items.$index.receipt_attachment")) {
+                        if ($item->receipt_attachment && Storage::disk('public')->exists($item->receipt_attachment)) {
+                            Storage::disk('public')->delete($item->receipt_attachment);
+                        }
+                        $path = $request->file("items.$index.receipt_attachment")->store('attachments/receipts', 'public');
+                        $updateData['receipt_attachment'] = $path;
+                    }
+
+                    $item->update($updateData);
+                }
+
+                // OTOMATISASI STATUS:
+                // Cek apakah semua item sudah diterima penuh
+                $isAllReceived = $requestOrder->items->every(function ($item) {
+                    return $item->qty_received >= $item->quantity;
+                });
+
+                if ($isAllReceived) {
+                    $requestOrder->update(['status' => 'completed']);
+                } else {
+                    $requestOrder->update(['status' => 'partial']);
+                }
+
+                return redirect()->route('request-order.index')->with('success', 'Realisasi penerimaan barang berhasil disimpan.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function receive(RequestOrder $requestOrder)
+    {
+        if (!Auth::user()->can('request-order.receive')) {
+            abort(403);
+        }
+
+        $requestOrder = RequestOrder::with('items')->findOrFail($requestOrder->id);
+
+        return view('purchasing.request_order.receive', compact('requestOrder'));
+    }
+
+    public function updateReceive(Request $request, RequestOrder $requestOrder)
+    {
+        if (!Auth::user()->can('request-order.receive')) {
+            abort(403);
+        }
+        $validated = $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:request_order_items,id',
+
+            // Qty boleh kosong (null), tapi jika diisi harus minimal 1
+            'items.*.qty_received' => 'nullable|integer|min:1',
+
+            // Tanggal wajib diisi HANYA JIKA qty_received diisi
+            'items.*.date_received' => 'required_with:items.*.qty_received|nullable|date',
+
+            'items.*.po_date' => 'nullable|date',
+            'items.*.po_number' => 'nullable|string|max:100',
+            'items.*.receipt_attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $requestOrder, $validated) {
+
+                foreach ($validated['items'] as $index => $itemData) {
+                    // 1. Lewati jika qty_received kosong (barang belum datang)
+                    if (empty($itemData['qty_received'])) {
+                        continue;
+                    }
+
+                    $item = $requestOrder->items()->findOrFail($itemData['id']);
+
+                    // 2. Filter data untuk update (buang null values)
+                    $updateData = collect($itemData)->except(['receipt_attachment'])->filter()->toArray();
+
+                    // 3. Logic File Upload (tetap seperti kode Anda)
+                    if ($request->hasFile("items.$index.receipt_attachment")) {
+                        if ($item->receipt_attachment && Storage::disk('public')->exists($item->receipt_attachment)) {
+                            Storage::disk('public')->delete($item->receipt_attachment);
+                        }
+                        $path = $request->file("items.$index.receipt_attachment")->store('attachments/receipts', 'public');
+                        $updateData['receipt_attachment'] = $path;
+                    }
+
+                    $item->update($updateData);
+                }
+
+                return redirect()->route('request-order.show', $requestOrder->id)->with('success', 'Realisasi penerimaan barang berhasil disimpan.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
     }
 
     /**

@@ -16,6 +16,11 @@ class RequestOrderItem extends Model
         'quantity',
         'unit',
         'remark',
+        'date_received',
+        'qty_received',
+        'receipt_attachment',
+        'po_date',
+        'po_number',
     ];
 
     /**

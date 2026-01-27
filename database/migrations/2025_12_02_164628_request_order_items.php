@@ -20,6 +20,11 @@ return new class extends Migration
             $table->unsignedInteger('quantity');
             $table->string('unit');
             $table->string('remark')->nullable();
+            $table->date('date_received')->nullable();
+            $table->unsignedInteger('qty_received')->default(0);
+            $table->string('receipt_attachment')->nullable();
+            $table->date('po_date')->nullable();
+            $table->string('po_number')->nullable();
             $table->timestamps();
         });
     }

@@ -100,6 +100,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('/', RequestOrderController::class)->parameters([
             '' => 'request_order'
         ]);
+        Route::get('{requestOrder}/receive', [RequestOrderController::class, 'receive'])->name('receive');
+        Route::put('{requestOrder}/receive', [RequestOrderController::class, 'updateReceive'])->name('update-receive');
         Route::post('approve/{id}', [RequestOrderController::class, 'approveDivHead'])
             ->name('approve_div_head');
         Route::post('approve-manager/{id}', [RequestOrderController::class, 'approveManager'])
@@ -131,7 +133,19 @@ Route::middleware('auth')->group(function () {
     Route::get('asset/delivery-receipt/{id}', [AssetController::class, 'delivery_receipt'])->name('asset.delivery_receipt');
     Route::get('asset/manual-book/{id}', [AssetController::class, 'manual_book'])->name('asset.manual_book');
 });
+// routes/web.php
+use Illuminate\Support\Facades\Http;
 
+Route::get('/test-wa', function () {
+    $response = Http::withHeaders([
+        'Authorization' => env('FONNTE_TOKEN'),
+    ])->post('https://api.fonnte.com/send', [
+        'target' => '085745334330',
+        'message' => 'Test pesan dari Browser Lokal',
+    ]);
+
+    return $response->json();
+});
 
 
 // Auth::routes([

@@ -26,6 +26,7 @@ class RequestOrder extends Model
         'approved_by_divhead_at',
         'approved_by_manager_at',
         'approved_by_bod_at',
+        'attachment',
     ];
 
     /**

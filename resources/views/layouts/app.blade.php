@@ -173,6 +173,7 @@
             tableElement.DataTable();
         });
     </script>
+    @stack('scripts')
 </body>
 
 </html>

@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('division')->nullable();
             $table->date('request_date')->nullable();
             $table->string('request_number')->nullable();
-            $table->text('purpose')->nullable();
+            $table->string('purpose')->nullable();
             $table->string('status')->default('pending');
+            $table->string('attachment')->nullable();
 
             // Signature workflow
             $table->unsignedBigInteger('requested_by');   // user id pengaju
