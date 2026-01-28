@@ -221,7 +221,7 @@
                         @if ($order->approved_by_divhead_at)
                             <div class="text-muted mt-1" style="font-size: 0.75rem;">
                                 <i class="bi bi-calendar-check text-success me-1"></i>
-                                {{ \Carbon\Carbon::parse($order->approved_at_divhead_at)->format('d M Y, H:i') }}
+                                {{ \Carbon\Carbon::parse($order->approved_by_divhead_at)->format('d M Y, H:i') }}
                             </div>
                         @endif
                     </div>
