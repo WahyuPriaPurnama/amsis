@@ -1,78 +1,86 @@
 @extends('layouts.app')
 @section('title', 'Lacak Paket')
+
 @section('content')
     <div class="container">
         @component('components.card')
             @slot('header')
-                <i class="fas fa-search-location me-2"></i> Lacak Pengiriman
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-search-location me-2"></i> Lacak Pengiriman</span>
+                    @if (isset($history))
+                        <a href="{{ route('tracking.index') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-sync-alt"></i> Reset
+                        </a>
+                    @endif
+                </div>
             @endslot
 
             <div class="row">
                 <div class="col-md-12">
                     @if (session('error'))
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i> {{ session('error') }}
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
                     <form action="{{ route('tracking.process') }}" method="POST">
                         @csrf
-                        <div class="row align-items-end">
+                        <div class="row g-3 align-items-end">
                             <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="fw-bold mb-2">Pilih Kurir</label>
-                                    <select name="courier" id="courier-select" class="form-control" required>
-                                        <option value="auto">-- Deteksi Otomatis --</option>
-                                        <option value="jne">JNE Express</option>
-                                        <option value="pos">POS Indonesia</option>
-                                        <option value="jnt">J&T Express</option>
-                                        <option value="jnt_cargo">J&T Cargo</option>
-                                        <option value="sicepat">SiCepat</option>
+                                <label class="fw-bold mb-2">Kurir</label>
+                                <select name="courier" id="courier-select" class="form-select" required>
+                                    <option value="auto">-- Deteksi Otomatis --</option>
+
+                                    <optgroup label="Populer">
+                                        <option value="jne" {{ old('courier') == 'jne' ? 'selected' : '' }}>JNE Express
+                                        </option>
+                                        <option value="jnt" {{ old('courier') == 'jnt' ? 'selected' : '' }}>J&T Express
+                                        </option>
+                                        <option value="sicepat" {{ old('courier') == 'sicepat' ? 'selected' : '' }}>SiCepat
+                                        </option>
+                                        <option value="pos" {{ old('courier') == 'pos' ? 'selected' : '' }}>POS Indonesia
+                                        </option>
+                                        <option value="spx" {{ old('courier') == 'spx' ? 'selected' : '' }}>Shopee Express
+                                        </option>
+                                    </optgroup>
+
+                                    <optgroup label="Cargo & Logistik">
+                                        <option value="jnt_cargo" {{ old('courier') == 'jnt_cargo' ? 'selected' : '' }}>J&T
+                                            Cargo (Resi JX)</option>
+                                        <option value="indah_cargo" {{ old('courier') == 'indah_cargo' ? 'selected' : '' }}>
+                                            Indah Cargo</option>
+                                        <option value="dakota" {{ old('courier') == 'dakota' ? 'selected' : '' }}>Dakota Cargo
+                                        </option>
+                                        <option value="rex" {{ old('courier') == 'rex' ? 'selected' : '' }}>REX Express
+                                        </option>
+                                    </optgroup>
+
+                                    <optgroup label="Lainnya">
                                         <option value="tiki">TIKI</option>
                                         <option value="anteraja">AnterAja</option>
                                         <option value="wahana">Wahana</option>
                                         <option value="ninja">Ninja Express</option>
                                         <option value="lion">Lion Parcel</option>
-                                        <option value="pcp">PCP Express</option>
-                                        <option value="jet">JET Express</option>
-                                        <option value="rex">REX Express</option>
-                                        <option value="first">First Logistics</option>
                                         <option value="ide">ID Express</option>
-                                        <option value="spx">Shopee Express</option>
-                                        <option value="kgx">KGXpress</option>
-                                        <option value="sap">SAP Express</option>
-                                        <option value="rpx">RPX</option>
                                         <option value="lex">Lazada Express</option>
-                                        <option value="indah_cargo">Indah Cargo</option>
-                                        <option value="dakota">Dakota Cargo</option>
-                                        <option value="kurir_tokopedia">Kurir Rekomendasi</option>
-                                    </select>
-                                </div>
-
-                                @push('scripts')
-                                    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
-                                        rel="stylesheet" />
-                                    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-                                    <script>
-                                        $(document).ready(function() {
-                                            $('#courier-select').select2({
-                                                theme: 'bootstrap-5', // Jika Anda menggunakan tema bootstrap
-                                                placeholder: "Pilih atau Ketik Nama Kurir"
-                                            });
-                                        });
-                                    </script>
-                                @endpush
+                                        <option value="sap">SAP Express</option>
+                                    </optgroup>
+                                </select>
                             </div>
+
                             <div class="col-md-5">
-                                <div class="form-group">
-                                    <label class="fw-bold mb-2">Nomor Resi</label>
+                                <label class="fw-bold mb-2">Nomor Resi</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-barcode"></i></span>
                                     <input type="text" name="no_resi" class="form-control" placeholder="Contoh: JX7301537416"
                                         value="{{ old('no_resi', $resi ?? '') }}" required>
                                 </div>
                             </div>
+
                             <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary w-100 mt-2">
-                                    <i class="fas fa-truck"></i> Lacak Sekarang
+                                <button type="submit" class="btn btn-primary w-100 shadow-sm" id="btn-track">
+                                    <i class="fas fa-search me-1"></i> Lacak Sekarang
                                 </button>
                             </div>
                         </div>
@@ -81,55 +89,96 @@
             </div>
 
             @if (isset($history))
-                <hr class="my-4">
+                <hr class="my-5">
                 <div class="row">
-                    <div class="col-md-4">
-                        <div class="p-3 bg-light rounded shadow-sm">
-                            <h6 class="fw-bold">Ringkasan</h6>
-                            <table class="table table-sm mb-0 mt-2">
-                                <tr>
-                                    <td>Resi</td>
-                                    <td>: {{ $data['awb'] }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Kurir</td>
-                                    <td>: {{ $courier_name }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Status</td>
-                                    <td>: <span class="badge bg-primary">{{ $data['status'] }}</span></td>
-                                </tr>
-                            </table>
+                    <div class="col-md-4 mb-4">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h6 class="fw-bold border-bottom pb-2 mb-3">Ringkasan Paket</h6>
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="small">
+                                        <span class="text-muted d-block">No. Resi:</span>
+                                        <strong class="text-primary">{{ $data['awb'] }}</strong>
+                                    </div>
+                                    <div class="small">
+                                        <span class="text-muted d-block">Kurir:</span>
+                                        <strong>{{ $courier_name }}</strong>
+                                    </div>
+                                    <div class="small">
+                                        <span class="text-muted d-block">Status Terakhir:</span>
+                                        <span class="badge bg-success">{{ $data['status'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
                     <div class="col-md-8">
-                        <h6 class="fw-bold mb-3">Riwayat Perjalanan</h6>
-                        <ul class="list-group list-group-flush border-start ms-2">
+                        <h6 class="fw-bold mb-4">Riwayat Pengiriman</h6>
+                        <div class="tracking-timeline">
                             @foreach ($history as $item)
-                                <li class="list-group-item position-relative pb-4" style="border:none">
-                                    <i class="fas fa-check-circle text-primary position-absolute"
-                                        style="left:-1.3rem; background:#fff"></i>
-                                    <div class="small text-muted">{{ $item['date'] }}</div>
-                                    <div class="fw-bold">{{ $item['desc'] }}</div>
-                                    <div class="text-secondary small">{{ $item['location'] }}</div>
-                                </li>
+                                <div class="tracking-item">
+                                    <div class="tracking-date small text-muted">
+                                        {{ \Carbon\Carbon::parse($item['date'])->format('d M Y, H:i') }}
+                                    </div>
+                                    <div class="tracking-content ps-4 pb-4 border-start position-relative">
+                                        <i class="fas fa-check-circle text-primary bg-white position-absolute"
+                                            style="left: -8px; top: 0;"></i>
+                                        <div class="fw-bold text-dark">{{ $item['desc'] }}</div>
+                                        <div class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i>
+                                            {{ $item['location'] }}</div>
+                                    </div>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
                     </div>
                 </div>
             @endif
         @endcomponent
     </div>
 
-    <style>
-        .list-group-item::before {
-            content: "";
-            position: absolute;
-            left: -1rem;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #ebebeb;
-        }
-    </style>
+    @push('scripts')
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <link rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+
+        <style>
+            /* CSS Refactor untuk Dropdown & Timeline */
+            .select2-container--bootstrap-5 .select2-results__options {
+                max-height: 250px;
+            }
+
+            .tracking-timeline .tracking-item:last-child .tracking-content {
+                border-left: 2px solid transparent !important;
+            }
+
+            .tracking-content {
+                border-left: 2px solid #e9ecef;
+                margin-left: 7px;
+            }
+
+            /* Loading state saat klik */
+            #btn-track.loading {
+                pointer-events: none;
+                opacity: 0.7;
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#courier-select').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: "Cari Kurir...",
+                    allowClear: true
+                });
+
+                // Tambahkan efek loading sederhana
+                $('form').on('submit', function() {
+                    $('#btn-track').addClass('loading').html(
+                        '<span class="spinner-border spinner-border-sm me-2"></span> Mencari...');
+                });
+            });
+        </script>
+    @endpush
 @endsection
