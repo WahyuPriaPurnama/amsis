@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Lacak Paket')
-
+@section('menuTracking', 'active')
 @section('content')
     <div class="container">
         @component('components.card')

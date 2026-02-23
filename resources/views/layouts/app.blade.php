@@ -39,12 +39,7 @@
                             </div>
                         </li>
                         
-                        <li class="nav-item">
-                            <a class="nav-link fw-bold" href="{{ route('tracking.index') }}">
-                                Tracking Paket
-                                <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.65rem;">NEW</span>
-                            </a>
-                        </li>
+                        
                         @auth
                             @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
                                 <li class="nav-item dropdown">
