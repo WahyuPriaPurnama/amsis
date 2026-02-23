@@ -4,10 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use App\Models\Employee;
-use App\Models\Subsidiary;
+use App\Models\HRD\Subsidiary;
 use App\Models\User;
-use App\Models\Vehicle;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -160,7 +158,7 @@ class AdminSeeder extends Seeder
         // }
 
         $admins = [
-            ['name' => 'Super Admin', 'email' => 'super.admin@amsgroup.co.id', 'password' => 'SuperAdmin_1996', 'subsidiary_id' => 1],
+            ['name' => 'Super Admin', 'email' => 'super.admin@amsgroup.co.id', 'password' => '  ', 'subsidiary_id' => 1],
             ['name' => 'Holding Admin', 'email' => 'holding.admin@amsgroup.co.id', 'password' => 'HoldingAdmin_9H!7', 'subsidiary_id' => 1],
             ['name' => 'ELN Admin', 'email' => 'eln.admin@amsgroup.co.id', 'password' => 'ELNAdmin_6c\9', 'subsidiary_id' => 2],
             ['name' => 'ELN 2 Admin', 'email' => 'eln2.admin@amsgroup.co.id', 'password' => 'ELN2Admin_tT45', 'subsidiary_id' => 3],

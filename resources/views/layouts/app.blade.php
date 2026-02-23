@@ -7,7 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'AMSIS') }} | @yield('title')</title>
     <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
+
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
@@ -17,160 +19,134 @@
     <div id="app">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm sticky-top">
             <div class="container">
-                @auth
-                    @php
-                        $user = auth()->user();
-                        $isEmployee = $user->hasRole('employee');
-                        $employeeId = $user->employee_id ?? null;
-                    @endphp
+                <a class="navbar-brand" href="{{ url('/') }}" id="{{ Auth::guest() ? 'amsis-logo' : '' }}">
+                    {{ config('app.name', 'AMSIS') }}
+                </a>
 
-                    <a class="navbar-brand" href="{{ url('/') }}">
-                        {{ config('app.name', 'AMSIS') }}
-                    </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    E-Slip
-                                </a>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto">
+                        
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                            data-bs-toggle="dropdown">E-Slip</a>
+                            <div class="dropdown-menu">
                                 @include('hrd.partials.eslip-menu')
-                            </li>
+                            </div>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" href="{{ route('tracking.index') }}">
+                                Tracking Paket
+                                <span class="badge rounded-pill bg-danger ms-1" style="font-size: 0.65rem;">NEW</span>
+                            </a>
+                        </li>
+                        @auth
                             @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        HRD
-                                    </a>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        data-bs-toggle="dropdown">HRD</a>
                                     @include('hrd.partials.hrd-menu')
                                 </li>
                             @endcanany
+
                             @canany(['request-order.list', 'request-payment.list'])
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                        Pembelian
-                                    </a>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                                        data-bs-toggle="dropdown">Pembelian</a>
                                     @include('purchasing.partials.purchasing-menu')
                                 </li>
                             @endcan
-                        </ul>
-                    </div>
-                @endauth
-                @guest
-                    <a class="navbar-brand" href="{{ url('/') }}" id="amsis-logo">
-                        {{ config('app.name', 'AMSIS') }}
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                        @endauth
+                    </ul>
 
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav me-auto">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                    E-Slip
-                                </a>
-                                @include('hrd.partials.eslip-menu')
-                            </li>
-                        </ul>
-                    </div>
-                    <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            const logo = document.getElementById('amsis-logo');
-                            if (logo) {
-                                logo.addEventListener('click', function(e) {
-                                    e.preventDefault(); // Mencegah navigasi
-                                    alert('Silakan login terlebih dahulu untuk mengakses halaman ini.');
-                                });
-                            }
-                        });
-                    </script>
-                @endguest
-                <ul class="navbar-nav ms-auto">
-                    @guest
-                        @if (Route::has('login'))
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                            </li>
-                        @endif
-                    @else
-                        @php
-                            $hour = now()->hour;
-                            $greeting = match (true) {
-                                $hour < 11 => 'Selamat Pagi',
-                                $hour < 15 => 'Selamat Siang',
-                                $hour < 18 => 'Selamat Sore',
-                                default => 'Selamat Malam',
-                            };
-                        @endphp
-                        <div class="d-flex align-items-center">
-                            {{ $greeting }},
+                    <ul class="navbar-nav ms-auto">
+                        @guest
+                            @if (Route::has('login'))
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                </li>
+                            @endif
+                        @else
+                            @php
+                                $hour = now()->hour;
+                                $greeting = match (true) {
+                                    $hour < 11 => 'Selamat Pagi',
+                                    $hour < 15 => 'Selamat Siang',
+                                    $hour < 18 => 'Selamat Sore',
+                                    default => 'Selamat Malam',
+                                };
+                            @endphp
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
+                                    data-bs-toggle="dropdown">
+                                    <span class="text-muted me-1">{{ $greeting }},</span>
+                                    <strong>{{ Auth::user()->name }}</strong>
                                 </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    @if (Auth::user()->hasRole('super-admin'))
+                                        <a href="{{ route('roles.index') }}" class="dropdown-item">Roles & Permission</a>
+                                        <a href="{{ route('users.index') }}" class="dropdown-item">User Management</a>
+                                        <a href="{{ route('log.activity') }}" class="dropdown-item">Log Activity</a>
+                                        <div class="dropdown-divider"></div>
+                                    @endif
+
+                                    @if (Auth::user()->employee_id)
+                                        <a href="{{ route('employees.show', Auth::user()->employee_id) }}"
+                                            class="dropdown-item">Profil</a>
+                                        <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti Password</a>
+                                    @endif
+
+                                    <a class="dropdown-item text-danger fw-bold" href="{{ route('logout') }}"
+                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        Logout
+                                    </a>
+
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
                                     </form>
-                                    @if (Auth::user()->hasRole('super-admin'))
-                                        <a href="{{ route('roles.index') }}" class="dropdown-item">Roles & Permission</a>
-                                        <a class="dropdown-item" href="{{ route('users.index') }}">User
-                                            Management</a>
-                                        <a class="dropdown-item" href="{{ route('log.activity') }}">Log
-                                            Activity</a>
-                                    @endif
-                                    @if (Auth::user()->employee)
-                                        <a href="{{ route('employees.show', $employeeId) }}"
-                                            class="dropdown-item">Profil</a>
-                                        <a href="{{ route('password.edit') }}" class="dropdown-item">Ganti
-                                            Password</a>
-                                    @endif
-                                    <a class="dropdown-item text-danger fw-bold" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        Logout
-                                    </a>
                                 </div>
                             </li>
-                        </div>
-                    @endguest
-                </ul>
+                        @endguest
+                    </ul>
+                </div>
             </div>
         </nav>
     </div>
+
     <main class="py-4">
         @yield('content')
     </main>
-    <footer class="bg-dark py-4 text-white  mt-auto">
+
+    <footer class="bg-dark py-4 text-white mt-auto">
         <div class="container text-center">
             AMS Information System | © {{ date('Y') }} All rights reserved.
         </div>
     </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener('DOMContentLoaded', function() {
+            // DataTables Initialization
             const tableElement = $('#table');
             if (tableElement.length) {
                 tableElement.DataTable();
             }
-        });
 
-        // Optional: reinitialize if table is dynamically replaced via AJAX
-        document.addEventListener("table:reload", () => {
-            const tableElement = $('#table');
-            if ($.fn.DataTable.isDataTable(tableElement)) {
-                tableElement.DataTable().destroy();
+            // Guest Alert for Logo
+            const logo = document.getElementById('amsis-logo');
+            if (logo) {
+                logo.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('Silakan login terlebih dahulu untuk mengakses halaman utama.');
+                });
             }
-            tableElement.DataTable();
         });
     </script>
     @stack('scripts')

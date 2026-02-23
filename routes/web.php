@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\TrackingsController;
 use App\Http\Controllers\HRD\EmployeeController;
 use App\Http\Controllers\HRD\HarianController;
 use App\Http\Controllers\HRD\ScanlogController;
@@ -24,6 +25,9 @@ use App\Http\Controllers\RolePermissionController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/tracking', [TrackingsController::class, 'index'])->name('tracking.index');
+Route::post('/tracking', [TrackingsController::class, 'track'])->name('tracking.process');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
