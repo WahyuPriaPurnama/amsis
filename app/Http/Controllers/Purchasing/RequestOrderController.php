@@ -51,7 +51,7 @@ class RequestOrderController extends Controller
                 });
             }
 
-            $orders = $query->paginate(25)->appends($request->all()); // Simpan semua parameter filter di link paginasi
+            $orders = $query->paginate(20)->appends($request->all()); // Simpan semua parameter filter di link paginasi
 
             return view('purchasing.request_order.index', compact('orders', 'search', 'allSubsidiaries'));
         }

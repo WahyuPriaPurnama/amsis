@@ -24,25 +24,25 @@ class RequestPaymentController extends Controller
             $query = RequestPayment::with(['items', 'requester', 'subsidiary'])
                 ->latest();
 
-            if (!$user->hasRole(['super-admin', 'holding-admin'])) {
-                $subsidiaryIds = $user->roles
-                    ->flatMap(fn($role) => $role->subsidiaries->pluck('id'))
-                    ->unique();
-
-                if ($subsidiaryIds->isNotEmpty()) {
-                    $query->whereIn('subsidiary_id', $subsidiaryIds);
-                } else {
-                    abort(403, 'Anda tidak memiliki akses ke subsidiary manapun.');
-                }
+            if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
+                $allSubsidiaries = \App\Models\HRD\Subsidiary::all();
+            } else {
+                $subsidiaryIds = $user->roles->flatMap(fn($role) => $role->subsidiaries->pluck('id'))->unique();
+                $allSubsidiaries = \App\Models\HRD\Subsidiary::whereIn('id', $subsidiaryIds)->get();
+                $query->whereIn('subsidiary_id', $subsidiaryIds);
             }
 
-            if ($search = $request->input('search')) {
+            // 2. Filter berdasarkan Dropdown Plant (Subsidiary)
+            if ($subsidiaryId = $request->input('subsidiary_id')) {
+                $query->where('subsidiary_id', $subsidiaryId);
+            }
+
+
+            $search = $request->input('search');
+            if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('payment_number', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%")
-                        ->orWhereHas('subsidiary', function ($sub) use ($search) {
-                            $sub->where('name', 'like', "%{$search}%");
-                        })
+                        ->orWhere('division', 'like', "%{$search}%")
                         ->orWhereHas('items', function ($item) use ($search) {
                             $item->where('item_name', 'like', "%{$search}%");
                         });
@@ -50,7 +50,7 @@ class RequestPaymentController extends Controller
             }
             $payments = $query->paginate(20)->appends(['search' => $search]);
 
-            return view('purchasing.request_payment.index', compact('payments', 'search'));
+            return view('purchasing.request_payment.index', compact('payments', 'search', 'allSubsidiaries'));
         }
 
         abort(403, 'Anda tidak memiliki izin untuk melihat Request Payment.');

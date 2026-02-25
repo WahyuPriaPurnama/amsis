@@ -62,7 +62,8 @@ class TrackingsController extends Controller
                     'data'         => $result['data']['summary'],
                     'history'      => $result['data']['history'],
                     'resi'         => $resi,
-                    'courier_name' => $courierName
+                    'courier_name' => $courierName,
+                    'courier' => $courierCode
                 ]);
             }
 

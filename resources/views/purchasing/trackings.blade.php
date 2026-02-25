@@ -17,13 +17,6 @@
 
             <div class="row">
                 <div class="col-md-12">
-                    @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
                     <form action="{{ route('tracking.process') }}" method="POST">
                         @csrf
                         <div class="row g-3 align-items-end">

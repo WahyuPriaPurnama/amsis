@@ -8,11 +8,30 @@
                 @can('request-payment.create')
                     <x-buttons.create href="{{ route('request-payment.create') }}">Buat RFP</x-buttons.create>
                 @endcan
-                <form method="GET" action="{{ route('request-payment.index') }}">
+                <form method="GET" action="{{ route('request-payment.index') }}" class="d-flex gap-2">
+                    {{-- Filter Dropdown Plant --}}
+                    <select name="subsidiary_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Semua Plant --</option>
+                        @foreach ($allSubsidiaries as $sub)
+                            <option value="{{ $sub->id }}" {{ request('subsidiary_id') == $sub->id ? 'selected' : '' }}>
+                                {{ $sub->name }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    {{-- Input Search --}}
                     <div class="input-group">
                         <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                            placeholder="Cari...">
-                        <button class="btn btn-primary" type="submit">Cari</button>
+                            placeholder="Cari No. RFP / Divisi / Deskripsi...">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                        {{-- Tombol Reset untuk membersihkan semua filter --}}
+                        @if (request('search') || request('subsidiary_id'))
+                            <a href="{{ route('request-order.index') }}" class="btn btn-outline-secondary" title="Reset Filter">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        @endif
                     </div>
                 </form>
             </div>

@@ -23,7 +23,7 @@
                     {{-- Input Search --}}
                     <div class="input-group">
                         <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                            placeholder="Cari No. RO / Divisi...">
+                            placeholder="Cari No. RO / Divisi / Barang...">
                         <button class="btn btn-primary" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
