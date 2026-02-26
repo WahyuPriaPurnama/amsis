@@ -136,6 +136,8 @@ Route::middleware('auth')->group(function () {
     Route::get('asset/attachment/{id}', [AssetController::class, 'attachment'])->name('asset.attachment');
     Route::get('asset/delivery-receipt/{id}', [AssetController::class, 'delivery_receipt'])->name('asset.delivery_receipt');
     Route::get('asset/manual-book/{id}', [AssetController::class, 'manual_book'])->name('asset.manual_book');
+    Route::get('asset/export/pdf', [AssetController::class, 'export_pdf'])->name('asset.export_pdf');
+    Route::get('asset/export/excel', [AssetController::class, 'export_excel'])->name('asset.export_excel');
 });
 // routes/web.php
 use Illuminate\Support\Facades\Http;

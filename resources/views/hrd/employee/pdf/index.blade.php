@@ -1,5 +1,5 @@
 <head>
-    <title>Data Karyawan</title>
+    <title>Data Asset</title>
     <style>
         table,
         th,

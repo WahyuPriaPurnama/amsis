@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AssetRequest;
 use App\Models\HRD\Asset;
 use App\Models\HRD\Subsidiary;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -24,9 +25,16 @@ class AssetController extends Controller
             $query = Asset::with(['subsidiary', 'user']) // relasi yang relevan
                 ->latest();
 
-            // batasi akses berdasarkan role & subsidiary
-            if (!$user->hasRole(['super-admin', 'holding-admin']) && $user->subsidiary_id) {
-                $query->where('subsidiary_id', $user->subsidiary_id);
+            if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
+                $allSubsidiaries = \App\Models\HRD\Subsidiary::all();
+            } else {
+                $subsidiaryIds = $user->roles->flatMap(fn($role) => $role->subsidiaries->pluck('id'))->unique();
+                $allSubsidiaries = \App\Models\HRD\Subsidiary::whereIn('id', $subsidiaryIds)->get();
+                $query->whereIn('subsidiary_id', $subsidiaryIds);
+            }
+
+            if ($subsidiaryId = $request->input('subsidiary_id')) {
+                $query->where('subsidiary_id', $subsidiaryId);
             }
 
             // pencarian
@@ -42,9 +50,9 @@ class AssetController extends Controller
                 });
             }
 
-            $assets = $query->paginate(20)->appends(['search' => $search]);
+            $assets = $query->paginate(25)->appends(['search' => $search]);
 
-            return view('hrd.asset.index', compact('assets', 'search'));
+            return view('hrd.asset.index', compact('assets', 'search', 'allSubsidiaries'));
         }
 
         abort(403, 'Anda tidak memiliki izin untuk melihat Asset.');
@@ -65,7 +73,7 @@ class AssetController extends Controller
             $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
         }
 
-        $categories = ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja','Fasilitas'];
+        $categories = ['Tanah & Bangunan', 'Mesin', 'Furniture & Fixture', 'Kendaraan', 'Alat Kerja', 'Fasilitas'];
         $conditions = ['Baik', 'Rusak', 'Lainnya'];
         $owners     = ['Umum', 'Engineering', 'QC & Lab'];
 
@@ -254,5 +262,72 @@ class AssetController extends Controller
         }
 
         return null; // tidak dikenali
+    }
+
+    public function export_pdf(Request $request)
+    {
+        $user = auth()->user();
+        $subsidiaryId = $user->subsidiary_id;
+        if ($user->hasRole('super-admin') || $user->hasRole('holding-admin')) {
+            // Jika memilih subsidiary → filter sesuai pilihan
+            if ($request->filled('subsidiary_id')) {
+                $subsidiaryId = $request->input('subsidiary_id');
+                $assets = Asset::with(['subsidiary', 'user'])
+                    ->where('subsidiary_id', $subsidiaryId)
+                    ->latest()
+                    ->get();
+                $subsidiary = Subsidiary::findOrFail($subsidiaryId);
+            } else {
+                // Jika tidak memilih subsidiary → tampilkan semua
+                $assets = Asset::with(['subsidiary', 'user'])
+                    ->latest()
+                    ->get();
+                $subsidiary = null; // atau bisa diisi label "Semua Subsidiary"
+            }
+        } else {
+            // User biasa → hanya subsidiary miliknya
+            $assets = Asset::with(['subsidiary', 'user'])
+                ->where('subsidiary_id', $subsidiaryId)
+                ->latest()
+                ->get();
+            $subsidiary = Subsidiary::findOrFail($subsidiaryId);
+        }
+
+        $pdf = Pdf::loadView('hrd.asset.export_pdf', compact('assets', 'subsidiary'));
+
+        return $pdf->stream('asset_list.pdf');
+    }
+    public function export_excel()
+    {
+        $assets = Asset::with(['subsidiary', 'user'])->latest()->get();
+
+        $headers = [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="asset_list.xlsx"',
+        ];
+
+        $callback = function () use ($assets) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['ID', 'Kode', 'Nama', 'Kategori', 'Lokasi', 'Kondisi', 'Pemilik', 'Subsidiary', 'Dibuat Oleh', 'Dibuat Pada']);
+
+            foreach ($assets as $asset) {
+                fputcsv($file, [
+                    $asset->id,
+                    $asset->code,
+                    $asset->name,
+                    $asset->category,
+                    $asset->location,
+                    $asset->condition,
+                    $asset->owner,
+                    $asset->subsidiary->name ?? '',
+                    $asset->user->name ?? '',
+                    $asset->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

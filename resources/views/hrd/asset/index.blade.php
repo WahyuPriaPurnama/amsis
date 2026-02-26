@@ -4,16 +4,27 @@
 @section('content')
     <div class="container-fluid mt-3">
         @component('components.card')
-            <div class="button-action mb-3 d-flex justify-content-between">
-                @can('asset.create')
-                    <x-buttons.create href="{{ route('asset.create') }}" />
-                @endcan
-                <form method="GET" action="{{ route('asset.index') }}">
-                    <div class="input-group">
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                            placeholder="Cari nama atau kode ...">
-                        <button class="btn btn-primary" type="submit">Cari</button>
-                    </div>
+            <div class="button-action mb-3 d-flex flex-wrap justify-content-between">
+                <div class="d-flex gap-2 flex-wrap">
+                    @can('asset.create')
+                        <x-buttons.create href="{{ route('asset.create') }}" />
+                    @endcan
+                    <x-buttons.pdf href="{{ route('asset.export_pdf') }}"></x-buttons.pdf>
+                    <x-buttons.excel href="{{ route('asset.export_excel') }}"></x-buttons.excel>
+                </div>
+                <form method="GET" action="{{ route('asset.index') }}" class="d-flex gap-2">
+                    <select name="subsidiary_id" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Semua Plant --</option>
+                        @foreach ($allSubsidiaries as $sub)
+                            <option value="{{ $sub->id }}" {{ request('subsidiary_id') == $sub->id ? 'selected' : '' }}>
+                                {{ $sub->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                        placeholder="Cari nama atau kode ...">
+                    <button class="btn btn-primary" type="submit">Cari</button>
+
                 </form>
             </div>
 
@@ -42,7 +53,8 @@
                                 <td>
                                     @can('asset.view')
                                         <a href="{{ route('asset.show', $asset->id) }}"class="text-decoration-none"
-                                            data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">{{ $asset->code }}</a>
+                                            data-bs-toggle="tooltip"
+                                            data-bs-title="klik untuk lihat detail">{{ $asset->code }}</a>
                                     @else
                                         {{ $asset->code }}
                                     @endcan
