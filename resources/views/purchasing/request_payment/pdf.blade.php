@@ -42,7 +42,7 @@
                 </th>
             </tr>
             <tr>
-                <td>No. RO</td>
+                <td>No. RFP</td>
                 <td colspan="2">{{ $payment->payment_number }}</td>
                 <td>Tanggal:</td>
                 <td>{{ $payment->date }}</td>
