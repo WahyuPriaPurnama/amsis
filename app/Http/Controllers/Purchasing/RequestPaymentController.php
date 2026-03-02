@@ -204,7 +204,7 @@ class RequestPaymentController extends Controller
         $message = 'Request Order telah disetujui Plant Manager.';
 
         if ($request->input('from') === 'show') {
-            return redirect()->route('request-order.show', $id)
+            return redirect()->route('request-payment.show', $id)
                 ->with('success', $message);
         }
 
