@@ -40,9 +40,9 @@
                             <th>Kode</th>
                             <th>Nama</th>
                             <th>Kondisi</th>
-                            <th>Kategori</th>
                             <th>Lokasi</th>
                             <th>Editor</th>
+                            <th>Tgl Input</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -61,9 +61,9 @@
                                 </td>
                                 <td>{{ $asset->name }}</td>
                                 <td>{{ $asset->condition }}</td>
-                                <td>{{ $asset->category }}</td>
                                 <td>{{ $asset->location }}</td>
                                 <td>{{ $asset->user->name }}</td>
+                                <td>{{ $asset->created_at->format('d-m-Y') }}</td>
                             </tr>
                         @empty
                             <tr>
