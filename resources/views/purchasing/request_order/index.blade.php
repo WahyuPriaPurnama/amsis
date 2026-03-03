@@ -138,24 +138,18 @@
                                 </td>
 
                                 <td>
-                                    @if ($percentage >= 100 || $order->status === 'completed')
-                                        <span class="badge bg-primary"><i class="bi bi-check-all me-1"></i>Selesai</span>
-                                    @elseif($percentage > 0 || $order->status === 'partial')
-                                        <span class="badge bg-info text-dark"><i class="bi bi-truck me-1"></i>Parsial</span>
-                                    @else
-                                        {{-- Switch status tetap sama --}}
                                         @switch($order->status)
                                             {{-- ... case status Anda ... --}}
                                             @case('pending')
-                                                <span class="badge bg-warning text-dark">Wait Div Head</span>
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan Kep. Divisi</span>
                                             @break
 
                                             @case('approved_by_div_head')
-                                                <span class="badge bg-warning text-dark">Wait Manager</span>
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan Manager</span>
                                             @break
 
                                             @case('approved_by_manager')
-                                                <span class="badge bg-warning text-dark">Wait BOD</span>
+                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan BOD</span>
                                             @break
 
                                             @case('approved_by_bod')
@@ -165,13 +159,12 @@
                                             @default
                                                 <span class="badge bg-secondary">{{ $order->status }}</span>
                                         @endswitch
-                                    @endif
                                 </td>
 
                                 <td>
                                     <div class="d-flex gap-1">
                                         @include('purchasing.partials.order-approve-button')
-                                        @if (in_array($order->status, ['approved_by_bod', 'completed', 'partial']) || $percentage > 0)
+                                        @if ($order->status === 'approved_by_bod')
                                             <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
                                         @endif
                                     </div>

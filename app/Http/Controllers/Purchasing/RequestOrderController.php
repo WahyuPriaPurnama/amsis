@@ -309,11 +309,11 @@ class RequestOrderController extends Controller
                 $totalRequested = $requestOrder->items->sum('quantity');
                 $totalReceived = $requestOrder->items->sum('qty_received');
 
-                if ($totalReceived >= $totalRequested) {
-                    $requestOrder->update(['status' => 'completed']);
-                } elseif ($totalReceived > 0) {
-                    $requestOrder->update(['status' => 'partial']);
-                }
+                // if ($totalReceived >= $totalRequested) {
+                //     $requestOrder->update(['status' => 'completed']);
+                // } elseif ($totalReceived > 0) {
+                //     $requestOrder->update(['status' => 'partial']);
+                // }
             });
 
             return redirect()->route('request-order.show', $requestOrder->id)
