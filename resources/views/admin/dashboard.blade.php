@@ -7,13 +7,19 @@
             <div class="alert alert-info alert-dismissible fade show" role="alert">
                 <h5>🔔 Info Peningkatan Fitur:</h5>
                 <ul>
-                    @foreach (session('feature_changes') as $date => $note)
-                        <li><strong>{{ $date }}:</strong> {{ $note }}</li>
+                    @foreach (session('feature_changes') as $note)
+                        <li>
+                            {{ $note }}
+                            @if ($loop->remaining < 3)
+                                <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">BARU</span>
+                            @endif
+                        </li>
                     @endforeach
                 </ul>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+
         <div class="row g-4">
             <div class="col-md-6">
                 @component('components.dashboard.karyawan')
@@ -37,13 +43,12 @@
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        window.employeeData = [
-            {{ $ams }}, {{ $eln1 }}, {{ $eln2 }},
-            {{ $bofi }}, {{ $hk }}, {{ $rmm }}
-        ];
+        // Mengambil data dinamis dari Controller
+        const serverData = @json($chartData);
 
-        window.vehicleData = [{{ $ams_vehicles }}, {{ $eln1_vehicles }}, {{ $eln2_vehicles }},
-            {{ $bofi_vehicles }}, {{ $hk_vehicles }}, {{ $rmm_vehicles }}
-        ];
+        // Data karyawan dan kendaraan kini mengikuti jumlah plant di database
+        window.employeeLabels = serverData.labels;
+        window.employeeData = serverData.employee;
+        window.vehicleData = serverData.vehicle;
     </script>
 @endsection

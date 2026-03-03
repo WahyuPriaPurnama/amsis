@@ -138,27 +138,30 @@
                                 </td>
 
                                 <td>
-                                        @switch($order->status)
-                                            {{-- ... case status Anda ... --}}
-                                            @case('pending')
-                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan Kep. Divisi</span>
-                                            @break
+                                    @switch($order->status)
+                                        {{-- ... case status Anda ... --}}
+                                        @case('pending')
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan
+                                                Kep. Divisi</span>
+                                        @break
 
-                                            @case('approved_by_div_head')
-                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan Manager</span>
-                                            @break
+                                        @case('approved_by_div_head')
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan
+                                                Manager</span>
+                                        @break
 
-                                            @case('approved_by_manager')
-                                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan BOD</span>
-                                            @break
+                                        @case('approved_by_manager')
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Persetujuan
+                                                BOD</span>
+                                        @break
 
-                                            @case('approved_by_bod')
-                                                <span class="badge bg-success">Approved</span>
-                                            @break
+                                        @case('approved_by_bod')
+                                            <span class="badge bg-success">Approved</span>
+                                        @break
 
-                                            @default
-                                                <span class="badge bg-secondary">{{ $order->status }}</span>
-                                        @endswitch
+                                        @default
+                                            <span class="badge bg-secondary">{{ $order->status }}</span>
+                                    @endswitch
                                 </td>
 
                                 <td>

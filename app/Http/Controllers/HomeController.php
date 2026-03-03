@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HRD\Employee;
+use App\Models\HRD\Subsidiary;
 use App\Models\LogActivity;
-use App\Models\HRD\Vehicle;
 
 class HomeController extends Controller
 {
@@ -25,38 +24,19 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $subsidiaryIds = [
-            'ams' => 1,
-            'eln1' => 2,
-            'eln2' => 3,
-            'bofi' => 4,
-            'hk' => 5,
-            'rmm' => 6,
+        // 1. Ambil semua data plant/subsidiary dari database
+        $subsidiaries = Subsidiary::withCount(['employees', 'vehicles'])->get();
+
+        // 2. Siapkan data untuk Chart.js (Labels dan Data Karyawan)
+        $chartData = [
+            'labels'   => $subsidiaries->pluck('name'), // Ambil nama plant otomatis
+            'employee' => $subsidiaries->pluck('employees_count'), // Hasil withCount
+            'vehicle'  => $subsidiaries->pluck('vehicles_count'),
         ];
 
-        $employeeCounts = collect($subsidiaryIds)->mapWithKeys(function ($id, $key) {
-            return [$key => Employee::where('subsidiary_id', $id)->count()];
-        });
-        $vehicleCounts = collect($subsidiaryIds)->mapWithKeys(function ($id, $key) {
-            return [$key => Vehicle::where('subsidiary_id', $id)->count()];
-        });
-
-        return view('admin.dashboard', [
-            'ams' => $employeeCounts['ams'],
-            'eln1' => $employeeCounts['eln1'],
-            'eln2' => $employeeCounts['eln2'],
-            'bofi' => $employeeCounts['bofi'],
-            'hk' => $employeeCounts['hk'],
-            'rmm' => $employeeCounts['rmm'],
-            'ams_vehicles' => $vehicleCounts['ams'],
-            'eln1_vehicles' => $vehicleCounts['eln1'],
-            'eln2_vehicles' => $vehicleCounts['eln2'],
-            'bofi_vehicles' => $vehicleCounts['bofi'],
-            'hk_vehicles' => $vehicleCounts['hk'],
-            'rmm_vehicles' => $vehicleCounts['rmm'],
-        ]);
+        // 3. Kirim ke view
+        return view('admin.dashboard', compact('subsidiaries', 'chartData'));
     }
-
 
     /**
      * Show the application dashboard.

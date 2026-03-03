@@ -1,19 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const vehicleCtx = document.getElementById('vehicleCanvas').getContext('2d');
+    const canvas = document.getElementById('vehicleCanvas');
+    if (!canvas) return;
+
+    const vehicleCtx = canvas.getContext('2d');
     new Chart(vehicleCtx, {
         type: 'bar',
         data: {
-            labels: ['AMS', 'ELN1', 'ELN2', 'BOFI', 'HK', 'RMM'],
+            // Menggunakan label yang sama dengan karyawan agar urutan plant sinkron
+            labels: window.employeeLabels, 
             datasets: [{
                 label: 'Kendaraan',
                 data: window.vehicleData,
                 backgroundColor: [
-                    '#6c757d', // AMS - abu
-                    '#6610f2', // ELN1 - indigo
-                    '#fd7e14', // ELN2 - oranye
-                    '#198754', // BOFI - hijau
-                    '#0dcaf0', // HK - cyan
-                    '#d63384' // RMM - pink
+                    '#6c757d', // AMS
+                    '#6610f2', // ELN1
+                    '#fd7e14', // ELN2
+                    '#198754', // BOFI
+                    '#0dcaf0', // HK
+                    '#d63384', // RMM
+                    '#20c997', // Tambahan jika ada plant ke-7
+                    '#ffc107'  // Tambahan jika ada plant ke-8
                 ],
                 borderRadius: 4
             }]
@@ -21,17 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    enabled: true
-                }
+                legend: { display: false },
+                tooltip: { enabled: true }
             },
             scales: {
-                y: {
-                    beginAtZero: true
-                }
+                y: { beginAtZero: true }
             }
         }
     });

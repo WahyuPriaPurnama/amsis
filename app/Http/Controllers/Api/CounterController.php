@@ -23,22 +23,40 @@ class CounterController extends Controller
         ]);
     }
 
-    public function indexhourly($range = 'day')
+    public function indexhourly(Request $request, $range = 'day')
     {
+        // 1. Tentukan Tanggal Target
+        // Jika ada input 'date' dari query string, gunakan itu. Jika tidak, gunakan hari ini.
+        $targetDate = $request->query('date') ? \Carbon\Carbon::parse($request->query('date')) : now();
+
+        // 2. Tentukan Rentang Waktu Query
         if ($range === 'day') {
-            $start = now()->startOfDay()->addHours(7);
+            // Ambil data dari awal hari yang dipilih (jam 00:00)
+            // Jika ingin mulai jam 07:00 sesuai kode lama, gunakan ->startOfDay()->addHours(7)
+            $start = $targetDate->copy()->startOfDay();
+            $end = $targetDate->copy()->endOfDay();
         } elseif ($range === 'week') {
-            $start = now()->subDays(7)->startOfDay();
-        } elseif ($range === 'month') {
-            $start = now()->subMonth()->startOfDay();
+            $start = $targetDate->copy()->subDays(7)->startOfDay();
+            $end = $targetDate->copy()->endOfDay();
+        } else {
+            $start = $targetDate->copy()->subMonth()->startOfDay();
+            $end = $targetDate->copy()->endOfDay();
         }
 
+        // 3. Ambil satu data tepat sebelum $start untuk menjadi nilai awal ($prev)
+        // Ini penting agar grafik jam pertama tidak langsung meloncat/0
+        $initialData = Counter::where('created_at', '<', $start)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        $prev = $initialData ? (int) $initialData->counter : null;
+
+        // 4. Query Data Utama
         $raw = Counter::selectRaw('
             DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour,
             MAX(counter) as max_counter,
             AVG(rpm) as avg_rpm
         ')
-            ->where('created_at', '>=', $start)
+            ->whereBetween('created_at', [$start, $end])
             ->groupBy('hour')
             ->orderBy('hour', 'asc')
             ->get();
@@ -47,14 +65,16 @@ class CounterController extends Controller
         $rpm = collect();
         $counter = collect();
 
-        $prev = null;
         foreach ($raw as $row) {
             $current = (int) $row->max_counter;
+
             if ($prev === null) {
                 $counter->push(0);
             } else {
+                // Hitung selisih. Jika counter reset (current < prev), gunakan current saja.
                 $counter->push($current < $prev ? $current : $current - $prev);
             }
+
             $labels->push(\Carbon\Carbon::parse($row->hour)->format('d-m H:i'));
             $rpm->push(round($row->avg_rpm, 2));
             $prev = $current;
