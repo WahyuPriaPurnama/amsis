@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Employee;
+use App\Models\HRD\Employee;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;

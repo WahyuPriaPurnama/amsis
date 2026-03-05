@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Employee;
+use App\Models\HRD\Employee;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;

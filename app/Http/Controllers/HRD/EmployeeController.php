@@ -257,20 +257,36 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        $data = Storage::disk('local');
-        $data->delete('/public/foto_profil/' . $employee->pp);
-        $data->delete('/public/Kartu Keluarga/' . $employee->kk);
-        $data->delete('/public/BPJS Kesehatan/' . $employee->bpjs_kes);
-        $data->delete('/public/BPJS Ketenagakerjaan/' . $employee->bpjs_ket);
-        $data->delete('/public/KTP/' . $employee->ktp);
-        $data->delete('/public/NPWP/' . $employee->npwp2);
+        try {
+            // Simpan nama untuk pesan sukses nanti
+            $namaEmployee = $employee->nama;
 
-        $employee->delete();
+            // Coba hapus data di database dulu
+            $employee->delete();
 
-        if ($employee) {
-            return redirect()->route('employees.index')->with('success', "hapus data $employee->nama berhasil");
-        } else {
-            return redirect()->route('employees.index')->with('error', "hapus data $employee->nama gagal");
+            // JIKA BERHASIL, baru hapus file fisiknya
+            $data = Storage::disk('local');
+            $data->delete([
+                '/public/foto_profil/' . $employee->pp,
+                '/public/Kartu Keluarga/' . $employee->kk,
+                '/public/BPJS Kesehatan/' . $employee->bpjs_kes,
+                '/public/BPJS Ketenagakerjaan/' . $employee->bpjs_ket,
+                '/public/KTP/' . $employee->ktp,
+                '/public/NPWP/' . $employee->npwp2,
+            ]);
+
+            return redirect()->route('employees.index')->with('success', "Hapus data $namaEmployee berhasil");
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Cek jika error disebabkan oleh relasi data (Foreign Key)
+            if ($e->getCode() == "23000") {
+                return redirect()->route('employees.index')->with('error', "Data $employee->nama tidak bisa dihapus karena masih terkait dengan data di tabel Request Orders.");
+            }
+
+            // Error database lainnya
+            return redirect()->route('employees.index')->with('error', "Terjadi kesalahan database.");
+        } catch (\Exception $e) {
+            // Error umum lainnya
+            return redirect()->route('employees.index')->with('error', "Gagal menghapus data: " . $e->getMessage());
         }
     }
 
