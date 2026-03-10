@@ -4,8 +4,7 @@ import Alpine from 'alpinejs';
 import { autocompleteField } from './components/autocompleteField';
 import './dashboard/karyawanChart.js';
 import './dashboard/kendaraanChart.js';
-import './dashboard/counterChart.js';
-import './dashboard/speedChart.js';
+import './dashboard/seamer-monitor.js';
 
 window.Alpine = Alpine;
 window.autocompleteField = autocompleteField;

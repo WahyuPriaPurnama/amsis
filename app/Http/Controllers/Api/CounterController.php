@@ -88,6 +88,7 @@ class CounterController extends Controller
             Log::warning("Email dikirim: Mesin {$item['id']} Berhenti");
         }
     }
+
     public function indexhourly(Request $request, $range = 'day')
     {
         $targetDate = $request->query('date') ? Carbon::parse($request->query('date')) : now();
@@ -139,10 +140,13 @@ class CounterController extends Controller
             $prev = $current;
         }
 
+
+        $totalProduksi = $counter->sum();
         return response()->json([
             'labels' => $labels,
             'rpm' => $rpm,
             'counter' => $counter,
+            'total_produksi' => $totalProduksi,
         ]);
     }
 }

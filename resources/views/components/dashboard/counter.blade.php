@@ -1,6 +1,11 @@
 @component('components.card')
     @slot('header')
-        Counter Shin I 10 - <span id="currentSeamerLabel">Seamer 1</span>
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <span>Counter Shin - <span id="currentSeamerLabel">Seamer 1</span></span>
+            <span id="totalProduksiBadge" class="badge fs-6" style="background-color: #fd7e14; color: white;">
+                Total Hari Ini: <span id="totalProduksiCount">0</span> Pcs
+            </span>
+        </div>
     @endslot
 
     <div class="d-flex flex-wrap gap-2 mb-3 align-items-center justify-content-between">

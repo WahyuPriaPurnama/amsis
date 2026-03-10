@@ -21,6 +21,7 @@
         @endif
 
         <div class="row g-4">
+            {{-- Bagian Statistik HR/GA --}}
             <div class="col-md-6">
                 @component('components.dashboard.karyawan')
                 @endcomponent
@@ -29,26 +30,28 @@
                 @component('components.dashboard.kendaraan')
                 @endcomponent
             </div>
-            <div class="col-md-6">
+
+            {{-- Bagian Produksi (Unified System) --}}
+            {{-- Grafik Sejarah Produksi --}}
+            <div class="col-md-8">
                 @component('components.dashboard.counter')
                 @endcomponent
             </div>
-            <div class="col-md-6">
+
+            {{-- Gauge RPM Real-time --}}
+            <div class="col-md-4">
                 @component('components.dashboard.speed')
                 @endcomponent
             </div>
         </div>
     </div>
-
-    {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Mengambil data dinamis dari Controller
-        const serverData = @json($chartData);
 
-        // Data karyawan dan kendaraan kini mengikuti jumlah plant di database
+    <script>
+        const serverData = @json($chartData);
         window.employeeLabels = serverData.labels;
         window.employeeData = serverData.employee;
         window.vehicleData = serverData.vehicle;
     </script>
+
 @endsection
