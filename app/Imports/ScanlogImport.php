@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Scanlog;
+use App\Models\HRD\Scanlog;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;

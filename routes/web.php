@@ -11,6 +11,8 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HRD\AssetController;
+use App\Http\Controllers\Purchasing\MasterSupplierController;
+use App\Http\Controllers\Purchasing\ReceiptController;
 use App\Http\Controllers\Purchasing\RequestOrderController;
 use App\Http\Controllers\Purchasing\RequestPaymentController;
 use App\Http\Controllers\RolePermissionController;
@@ -100,6 +102,7 @@ Route::middleware('auth')->group(function () {
         Route::post('slip/{pin}', [HarianController::class, 'cetakSlip'])->name('karyawan-cetak-slip');
     });
 
+    // Request Order
     Route::prefix('request-order')->name('request-order.')->group(function () {
         Route::resource('/', RequestOrderController::class)->parameters([
             '' => 'request_order'
@@ -138,6 +141,10 @@ Route::middleware('auth')->group(function () {
     Route::get('asset/manual-book/{id}', [AssetController::class, 'manual_book'])->name('asset.manual_book');
     Route::get('asset/export/pdf', [AssetController::class, 'export_pdf'])->name('asset.export_pdf');
     Route::get('asset/export/excel', [AssetController::class, 'export_excel'])->name('asset.export_excel');
+
+    //Master Supplier
+    Route::resource('master-supplier', MasterSupplierController::class);
+    Route::resource('receipts', ReceiptController::class);
 });
 // routes/web.php
 use Illuminate\Support\Facades\Http;

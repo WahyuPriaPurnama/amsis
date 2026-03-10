@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Counter extends Model
 {
-    protected $fillable = ['rpm', 'counter', 'device_id', 'location'];
+    protected $fillable = [
+        'seamer_name',
+        'rpm',
+        'counter',
+        'device_id',
+        'location'
+    ];
 }

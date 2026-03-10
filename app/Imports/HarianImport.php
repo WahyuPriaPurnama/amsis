@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Harian;
+use App\Models\HRD\Harian;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 

@@ -23,39 +23,86 @@ class CounterController extends Controller
         ]);
     }
 
+
+    public function store(Request $request)
+    {
+        try {
+            // Sesuai dengan payload ESP32: {"device_id": "...", "seamers": [...]}
+            $validated = $request->validate([
+                'device_id' => 'required|string',
+                'seamers' => 'required|array',
+                'seamers.*.id' => 'required|string',
+                'seamers.*.rpm' => 'required|numeric',
+                'seamers.*.counter' => 'required|numeric',
+            ]);
+
+            foreach ($validated['seamers'] as $item) {
+                // Simpan data untuk masing-masing seamer
+                $counterEntry = Counter::create([
+                    'device_id' => $validated['device_id'],
+                    'seamer_name' => $item['id'], // Menyimpan "Seamer1", "Seamer2", dst.
+                    'rpm' => $item['rpm'],
+                    'counter' => $item['counter'],
+                ]);
+
+                // Logika Notifikasi jika mesin berhenti (RPM = 0)
+                if ($item['rpm'] == 0) {
+                    $this->handleNotification($validated['device_id'], $item);
+                }
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Data 3 Seamer tersimpan']);
+        } catch (\Exception $e) {
+            Log::error('Gagal simpan data ESP32: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    private function handleNotification($deviceId, $item)
+    {
+        // Cek kapan terakhir kali notifikasi dikirim untuk SEAMER SPESIFIK ini
+        $lastNotified = Counter::where('device_id', $deviceId)
+            ->where('seamer_name', $item['id'])
+            ->where('rpm', 0)
+            ->orderByDesc('created_at')
+            ->skip(1)
+            ->first();
+
+        $shouldNotify = !$lastNotified || $lastNotified->created_at->diffInMinutes(now()) >= 60;
+
+        if ($shouldNotify) {
+            Mail::to('it@amsgroup.co.id')->send(new MachineStoppedNotification($item));
+            Log::warning("Email dikirim: Mesin {$item['id']} Berhenti");
+        }
+    }
+
     public function indexhourly(Request $request, $range = 'day')
     {
-        // 1. Tentukan Tanggal Target
-        // Jika ada input 'date' dari query string, gunakan itu. Jika tidak, gunakan hari ini.
-        $targetDate = $request->query('date') ? \Carbon\Carbon::parse($request->query('date')) : now();
+        $targetDate = $request->query('date') ? Carbon::parse($request->query('date')) : now();
+        $seamerId = $request->query('seamer_id', 'Seamer1'); // Filter per mesin
 
-        // 2. Tentukan Rentang Waktu Query
         if ($range === 'day') {
-            // Ambil data dari awal hari yang dipilih (jam 00:00)
-            // Jika ingin mulai jam 07:00 sesuai kode lama, gunakan ->startOfDay()->addHours(7)
             $start = $targetDate->copy()->startOfDay();
             $end = $targetDate->copy()->endOfDay();
-        } elseif ($range === 'week') {
-            $start = $targetDate->copy()->subDays(7)->startOfDay();
-            $end = $targetDate->copy()->endOfDay();
         } else {
-            $start = $targetDate->copy()->subMonth()->startOfDay();
+            $start = $targetDate->copy()->subDays(7)->startOfDay();
             $end = $targetDate->copy()->endOfDay();
         }
 
-        // 3. Ambil satu data tepat sebelum $start untuk menjadi nilai awal ($prev)
-        // Ini penting agar grafik jam pertama tidak langsung meloncat/0
-        $initialData = Counter::where('created_at', '<', $start)
+        // Ambil data pembanding (prev) khusus seamer yang dipilih
+        $initialData = Counter::where('seamer_name', $seamerId)
+            ->where('created_at', '<', $start)
             ->orderBy('created_at', 'desc')
             ->first();
+
         $prev = $initialData ? (int) $initialData->counter : null;
 
-        // 4. Query Data Utama
         $raw = Counter::selectRaw('
-            DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour,
-            MAX(counter) as max_counter,
-            AVG(rpm) as avg_rpm
-        ')
+                DATE_FORMAT(created_at, "%Y-%m-%d %H:00:00") as hour,
+                MAX(counter) as max_counter,
+                AVG(rpm) as avg_rpm
+            ')
+            ->where('seamer_name', $seamerId)
             ->whereBetween('created_at', [$start, $end])
             ->groupBy('hour')
             ->orderBy('hour', 'asc')
@@ -85,53 +132,5 @@ class CounterController extends Controller
             'rpm' => $rpm,
             'counter' => $counter,
         ]);
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'rpm' => 'required|numeric',
-                'counter' => 'required|numeric',
-                'device_id' => 'nullable|string',
-                'location' => 'nullable|string',
-            ]);
-
-            $isStopped = ($validated['rpm'] == 0 || $validated['counter'] == 0);
-
-            $counter = Counter::create($validated);
-            Log::info('Data RPM disimpan', ['payload' => $validated]);
-
-            if ($isStopped) {
-                $lastNotified = Counter::where('device_id', $validated['device_id'] ?? null)
-                    ->where(function ($query) {
-                        $query->where('rpm', 0)->orWhere('counter', 0);
-                    })
-                    ->orderByDesc('created_at')
-                    ->skip(1) // abaikan entri baru yang barusan disimpan
-                    ->first();
-
-                $shouldNotify = !$lastNotified || $lastNotified->created_at->diffInMinutes(now()) >= 60;
-
-                if ($shouldNotify) {
-                    Mail::to('it@amsgroup.co.id')->send(new MachineStoppedNotification($validated));
-                    Log::warning('Notifikasi mesin berhenti dikirim', ['payload' => $validated]);
-                } else {
-                    Log::info('Mesin masih berhenti, tapi belum waktunya kirim notifikasi ulang');
-                }
-            }
-
-            return response()->json([
-                'status' => 'success',
-                'data' => $validated,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Gagal menyimpan data RPM: ' . $e->getMessage());
-
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
-        }
     }
 }
