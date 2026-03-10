@@ -1,84 +1,132 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const rpmChartCtx = document.getElementById('rpmChart').getContext('2d');
-    const rpmChart = new Chart(rpmChartCtx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Produksi (pcs/jam)',
-                data: [],
-                borderColor: '#fd7e14', // Orange khas AMS
-                backgroundColor: 'rgba(253, 126, 20, 0.1)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Jumlah Unit' }
+/**
+ * Dashboard Counter Manager
+ * Menangani visualisasi data produksi 3 Seamer secara real-time.
+ */
+const DashboardCounter = (() => {
+    // State internal
+    let chartInstance = null;
+    const colors = {
+        'Seamer1': '#fd7e14', // Orange (AMS)
+        'Seamer2': '#0d6efd', // Blue
+        'Seamer3': '#198754'  // Green
+    };
+
+    /**
+     * Inisialisasi Chart.js dengan konfigurasi dasar
+     */
+    const initChart = () => {
+        const ctx = document.getElementById('rpmChart')?.getContext('2d');
+        if (!ctx) return;
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Produksi (pcs/jam)',
+                    data: [],
+                    fill: true,
+                    tension: 0.3,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: 500 }, // Sedikit animasi agar transisi smooth
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Jumlah Unit (Pcs)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' }
                 }
             }
-        }
-    });
+        });
+    };
 
-    // Reset ke hari ini
-    window.resetToToday = function () {
-        const dateInput = document.getElementById('filterDate');
-        const today = new Date().toLocaleDateString('en-CA');
+    /**
+     * Mengambil data dari API Laravel
+     */
+    const fetchData = async (range = 'day') => {
+        const elDate = document.getElementById('filterDate');
+        const elSeamer = document.getElementById('filterSeamer');
+        const elLabel = document.getElementById('currentSeamerLabel');
 
-        if (dateInput) {
-            dateInput.value = today;
-            fetchRpmChartData('day');
-        }
-    }
+        const date = elDate?.value || new Date().toLocaleDateString('en-CA');
+        const seamerId = elSeamer?.value || 'Seamer1';
 
-    // Ambil data dengan parameter Seamer ID
-    window.fetchRpmChartData = async function (range = 'day') {
         try {
-            const dateInput = document.getElementById('filterDate');
-            const seamerInput = document.getElementById('filterSeamer'); // Dropdown Seamer
+            // Efek visual saat loading
+            document.getElementById('rpmChart').style.opacity = '0.6';
 
-            const selectedDate = dateInput ? dateInput.value : '';
-            const selectedSeamer = seamerInput ? seamerInput.value : 'Seamer1';
+            const response = await fetch(`/api/counter/${range}?date=${date}&seamer_id=${seamerId}`);
+            if (!response.ok) throw new Error('Network response was not ok');
 
-            // Mengirim request dengan query string ?date=...&seamer_id=...
-            const response = await fetch(`/api/counter/${range}?date=${selectedDate}&seamer_id=${selectedSeamer}`);
             const json = await response.json();
 
-            // Update Label & Data secara dinamis
-            rpmChart.data.labels = json.labels;
-            rpmChart.data.datasets[0].label = `Produksi ${selectedSeamer}`;
-            rpmChart.data.datasets[0].data = json.counter;
+            // Update Label Header jika ada
+            if (elLabel) elLabel.innerText = elSeamer?.options[elSeamer.selectedIndex]?.text || seamerId;
 
-            // Ubah warna berdasarkan seamer agar user tidak bingung
-            const colors = { 'Seamer1': '#fd7e14', 'Seamer2': '#0d6efd', 'Seamer3': '#198754' };
-            rpmChart.data.datasets[0].borderColor = colors[selectedSeamer] || '#fd7e14';
+            // Sinkronisasi data ke Chart
+            chartInstance.data.labels = json.labels;
+            chartInstance.data.datasets[0].data = json.counter;
+            chartInstance.data.datasets[0].label = `Produksi ${seamerId}`;
 
-            rpmChart.update();
+            // Update warna dinamis
+            const themeColor = colors[seamerId] || colors['Seamer1'];
+            chartInstance.data.datasets[0].borderColor = themeColor;
+            chartInstance.data.datasets[0].backgroundColor = `${themeColor}1A`; // 1A = 10% opacity hex
+
+            chartInstance.update();
         } catch (error) {
-            console.error("Gagal sinkronisasi Chart:", error);
+            console.error("Dashboard Error:", error);
+        } finally {
+            document.getElementById('rpmChart').style.opacity = '1';
         }
-    }
+    };
 
-    // Auto-refresh: Dipercepat ke 1 menit (60000ms) untuk data produksi real-time
-    function scheduleAutoRefresh() {
+    /**
+     * Logika Auto Refresh
+     */
+    const startAutoRefresh = (ms = 60000) => {
         setInterval(() => {
-            const dateInput = document.getElementById('filterDate');
+            const elDate = document.getElementById('filterDate');
             const today = new Date().toLocaleDateString('en-CA');
 
-            if (dateInput && dateInput.value === today) {
-                console.log("Auto-refresh data...");
-                fetchRpmChartData();
+            // Hanya refresh jika user sedang melihat data hari ini
+            if (elDate && elDate.value === today) {
+                fetchData();
             }
-        }, 60000);
-    }
+        }, ms);
+    };
 
-    // Init
-    fetchRpmChartData();
-    scheduleAutoRefresh();
-});
+    // Public API
+    return {
+        init: () => {
+            initChart();
+            fetchData();
+            startAutoRefresh();
+        },
+        refresh: fetchData,
+        reset: () => {
+            const elDate = document.getElementById('filterDate');
+            if (elDate) {
+                elDate.value = new Date().toLocaleDateString('en-CA');
+                fetchData();
+            }
+        }
+    };
+})();
+
+// Jalankan saat DOM siap
+document.addEventListener("DOMContentLoaded", DashboardCounter.init);
+
+// Bridge untuk attribute onclick di HTML
+window.fetchRpmChartData = DashboardCounter.refresh;
+window.resetToToday = DashboardCounter.reset;

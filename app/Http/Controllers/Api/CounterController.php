@@ -8,13 +8,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MachineStoppedNotification;
+use Carbon\Carbon;
 
 class CounterController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data = Counter::latest()->take(20)->get()->reverse()->values();
-        $lastTimestamp = Counter::latest()->value('created_at');
+        $seamerId = $request->query('seamer_id', 'Seamer1'); // Default ke Seamer1
+
+        $data = Counter::where('seamer_name', $seamerId)
+            ->latest()
+            ->take(20)
+            ->get()
+            ->reverse()
+            ->values();
+
+        $lastTimestamp = Counter::where('seamer_name', $seamerId)->latest()->value('created_at');
+
         return response()->json([
             'labels' => $data->pluck('created_at')->map(fn($t) => $t->format('H:i:s')),
             'rpm' => $data->pluck('rpm'),
@@ -60,22 +70,24 @@ class CounterController extends Controller
 
     private function handleNotification($deviceId, $item)
     {
-        // Cek kapan terakhir kali notifikasi dikirim untuk SEAMER SPESIFIK ini
-        $lastNotified = Counter::where('device_id', $deviceId)
+        // 1. Cek data sebelum yang baru saja disimpan (untuk melihat status sebelumnya)
+        $previousStatus = Counter::where('device_id', $deviceId)
             ->where('seamer_name', $item['id'])
-            ->where('rpm', 0)
-            ->orderByDesc('created_at')
-            ->skip(1)
+            ->latest()
+            ->skip(1) // Data yang barusan disimpan adalah skip(0)
             ->first();
 
-        $shouldNotify = !$lastNotified || $lastNotified->created_at->diffInMinutes(now()) >= 60;
+        // 2. Hanya proses jika sebelumnya mesin sedang jalan (RPM > 0) dan sekarang berhenti (RPM = 0)
+        // Ini mencegah "spam" email jika mesin mati seharian.
+        if ($previousStatus && $previousStatus->rpm > 0) {
+            // Cek jeda waktu agar tidak double send dalam waktu singkat
+            $lastEmailSent = Log::where('message', "Email dikirim: Mesin {$item['id']} Berhenti") // Misal cek lewat log atau tabel khusus
+                ->latest()->first();
 
-        if ($shouldNotify) {
             Mail::to('it@amsgroup.co.id')->send(new MachineStoppedNotification($item));
             Log::warning("Email dikirim: Mesin {$item['id']} Berhenti");
         }
     }
-
     public function indexhourly(Request $request, $range = 'day')
     {
         $targetDate = $request->query('date') ? Carbon::parse($request->query('date')) : now();

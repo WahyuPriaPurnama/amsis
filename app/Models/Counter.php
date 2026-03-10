@@ -13,4 +13,10 @@ class Counter extends Model
         'device_id',
         'location'
     ];
+
+    protected $casts = [
+        'rpm' => 'float',
+        'counter' => 'integer',
+        'created_at' => 'datetime'
+    ];
 }
