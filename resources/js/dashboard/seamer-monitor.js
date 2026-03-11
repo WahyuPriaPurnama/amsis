@@ -57,7 +57,7 @@ const DashboardMonitor = (() => {
                         if (Date.now() - lastDataTime > 8000) {
                             ctx.fillStyle = '#dc3545';
                             ctx.font = 'italic 11px sans-serif';
-                            ctx.fillText("OFFLINE / NO SIGNAL", width / 2, height / 2 + 45);
+                            ctx.fillText("Menunggu Data...", width / 2, height / 2 + 45);
                         }
                         ctx.restore();
                     }
