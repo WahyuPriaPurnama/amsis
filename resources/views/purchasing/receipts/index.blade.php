@@ -18,22 +18,21 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>No. Referensi</th>
                             <th>Supplier</th>
                             <th>Tanggal Datang</th>
-                            <th>Aksi</th>
+                            <th>Penerima</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($receipts as $receipt)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
+                                <td><a href="{{ route('receipts.show', $receipt->id) }}">{{ $receipt->reference_number }}</a>
+                                </td>
                                 <td>{{ $receipt->supplier->name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($receipt->arrival_date)->format('d M Y') }}</td>
-                                <td>
-                                    <!-- Tambahkan tombol aksi jika diperlukan -->
-                                    <a href="{{ route('receipts.show', $receipt->id) }}"
-                                        class="btn btn-sm btn-outline-secondary">Detail</a>
-                                </td>
+                                <td>{{ $receipt->received_by }}</td>
                             </tr>
                         @endforeach
                     </tbody>

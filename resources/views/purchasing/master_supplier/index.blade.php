@@ -18,8 +18,10 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th>Kode</th>
                             <th>Nama Supplier</th>
-                            <th>Kontak</th>
+                            <th>Jenis Supplier</th>
+                            <th>Nomor Telepon</th>
                             <th>Alamat</th>
                         </tr>
                     </thead>
@@ -27,8 +29,10 @@
                         @foreach ($suppliers as $supplier)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td><a href="{{ route('master-supplier.show', $supplier->id) }}" class="text-decoration-none">{{ $supplier->name }}</a></td>
-                                <td>{{ $supplier->contact }}</td>
+                                <td><a href="{{ route('master-supplier.show', $supplier->id) }}" class="text-decoration-none">{{ $supplier->code }}</a></td>
+                                <td>{{ $supplier->name }}</td>
+                                <td>{{ $supplier->type }}</td>
+                                <td>{{ $supplier->phone }}</td>
                                 <td>{{ $supplier->address }}</td>
                             </tr>
                         @endforeach

@@ -50,7 +50,7 @@ class ReceiptController extends Controller
                 // 2. Simpan Data Master Kedatangan
                 $receipt = Receipt::create([
                     'supplier_id'      => $request->supplier_id,
-                    'reference_number' => 'RN-' . now()->format('YmdHis'),
+                    'reference_number' => now()->format('YmdHis'),
                     'arrival_date'     => $request->arrival_date,
                     'received_by'      => auth()->user()->name ?? 'System',
                     'notes'            => $request->notes,
