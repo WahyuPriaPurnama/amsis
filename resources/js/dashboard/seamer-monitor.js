@@ -1,23 +1,23 @@
 /**
  * Dashboard Monitor Unified System
- * Mengelola Gauge, Grafik Produksi, dan Total Badge
+ * Indikator Offline Aktif: 3 Detik
  */
 const DashboardMonitor = (() => {
     let gaugeChart = null;
     let historyChart = null;
     let lastDataTime = Date.now();
+    const OFFLINE_THRESHOLD = 3000; // 3 detik dalam milidetik
 
     const colors = {
-        'Seamer1': '#fd7e14', // Orange
-        'Seamer2': '#0d6efd', // Blue
-        'Seamer3': '#198754'  // Green
+        'Seamer1': '#fd7e14', 
+        'Seamer2': '#0d6efd', 
+        'Seamer3': '#198754',
+        'danger': '#dc3545'
     };
 
     const formatNumber = (num) => new Intl.NumberFormat('id-ID').format(num || 0);
 
-    // 1. Inisialisasi Semua Chart
     const initCharts = () => {
-        // --- GAUGE CHART ---
         const gaugeCtx = document.getElementById('rpmGauge')?.getContext('2d');
         if (gaugeCtx) {
             gaugeChart = new Chart(gaugeCtx, {
@@ -43,21 +43,35 @@ const DashboardMonitor = (() => {
                         const { ctx, width, height } = chart;
                         const rpm = chart.data.datasets[0].data[0];
                         const counter = chart.config._counterValue || 0;
+                        
                         ctx.save();
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
+
+                        // Teks RPM
                         ctx.font = 'bold 22px sans-serif';
                         ctx.fillStyle = chart.data.datasets[0].backgroundColor[0];
                         ctx.fillText(`${rpm} CPM`, width / 2, height / 2 - 5);
+
+                        // Teks Counter
                         ctx.font = '14px sans-serif';
                         ctx.fillStyle = '#6c757d';
                         ctx.fillText(`Total Perjam: ${formatNumber(counter)}`, width / 2, height / 2 + 25);
 
-                        // Cek Delay (Indikator Offline)
-                        if (Date.now() - lastDataTime > 8000) {
-                            ctx.fillStyle = '#dc3545';
-                            ctx.font = 'italic 11px sans-serif';
-                            ctx.fillText("Menunggu Data...", width / 2, height / 2 + 45);
+                        // --- LOGIKA INDIKATOR OFFLINE ---
+                        // Memeriksa selisih waktu sekarang dengan data terakhir
+                        const timeDiff = Date.now() - lastDataTime;
+                        
+                        if (timeDiff > OFFLINE_THRESHOLD) {
+                            ctx.fillStyle = colors.danger;
+                            ctx.font = 'bold italic 11px sans-serif';
+                            // Menambahkan info berapa detik terlambat untuk transparansi
+                            const seconds = Math.floor(timeDiff / 1000);
+                            ctx.fillText(`Menunggu Data... (${seconds}s)`, width / 2, height / 2 + 45);
+                        } else {
+                            ctx.fillStyle = '#198754';
+                            ctx.font = 'bold 10px sans-serif';
+                            ctx.fillText("● LIVE", width / 2, height / 2 + 45);
                         }
                         ctx.restore();
                     }
@@ -65,7 +79,6 @@ const DashboardMonitor = (() => {
             });
         }
 
-        // --- HISTORY CHART ---
         const historyCtx = document.getElementById('rpmChart')?.getContext('2d');
         if (historyCtx) {
             historyChart = new Chart(historyCtx, {
@@ -84,23 +97,14 @@ const DashboardMonitor = (() => {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Pcs' } },
+                        y: { beginAtZero: true },
                         x: { grid: { display: false } }
-                    },
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                label: (c) => `${c.dataset.label}: ${formatNumber(c.parsed.y)} Pcs`
-                            }
-                        }
                     }
                 }
             });
         }
     };
 
-    // 2. Fungsi Ambil Data Tunggal
     const refreshData = async () => {
         const seamerId = document.getElementById('filterSeamer')?.value || 'Seamer1';
         const date = document.getElementById('filterDate')?.value || new Date().toLocaleDateString('en-CA');
@@ -108,16 +112,26 @@ const DashboardMonitor = (() => {
 
         try {
             const response = await fetch(`/api/counter/day?date=${date}&seamer_id=${seamerId}`);
+            if (!response.ok) throw new Error('Network response was not ok');
             const json = await response.json();
+
+            // Update timestamp data terakhir dari server (jika tersedia) 
+            // atau gunakan waktu saat fetch berhasil diterima
+            if (json.last_timestamp) {
+                lastDataTime = json.last_timestamp * 1000;
+            } else {
+                lastDataTime = Date.now();
+            }
 
             // Update Gauge
             const latestRPM = json.rpm?.length > 0 ? json.rpm[json.rpm.length - 1] : 0;
             const latestCounter = json.counter?.length > 0 ? json.counter[json.counter.length - 1] : 0;
+            
             if (gaugeChart) {
                 gaugeChart.data.datasets[0].data = [latestRPM, Math.max(0, 120 - latestRPM)];
                 gaugeChart.data.datasets[0].backgroundColor[0] = themeColor;
                 gaugeChart.config._counterValue = latestCounter;
-                gaugeChart.update('none'); // Update tanpa animasi berat
+                gaugeChart.update('none'); 
             }
 
             // Update Line Chart
@@ -126,22 +140,16 @@ const DashboardMonitor = (() => {
                 historyChart.data.datasets[0].data = json.counter;
                 historyChart.data.datasets[0].borderColor = themeColor;
                 historyChart.data.datasets[0].backgroundColor = `${themeColor}1A`;
-                historyChart.update();
+                historyChart.update('none');
             }
 
-            // Update UI Elements
-            const elTotal = document.getElementById('totalProduksiCount');
-            const elBadge = document.getElementById('totalProduksiBadge');
-            const elLabel = document.getElementById('currentSeamerLabel');
-
-            if (elTotal) elTotal.innerText = formatNumber(json.total_produksi);
-            if (elBadge) elBadge.style.backgroundColor = themeColor;
-            if (elLabel) elLabel.innerText = document.querySelector(`#filterSeamer option[value="${seamerId}"]`)?.text;
-
-            if (json.last_timestamp) lastDataTime = json.last_timestamp * 1000;
+            // UI Elements
+            document.getElementById('totalProduksiCount').innerText = formatNumber(json.total_produksi);
+            document.getElementById('totalProduksiBadge').style.backgroundColor = themeColor;
 
         } catch (error) {
             console.error("Dashboard Sync Error:", error);
+            // Jika fetch gagal, lastDataTime tidak diupdate, memicu indikator "Menunggu Data"
         }
     };
 
@@ -149,10 +157,16 @@ const DashboardMonitor = (() => {
         init: () => {
             initCharts();
             refreshData();
-            // Refresh data tiap 3 detik
-            setInterval(refreshData, 3000);
-            // Redraw gauge tiap detik (untuk update indikator OFFLINE)
-            setInterval(() => gaugeChart && gaugeChart.draw(), 1000);
+            
+            // Interval fetch data: tiap 2 detik (agar selalu di bawah threshold 3 detik)
+            setInterval(refreshData, 2000);
+            
+            // Interval redraw UI: tiap 500ms agar teks "Menunggu data (Xs)" terupdate real-time
+            setInterval(() => {
+                if (gaugeChart) {
+                    gaugeChart.draw();
+                }
+            }, 500);
         },
         reset: () => {
             document.getElementById('filterDate').value = new Date().toLocaleDateString('en-CA');
@@ -161,9 +175,4 @@ const DashboardMonitor = (() => {
     };
 })();
 
-// Jalankan saat halaman siap
 document.addEventListener("DOMContentLoaded", DashboardMonitor.init);
-
-// Bridge untuk HTML event
-window.fetchRpmChartData = DashboardMonitor.refresh;
-window.resetToToday = DashboardMonitor.reset;
