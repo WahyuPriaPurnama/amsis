@@ -51,7 +51,7 @@ const DashboardMonitor = (() => {
                         ctx.fillText(`${rpm} CPM`, width / 2, height / 2 - 5);
                         ctx.font = '14px sans-serif';
                         ctx.fillStyle = '#6c757d';
-                        ctx.fillText(`Total: ${formatNumber(counter)}`, width / 2, height / 2 + 25);
+                        ctx.fillText(`Total Perjam: ${formatNumber(counter)}`, width / 2, height / 2 + 25);
 
                         // Cek Delay (Indikator Offline)
                         if (Date.now() - lastDataTime > 8000) {
