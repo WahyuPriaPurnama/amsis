@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Receipt')
+@section('title', 'Penerimaan')
 @section('menuReceipt', 'active')
 @section('content')
     <div class="container">
@@ -36,3 +36,9 @@
                                 </td>
                             </tr>
                         @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endcomponent
+    </div>
+@endsection

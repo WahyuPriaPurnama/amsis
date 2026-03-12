@@ -11,9 +11,11 @@
     @can('request-payment.list')
         <li><a href="{{ route('request-payment.index') }}" class="dropdown-item @yield('menuPayment')">Request Payment</a></li>
     @endcan
-
-    <li><a href="{{ route('master-supplier.index') }}" class="dropdown-item @yield('menuSupplier')">Master Supplier</a></li>
-    <li><a href="{{ route('receipts.index') }}" class="dropdown-item @yield('menuReceipt')">Receipt</a></li>
-
+    @can('master-supplier.list')
+        <li><a href="{{ route('master-supplier.index') }}" class="dropdown-item @yield('menuSupplier')">Master Supplier</a></li>
+    @endcan
+    @can('receipt.list')
+        <li><a href="{{ route('receipts.index') }}" class="dropdown-item @yield('menuReceipt')">Penerimaan</a></li>
+    @endcan
 
 </ul>

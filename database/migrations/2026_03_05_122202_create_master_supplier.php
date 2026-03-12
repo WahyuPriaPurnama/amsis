@@ -20,11 +20,6 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
-
-            $table->string('npwp')->nullable();
-            $table->string('bank_name')->nullable();
-            $table->string('bank_account_number')->nullable();
-            $table->integer('term_of_payment')->default(0);
             $table->timestamps();
         });
     }

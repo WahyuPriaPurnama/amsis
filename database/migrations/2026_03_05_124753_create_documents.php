@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('receipt_id')->constrained('receipts')->onDelete('cascade');
             $table->enum('type', ['PO', 'SURAT_JALAN', 'FAKTUR', 'LAINNYA']);
-            $table->string('document_number'); 
+            $table->string('document_number')->nullable(); 
             $table->string('file_path');
             $table->timestamps();
         });

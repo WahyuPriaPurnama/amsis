@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Receipt extends Model
 {
-    protected $table = 'goods_receipts';
+    protected $table = 'receipts';
 
     protected $fillable = [
-        'receipt_number',
+        'reference_number',
         'supplier_id',
-        'receipt_date',
-        'status',
+        'arrival_date',
+        'received_by',
+        'notes',
     ];
 
     public function supplier()
@@ -22,6 +23,6 @@ class Receipt extends Model
 
     public function documents()
     {
-        return $this->hasMany(Document::class, 'goods_receipt_id');
+        return $this->hasMany(Document::class, 'receipt_id');
     }
 }

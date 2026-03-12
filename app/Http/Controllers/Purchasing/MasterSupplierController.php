@@ -40,4 +40,44 @@ class MasterSupplierController extends Controller
         return redirect()->route('master-supplier.index')
             ->with('success', 'Master Supplier created successfully.');
     }
+
+    public function show($id)
+    {
+        $supplier = MasterSupplier::findOrFail($id);
+        return view('purchasing.master_supplier.show', compact('supplier'));
+    }
+
+    public function edit($id)
+    {
+        $supplier = MasterSupplier::findOrFail($id);
+        return view('purchasing.master_supplier.edit', compact('supplier'));
+    }
+
+    public function destroy($id)
+    {
+        $supplier = MasterSupplier::findOrFail($id);
+        $supplier->delete();
+
+        return redirect()->route('master-supplier.index')
+            ->with('success', 'Master Supplier deleted successfully.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'code' => 'required|unique:master_supplier,code,' . $id,
+            'name' => 'required',
+            'type' => 'required',
+            'contact_person' => 'nullable',
+            'address' => 'nullable',
+            'phone' => 'nullable',
+            'email' => 'nullable|email',
+        ]);
+
+        $supplier = MasterSupplier::findOrFail($id);
+        $supplier->update($request->all());
+
+        return redirect()->route('master-supplier.index')
+            ->with('success', 'Master Supplier updated successfully.');
+    }
 }

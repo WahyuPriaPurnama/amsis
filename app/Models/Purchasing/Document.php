@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Document extends Model
 {
     protected $fillable = [
-        'goods_receipt_id',
+        'receipt_id',
         'type',
         'document_number',
         'file_path',
@@ -15,6 +15,6 @@ class Document extends Model
 
     public function receipt()
     {
-        return $this->belongsTo(Receipt::class, 'goods_receipt_id');
+        return $this->belongsTo(Receipt::class, 'receipt_id');
     }
 }

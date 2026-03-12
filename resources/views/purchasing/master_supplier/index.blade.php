@@ -21,21 +21,15 @@
                             <th>Nama Supplier</th>
                             <th>Kontak</th>
                             <th>Alamat</th>
-                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($suppliers as $supplier)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $supplier->name }}</td>
+                                <td><a href="{{ route('master-supplier.show', $supplier->id) }}" class="text-decoration-none">{{ $supplier->name }}</a></td>
                                 <td>{{ $supplier->contact }}</td>
                                 <td>{{ $supplier->address }}</td>
-                                <td>
-                                    <a href="{{ route('master-supplier.edit', $supplier->id) }}"
-                                        class="btn btn-sm btn-outline-secondary">Edit</a>
-                                    <!-- Tambahkan tombol delete jika diperlukan -->
-                                </td>
                             </tr>
                         @endforeach
                     </tbody>

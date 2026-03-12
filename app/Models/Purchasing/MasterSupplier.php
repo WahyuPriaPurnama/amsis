@@ -16,10 +16,6 @@ class MasterSupplier extends Model
         'address',
         'phone',
         'email',
-        'npwp',
-        'bank_name',
-        'bank_account_number',
-        'term_of_payment',
     ];
 
     public function receipts()
