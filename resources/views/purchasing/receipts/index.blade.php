@@ -7,9 +7,11 @@
             @slot('header')
                 <div class="d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-truck-loading me-2"></i> Daftar Kedatangan Barang</span>
+                    @can('receipts.create')
                     <a href="{{ route('receipts.create') }}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-plus me-1"></i> Input Kedatangan
                     </a>
+                    @endcan
                 </div>
             @endslot
 
