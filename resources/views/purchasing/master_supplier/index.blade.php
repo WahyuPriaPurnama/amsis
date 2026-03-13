@@ -7,9 +7,11 @@
             @slot('header')
                 <div class="d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-users me-2"></i> Master Supplier</span>
-                    <a href="{{ route('master-supplier.create') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus me-1"></i> Tambah Supplier
-                    </a>
+                    @can('master-supplier.create')
+                        <a href="{{ route('master-supplier.create') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Tambah Supplier
+                        </a>
+                    @endcan
                 </div>
             @endslot
 
@@ -29,7 +31,14 @@
                         @foreach ($suppliers as $supplier)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td><a href="{{ route('master-supplier.show', $supplier->id) }}" class="text-decoration-none">{{ $supplier->code }}</a></td>
+                                <td>
+                                    @can('master-supplier.show')
+                                        <a href="{{ route('master-supplier.show', $supplier->id) }}" class="text-decoration-none">
+                                            {{ $supplier->code }}</a>
+                                    @else
+                                        {{ $supplier->code }}
+                                    @endcan
+                                </td>
                                 <td>{{ $supplier->name }}</td>
                                 <td>{{ $supplier->type }}</td>
                                 <td>{{ $supplier->phone }}</td>

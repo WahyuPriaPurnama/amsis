@@ -28,7 +28,12 @@
                         @foreach ($receipts as $receipt)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td><a href="{{ route('receipts.show', $receipt->id) }}">{{ $receipt->reference_number }}</a>
+                                <td>
+                                    @can('master-supplier.show')
+                                        <a href="{{ route('receipts.show', $receipt->id) }}">{{ $receipt->reference_number }}</a>
+                                    @else
+                                        {{ $receipt->reference_number }}
+                                    @endcan
                                 </td>
                                 <td>{{ $receipt->supplier->name }}</td>
                                 <td>{{ \Carbon\Carbon::parse($receipt->arrival_date)->format('d M Y') }}</td>

@@ -12,17 +12,21 @@
                         <a href="{{ route('receipts.index') }}" class="btn btn-sm btn-outline-secondary me-2">
                             <i class="fas fa-arrow-left me-1"></i> Kembali
                         </a>
-                        <a href="{{ route('receipts.edit', $receipt->id) }}" class="btn btn-sm btn-primary">
-                            <i class="fas fa-edit me-1"></i> Edit Data
-                        </a>
-                        <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                <i class="fas fa-trash-alt me-1"></i> Hapus
-                            </button>
-                        </form>
+                        @can('receipts.edit')
+                            <a href="{{ route('receipts.edit', $receipt->id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-edit me-1"></i> Edit Data
+                            </a>
+                        @endcan
+                        @can('receipts.delete')
+                            <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                    <i class="fas fa-trash-alt me-1"></i> Hapus
+                                </button>
+                            </form>
+                        @endcan
                     </div>
                 </div>
             @endslot
