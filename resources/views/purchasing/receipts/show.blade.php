@@ -7,22 +7,21 @@
         @component('components.card')
             @slot('header')
                 <div class="d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-info-circle me-2"></i> Detail Kedatangan: {{ $receipt->reference_number }}</span>
-                    <div>
-                        <a href="{{ route('receipts.index') }}" class="btn btn-sm btn-outline-secondary me-2">
+                    <span><i class="fas fa-info-circle me-2"></i> Detail Kedatangan</span>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('receipts.index') }}" class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-arrow-left me-1"></i> Kembali
                         </a>
                         @can('receipts.edit')
                             <a href="{{ route('receipts.edit', $receipt->id) }}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-edit me-1"></i> Edit Data
+                                <i class="fas fa-edit me-1"></i> Edit
                             </a>
                         @endcan
                         @can('receipts.delete')
                             <form action="{{ route('receipts.destroy', $receipt->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hapus data ini?')">
                                     <i class="fas fa-trash-alt me-1"></i> Hapus
                                 </button>
                             </form>
@@ -31,89 +30,104 @@
                 </div>
             @endslot
 
-            {{-- Banner Header --}}
-            <div class="bg-info p-4 text-white rounded-top mb-4">
-                <h5 class="mb-1 fw-bold">Nomor Referensi: {{ $receipt->reference_number }}</h5>
-                <p class="small mb-0 opacity-75">Data dicatatkan pada {{ $receipt->created_at->format('d M Y H:i') }}</p>
+            {{-- Info Banner --}}
+            <div class="bg-primary p-4 text-white rounded shadow-sm mb-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 class="mb-1 fw-bold">{{ $receipt->reference_number }}</h4>
+                        <p class="small mb-0 opacity-75">
+                            <i class="fas fa-calendar-alt me-1"></i> Dicatat pada
+                            {{ $receipt->created_at->format('d M Y, H:i') }}
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <span class="badge bg-white text-primary px-3 py-2">
+                            <i class="fas fa-check-circle me-1"></i> Terverifikasi
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <div class="px-3 pb-3">
-                <div class="row g-3 mb-4">
-                    {{-- Supplier --}}
+            <div class="px-2">
+                <div class="row g-4 mb-4">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-muted small">Supplier</label>
-                        <div class="form-control bg-light">{{ $receipt->supplier->name }}</div>
+                        <label class="form-label fw-bold text-muted small text-uppercase">Supplier</label>
+                        <p class="form-control-plaintext border-bottom pb-2 fw-bold text-dark">
+                            <i class="fas fa-building me-2 text-secondary"></i>{{ $receipt->supplier->name }}
+                        </p>
                     </div>
 
-                    {{-- Tanggal --}}
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-muted small">Tanggal Datang</label>
-                        <div class="form-control bg-light">{{ \Carbon\Carbon::parse($receipt->arrival_date)->format('d F Y') }}
-                        </div>
+                        <label class="form-label fw-bold text-muted small text-uppercase">Tanggal Datang</label>
+                        <p class="form-control-plaintext border-bottom pb-2 text-dark">
+                            <i
+                                class="fas fa-truck me-2 text-secondary"></i>{{ \Carbon\Carbon::parse($receipt->arrival_date)->format('d F Y') }}
+                        </p>
                     </div>
 
-                    {{-- Received By --}}
                     <div class="col-md-4">
-                        <label class="form-label fw-bold text-muted small">Diterima Oleh</label>
-                        <div class="form-control bg-light">{{ $receipt->received_by }}</div>
+                        <label class="form-label fw-bold text-muted small text-uppercase">Diterima Oleh</label>
+                        <p class="form-control-plaintext border-bottom pb-2 text-dark">
+                            <i class="fas fa-user-check me-2 text-secondary"></i>{{ $receipt->received_by }}
+                        </p>
                     </div>
                 </div>
 
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <label class="form-label fw-bold text-muted small">Catatan</label>
-                        <div class="form-control bg-light" style="min-height: 80px;">
-                            {{ $receipt->notes ?? '-' }}
-                        </div>
+                <div class="mb-5">
+                    <label class="form-label fw-bold text-muted small text-uppercase">Catatan Internal</label>
+                    <div class="p-3 bg-light rounded border border-start-0 border-end-0 border-top-0 border-3 border-primary">
+                        {{ $receipt->notes ?: 'Tidak ada catatan tambahan.' }}
                     </div>
                 </div>
 
                 <hr class="my-4">
 
-                <h6 class="mb-3 text-uppercase fw-bold text-secondary">Lampiran Dokumen Fisik</h6>
+                <h6 class="mb-4 text-uppercase fw-bold text-secondary d-flex align-items-center">
+                    <i class="fas fa-camera me-2"></i> Arsip Digital Dokumen
+                </h6>
 
-                <div class="row g-3">
+                <div class="row g-4">
                     @php
                         $docTypes = [
-                            'SURAT_JALAN' => 'Surat Jalan',
-                            'PO' => 'Purchase Order (PO)',
-                            'FAKTUR' => 'Faktur / Invoice',
+                            'SURAT_JALAN' => ['label' => 'Surat Jalan', 'icon' => 'fa-file-invoice'],
+                            'PO' => ['label' => 'Purchase Order (PO)', 'icon' => 'fa-file-signature'],
+                            'FAKTUR' => ['label' => 'Faktur / Invoice', 'icon' => 'fa-file-invoice-dollar'],
                         ];
                     @endphp
 
-                    @foreach ($docTypes as $type => $label)
+                    @foreach ($docTypes as $type => $info)
                         @php
                             $doc = $receipt->documents->where('type', $type)->first();
                         @endphp
-                        <div class="col-md-4">
-                            <div class="card h-100 border-light shadow-sm text-center">
-                                <div class="card-header bg-transparent border-0 pb-0">
-                                    <span class="fw-bold small">{{ $label }}</span>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm overflow-hidden">
+                                <div class="card-header bg-light py-3 border-0">
+                                    <h6 class="mb-0 fw-bold small">
+                                        <i class="fas {{ $info['icon'] }} me-2 text-primary"></i>{{ $info['label'] }}
+                                    </h6>
                                 </div>
-                                <div class="card-body p-3">
+                                <div class="card-body d-flex flex-column justify-content-center p-3">
                                     @if ($doc)
-                                        <div class="mb-2">
-                                            <span
-                                                class="badge bg-secondary mb-2">{{ $doc->document_number ?? 'No. Tidak Ada' }}</span>
+                                        <div class="text-center mb-3">
+                                            <span class="badge bg-dark rounded-pill px-3 py-2 mb-3">
+                                                {{ $doc->document_number ?: 'Tanpa Nomor' }}
+                                            </span>
+                                            <div class="position-relative hover-zoom">
+                                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank">
+                                                    <img src="{{ asset('storage/' . $doc->file_path) }}"
+                                                        class="img-fluid rounded shadow-sm border"
+                                                        style="max-height: 200px; width: 100%; object-fit: cover;">
+                                                </a>
+                                            </div>
                                         </div>
-                                        <div class="position-relative">
-                                            <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank">
-                                                <img src="{{ asset('storage/' . $doc->file_path) }}" alt="{{ $label }}"
-                                                    class="img-fluid rounded border shadow-sm"
-                                                    style="max-height: 200px; object-fit: cover;">
-                                            </a>
-                                        </div>
-                                        <div class="mt-2">
-                                            <a href="{{ asset('storage/' . $doc->file_path) }}" download
-                                                class="btn btn-sm btn-link text-decoration-none">
-                                                <i class="fas fa-download me-1"></i> Unduh Gambar
-                                            </a>
-                                        </div>
+                                        <a href="{{ asset('storage/' . $doc->file_path) }}" download
+                                            class="btn btn-sm btn-outline-primary w-100">
+                                            <i class="fas fa-download me-1"></i> Unduh File
+                                        </a>
                                     @else
-                                        <div
-                                            class="py-5 bg-light rounded border border-dashed d-flex flex-column align-items-center justify-content-center">
-                                            <i class="fas fa-image-slash fa-2x text-muted mb-2"></i>
-                                            <span class="text-muted small">Tidak ada dokumen</span>
+                                        <div class="text-center py-4 border-dashed rounded bg-white">
+                                            <i class="fas fa-cloud-upload-alt fa-2x text-light mb-2"></i>
+                                            <p class="text-muted small mb-0">Dokumen tidak terlampir</p>
                                         </div>
                                     @endif
                                 </div>
@@ -125,3 +139,18 @@
         @endcomponent
     </div>
 @endsection
+
+<style>
+    .border-dashed {
+        border: 2px dashed #dee2e6 !important;
+    }
+
+    .hover-zoom img {
+        transition: transform .3s ease;
+    }
+
+    .hover-zoom:hover img {
+        transform: scale(1.02);
+        filter: brightness(0.9);
+    }
+</style>
