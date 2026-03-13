@@ -77,6 +77,7 @@ class PermissionSeeder extends Seeder
             'master-supplier.create',
             'master-supplier.edit',
             'master-supplier.delete',
+            'master-supplier.show',
         ];
 
         $receiptPermissions = [
@@ -85,6 +86,7 @@ class PermissionSeeder extends Seeder
             'receipt.create',
             'receipt.edit',
             'receipt.delete',
+            'receipt.show',
         ];
 
 

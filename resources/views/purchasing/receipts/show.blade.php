@@ -83,7 +83,6 @@
 
                     @foreach ($docTypes as $type => $label)
                         @php
-                            // Mencari dokumen berdasarkan type di relasi documents
                             $doc = $receipt->documents->where('type', $type)->first();
                         @endphp
                         <div class="col-md-4">
