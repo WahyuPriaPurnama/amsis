@@ -30,16 +30,23 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto">
-                        
+
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-                            data-bs-toggle="dropdown">E-Slip</a>
-                            <div class="dropdown-menu">
-                                @include('hrd.partials.eslip-menu')
-                            </div>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                E-Slip
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item @yield('menuAMS')" href="/ams-malang">AMS Holding</a></li>
+                                <li><a class="dropdown-item @yield('menuRMM')" href="/rmm-malang">RMM</a></li>
+                                <li><a class="dropdown-item @yield('menuELN')" href="/eln-malang">ELN Malang</a></li>
+                                <li><a class="dropdown-item @yield('menuELN2')" href="/eln-bwi">ELN Banyuwangi</a></li>
+                                <li><a class="dropdown-item @yield('menuHAKA')" href="/haka-bwi">HAKA</a></li>
+                                <li><a class="dropdown-item @yield('menuBOFI')" href="/bofi-bwi">BOFI</a></li>
+                            </ul>
                         </li>
-                        
-                        
+
+
+
                         @auth
                             @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
                                 <li class="nav-item dropdown">
@@ -49,7 +56,7 @@
                                 </li>
                             @endcanany
 
-                            @canany(['request-order.list', 'request-payment.list','master-supplier.list','receipt.list'])
+                            @canany(['request-order.list', 'request-payment.list', 'master-supplier.list', 'receipt.list'])
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button"
                                         data-bs-toggle="dropdown">Pembelian</a>
