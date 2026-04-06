@@ -62,7 +62,7 @@
                                         data-bs-toggle="dropdown">Pembelian</a>
                                     @include('purchasing.partials.purchasing-menu')
                                 </li>
-                            @endcan
+                            @endcanany
                         @endauth
                     </ul>
 

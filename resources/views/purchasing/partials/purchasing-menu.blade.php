@@ -14,7 +14,7 @@
     @can('master-supplier.list')
         <li><a href="{{ route('master-supplier.index') }}" class="dropdown-item @yield('menuSupplier')">Master Supplier</a></li>
     @endcan
-    @can('receipt.list')
+    @can('receipts.list')
         <li><a href="{{ route('receipts.index') }}" class="dropdown-item @yield('menuReceipt')">Penerimaan</a></li>
     @endcan
 
