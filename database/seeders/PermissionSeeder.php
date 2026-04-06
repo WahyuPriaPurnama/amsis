@@ -81,12 +81,12 @@ class PermissionSeeder extends Seeder
         ];
 
         $receiptPermissions = [
-            'receipt.list',
-            'receipt.view',
-            'receipt.create',
-            'receipt.edit',
-            'receipt.delete',
-            'receipt.show',
+            'receipts.list',
+            'receipts.view',
+            'receipts.create',
+            'receipts.edit',
+            'receipts.delete',
+            'receipts.show',
         ];
 
 
