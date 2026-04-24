@@ -1,3 +1,10 @@
+@php
+    // Sederhanakan logika: Jika admin (Super/Holding), mereka BOLEH edit.
+    $canEditOrg = $isLeader;
+    $readonlyAttr = !$canEditOrg ? 'readonly' : '';
+    $disabledAttr = !$canEditOrg ? 'disabled' : '';
+@endphp
+
 @extends('layouts.app')
 @section('title', 'Edit Data Karyawan')
 @section('menuEmployees', 'active')
@@ -7,58 +14,60 @@
             @slot('header')
                 EDIT DATA KARYAWAN
             @endslot
+
             <form action="{{ route('employees.update', $employee) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+
+                {{-- SECTION 1: ORGANISASI --}}
                 <div class="row mb-3">
                     <div class="row align-items-center mb-2">
                         <div class="col-md-6">
                             <h4 class="fw-semibold mb-0">Organisasi</h4>
                         </div>
-                        <div class="col-md-6 text-center text-md-end">
-                            <div class="alert alert-warning d-inline-block py-2 px-3 mb-0">
-                                <i class="bi bi-info-circle-fill"></i> hanya admin yang dapat edit Organisasi
+                        @if (!$canEditOrg)
+                            <div class="col-md-6 text-center text-md-end">
+                                <div class="alert alert-warning d-inline-block py-2 px-3 mb-0">
+                                    <i class="bi bi-info-circle-fill"></i> Hanya admin yang dapat edit Organisasi
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                     <hr>
 
-                    {{-- NIP --}}
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="nip" class="form-label">NIP</label>
+                    {{-- Loop Input Text Organisasi --}}
+                    @foreach ([
+                'nip' => 'NIP',
+                'nama' => 'Nama Lengkap',
+                'divisi' => 'Divisi',
+                'departemen' => 'Departemen',
+                'seksi' => 'Seksi',
+                'posisi' => 'Jabatan',
+            ] as $field => $label)
+                        <div class="col-12 col-sm-6 col-md-3 mb-3">
+                            <label for="{{ $field }}" class="form-label">{{ $label }}</label>
+                            <input type="text" id="{{ $field }}" name="{{ $field }}"
+                                value="{{ old($field, $employee->$field) }}"
+                                class="form-control @error($field) is-invalid @enderror" {{ $readonlyAttr }}>
+                            @error($field)
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endforeach
 
-                        <input type="text" id="nip" name="nip" value="{{ old('nip', $employee->nip) }}"
-                            class="form-control @error('nip') is-invalid @enderror"{{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
-                            aria-describedby="nipHelp">
-                        @error('nip')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                    {{-- Nama Lengkap --}}
+                    {{-- Tanggal Masuk --}}
                     <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="nama" class="form-label">Nama Lengkap</label>
-                        <input type="text" id="nama" name="nama" value="{{ old('nama', $employee->nama) }}"
-                            class="form-control @error('nama') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
-                            aria-describedby="namaHelp" placeholder="Contoh: Roberto Karlos">
-                        <div id="namaHelp" class="form-text">sesuai KTP</div>
-                        @error('nama')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                        <label for="tgl_masuk" class="form-label">Tanggal Masuk Kerja</label>
+                        <input type="date" id="tgl_masuk" name="tgl_masuk"
+                            value="{{ old('tgl_masuk', $employee->tgl_masuk) }}"
+                            class="form-control @error('tgl_masuk') is-invalid @enderror" {{ $readonlyAttr }}>
                     </div>
 
                     {{-- Subsidiary (Plant) --}}
                     <div class="col-12 col-md-3 mb-3">
                         <label for="subsidiary_id" class="form-label">Plant</label>
-
-                        @php $disabled = ($isLeader || $isEmployee); @endphp
-
                         <select name="subsidiary_id" id="subsidiary_id"
-                            class="form-select @error('subsidiary_id') is-invalid @enderror" {{ $disabled ? 'disabled' : '' }}>
+                            class="form-select @error('subsidiary_id') is-invalid @enderror" {{ $disabledAttr }}>
                             <option value="">Pilih Plant</option>
                             @foreach ($subsidiaries as $subsidiary)
                                 <option value="{{ $subsidiary->id }}" @selected($subsidiary->id == old('subsidiary_id', $employee->subsidiary_id))>
@@ -66,131 +75,47 @@
                                 </option>
                             @endforeach
                         </select>
-
-                        @if ($disabled)
+                        @if (!$canEditOrg)
                             <input type="hidden" name="subsidiary_id" value="{{ $employee->subsidiary_id }}">
                         @endif
-
-                        @error('subsidiary_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
 
-                    {{-- Divisi --}}
-                    <div class="col-12 col-md-3 mb-3">
-                        <label for="divisi" class="form-label">Divisi</label>
-                        <input type="text" id="divisi" name="divisi" value="{{ old('divisi', $employee->divisi) }}"
-                            class="form-control @error('divisi') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
-                        @error('divisi')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        {{-- Departemen --}}
-
-                        <label for="departemen" class="form-label">Departemen</label>
-                        <input type="text" id="departemen" name="departemen"
-                            value="{{ old('departemen', $employee->departemen) }}"
-                            class="form-control @error('departemen') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
-                        @error('departemen')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- Seksi --}}
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="seksi" class="form-label">Seksi</label>
-                        <input type="text" id="seksi" name="seksi" value="{{ old('seksi', $employee->seksi) }}"
-                            class="form-control @error('seksi') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
-                        @error('seksi')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- Jabatan --}}
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="posisi" class="form-label">Jabatan</label>
-                        <input type="text" id="posisi" name="posisi" value="{{ old('posisi', $employee->posisi) }}"
-                            class="form-control @error('posisi') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
-                        @error('posisi')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="tgl_masuk" class="form-label">Tanggal Masuk Kerja</label>
-                        <input type="date" id="tgl_masuk" name="tgl_masuk"
-                            value="{{ old('tgl_masuk', $employee->tgl_masuk) }}"
-                            class="form-control @error('tgl_masuk') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}>
-                        @error('tgl_masuk')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div x-data="{
-                    statusPeg: '{{ old('status_peg', $employee->status_peg) }}',
-                    awalKontrak: '{{ old('awal_kontrak', $employee->awal_kontrak) }}',
-                    akhirKontrak: '{{ old('akhir_kontrak', $employee->akhir_kontrak) }}',
-                    resetKontrak() {
-                        if (this.statusPeg !== 'PKWT') {
-                            this.awalKontrak = '';
-                            this.akhirKontrak = '';
-                        }
-                    }
-                }" x-init="resetKontrak" x-watch="statusPeg" class="row mb-3">
-                    {{-- Status Pegawai --}}
-                    <div class="col-12 col-sm-6 col-md-3 mb-3">
-                        <label for="status_peg" class="form-label">Status Pegawai</label>
-                        @if ($isLeader || $isEmployee)
-                            <select class="form-select" disabled>
-                                <option>{{ $employee->status_peg }}</option>
-                            </select>
-                            <input type="hidden" name="status_peg" value="{{ $employee->status_peg }}">
-                        @else
+                    {{-- Status Pegawai & Kontrak (Alpine.js) --}}
+                    <div x-data="{
+                        statusPeg: '{{ old('status_peg', $employee->status_peg) }}',
+                        canEdit: {{ $canEditOrg ? 'true' : 'false' }}
+                    }" class="row g-3">
+                        <div class="col-12 col-sm-6 col-md-3 mb-3">
+                            <label for="status_peg" class="form-label">Status Pegawai</label>
                             <select name="status_peg" id="status_peg"
-                                class="form-select @error('status_peg') is-invalid @enderror" x-model="statusPeg">
+                                class="form-select @error('status_peg') is-invalid @enderror" x-model="statusPeg"
+                                :disabled="!canEdit">
                                 <option value="">Pilih Status</option>
                                 @foreach (['PKWT', 'PKWTT', '-'] as $status)
-                                    <option value="{{ $status }}" @selected(old('status_peg', $employee->status_peg) === $status)>
-                                        {{ $status }}
-                                    </option>
+                                    <option value="{{ $status }}">{{ $status }}</option>
                                 @endforeach
                             </select>
-                        @endif
-                        @error('status_peg')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            <template x-if="!canEdit">
+                                <input type="hidden" name="status_peg" :value="statusPeg">
+                            </template>
+                        </div>
 
-                    {{-- Awal Kontrak --}}
-                    <div class="col mb-3" x-show="statusPeg === 'PKWT'">
-                        <label for="awal_kontrak" class="form-label">Awal Kontrak</label>
-                        <input type="date" id="awal_kontrak" name="awal_kontrak" x-model="awalKontrak"
-                            :value="awalKontrak" class="form-control @error('awal_kontrak') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
-                            aria-describedby="kontrakHelp">
-                        @error('awal_kontrak')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- Akhir Kontrak --}}
-                    <div class="col mb-3" x-show="statusPeg === 'PKWT'">
-                        <label for="akhir_kontrak" class="form-label">Akhir Kontrak</label>
-                        <input type="date" id="akhir_kontrak" name="akhir_kontrak" x-model="akhirKontrak"
-                            :value="akhirKontrak" class="form-control @error('akhir_kontrak') is-invalid @enderror"
-                            {{ ($isLeader || $isEmployee) && !$user->can('employee-organization.edit') ? 'readonly' : '' }}
-                            aria-describedby="kontrakHelp">
-                        @error('akhir_kontrak')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <template x-if="statusPeg === 'PKWT'">
+                            <div class="col-12 col-md-6 d-flex gap-3">
+                                <div class="flex-fill mb-3">
+                                    <label class="form-label">Awal Kontrak</label>
+                                    <input type="date" name="awal_kontrak"
+                                        value="{{ old('awal_kontrak', $employee->awal_kontrak) }}" class="form-control"
+                                        :readonly="!canEdit">
+                                </div>
+                                <div class="flex-fill mb-3">
+                                    <label class="form-label">Akhir Kontrak</label>
+                                    <input type="date" name="akhir_kontrak"
+                                        value="{{ old('akhir_kontrak', $employee->akhir_kontrak) }}" class="form-control"
+                                        :readonly="!canEdit">
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
 

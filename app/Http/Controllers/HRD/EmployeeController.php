@@ -191,24 +191,28 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         $user = Auth::user();
-
-        // Roles dengan full access
         $fullAccessRoles = ['super-admin', 'holding-admin'];
 
-        // Tentukan subsidiaries
-        if ($user->hasAnyRole($fullAccessRoles)) {
-            // Full access → semua subsidiary
-            $subsidiaries = Subsidiary::all();
-        } else {
-            // Selain itu → hanya subsidiary asal user/employee
-            $subsidiaries = Subsidiary::where('id', $employee->subsidiary_id)->get();
-        }
+        // Flag utama untuk otorisasi
+        $isLeader = $user->hasAnyRole($fullAccessRoles);
+        $isEmployeeSelf = $user->employee_id === $employee->id;
 
-        // Flags
-        $isEmployee = !$user->hasAnyRole($fullAccessRoles) && $user->employee_id === $employee->id;
-        $isLeader   = $user->hasAnyRole($fullAccessRoles);
+        // Gabungkan pengecekan Role atau Permission spesifik
+        $canEditOrganization = $isLeader || $user->can('employee-organization.edit');
 
-        return view('hrd.employee.edit', compact('employee', 'subsidiaries', 'isEmployee', 'isLeader', 'user'));
+        // Tentukan list subsidiary
+        $subsidiaries = $isLeader
+            ? Subsidiary::all()
+            : Subsidiary::where('id', $employee->subsidiary_id)->get();
+
+        return view('hrd.employee.edit', compact(
+            'employee',
+            'subsidiaries',
+            'isLeader',
+            'isEmployeeSelf',
+            'canEditOrganization',
+            'user'
+        ));
     }
     /**
      * Update the specified resource in storage.
