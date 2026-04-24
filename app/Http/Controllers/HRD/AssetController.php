@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\HRD;
 
+use App\Exports\AssetsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AssetRequest;
 use App\Models\HRD\Asset;
@@ -10,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AssetController extends Controller
 {
@@ -297,37 +299,9 @@ class AssetController extends Controller
 
         return $pdf->stream('asset_list.pdf');
     }
+
     public function export_excel()
     {
-        $assets = Asset::with(['subsidiary', 'user'])->latest()->get();
-
-        $headers = [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="asset_list.xlsx"',
-        ];
-
-        $callback = function () use ($assets) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'Kode', 'Nama', 'Kategori', 'Lokasi', 'Kondisi', 'Pemilik', 'Subsidiary', 'Dibuat Oleh', 'Dibuat Pada']);
-
-            foreach ($assets as $asset) {
-                fputcsv($file, [
-                    $asset->id,
-                    $asset->code,
-                    $asset->name,
-                    $asset->category,
-                    $asset->location,
-                    $asset->condition,
-                    $asset->owner,
-                    $asset->subsidiary->name ?? '',
-                    $asset->user->name ?? '',
-                    $asset->created_at->format('Y-m-d H:i:s'),
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(new AssetsExport, 'asset_list.xlsx');
     }
 }
