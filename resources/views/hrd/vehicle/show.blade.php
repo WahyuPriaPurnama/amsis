@@ -317,7 +317,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.foto', ['foto' => $vehicle->foto, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                                href="{{ route('vehicle.foto', ['foto' => $vehicle->foto, 'jenis' => $vehicle->jenis_kendaraan,'nopol' => $vehicle->nopol]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>
@@ -333,7 +333,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.stnk', ['stnk' => $vehicle->f_stnk, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                                href="{{ route('vehicle.stnk', ['stnk' => $vehicle->f_stnk, 'jenis' => $vehicle->jenis_kendaraan,'nopol' => $vehicle->nopol]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>
@@ -349,7 +349,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.pajak', ['pajak' => $vehicle->f_pajak, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                                href="{{ route('vehicle.pajak', ['pajak' => $vehicle->f_pajak, 'jenis' => $vehicle->jenis_kendaraan, 'nopol' => $vehicle->nopol]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>
@@ -365,7 +365,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.kir', ['kir' => $vehicle->f_kir, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                                href="{{ route('vehicle.kir', ['kir' => $vehicle->f_kir, 'jenis' => $vehicle->jenis_kendaraan, 'nopol' => $vehicle->nopol]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>
@@ -381,7 +381,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.qr', ['qr' => $vehicle->qr, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                                href="{{ route('vehicle.qr', ['qr' => $vehicle->qr, 'jenis' => $vehicle->jenis_kendaraan, 'nopol' => $vehicle->nopol]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>
@@ -397,7 +397,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.polis', ['polis' => $vehicle->f_polis, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                                href="{{ route('vehicle.polis', ['polis' => $vehicle->f_polis, 'jenis' => $vehicle->jenis_kendaraan, 'nopol' => $vehicle->nopol]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>

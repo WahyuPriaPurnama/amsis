@@ -74,18 +74,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     Route::resource('vehicles', VehicleController::class);
- Route::prefix('vehicle')->controller(VehicleController::class)->group(function () {
-    Route::get('foto/{foto}/{jenis}', 'foto')->name('vehicle.foto');
-    Route::get('stnk/{stnk}/{jenis}', 'stnk')->name('vehicle.stnk');
-    Route::get('pajak/{pajak}/{jenis}', 'pajak')->name('vehicle.pajak');
-    Route::get('kir/{kir}/{jenis}', 'kir')->name('vehicle.kir');
-    Route::get('qr/{qr}/{jenis}', 'qr')->name('vehicle.qr');
-    Route::get('polis/{polis}/{jenis}', 'polis')->name('vehicle.polis');
-    // Service jika ada pada lampiran (jika menggunakan, silakan tambahkan sendiri dengan format sama)
-    
-    Route::get('export-pdf', 'index_pdf')->name('vehicles.pdf');
-    Route::get('show-pdf/{id}', 'show_pdf')->name('vehicle.pdf');
-});
+    Route::prefix('vehicle')->controller(VehicleController::class)->group(function () {
+        Route::get('foto/{foto}/{jenis}/{nopol}', 'foto')->name('vehicle.foto');
+        Route::get('stnk/{stnk}/{jenis}/{nopol}', 'stnk')->name('vehicle.stnk');
+        Route::get('pajak/{pajak}/{jenis}/{nopol}', 'pajak')->name('vehicle.pajak');
+        Route::get('kir/{kir}/{jenis}/{nopol}', 'kir')->name('vehicle.kir');
+        Route::get('qr/{qr}/{jenis}/{nopol}', 'qr')->name('vehicle.qr');
+        Route::get('polis/{polis}/{jenis}/{nopol}', 'polis')->name('vehicle.polis');
+
+        Route::get('export-pdf', 'index_pdf')->name('vehicles.pdf');
+        Route::get('show-pdf/{id}', 'show_pdf')->name('vehicle.pdf');
+    });
 
     Route::get('scanlog', [ScanlogController::class, 'index'])->name('scanlog.index');
     Route::prefix('scanlog')->controller(ScanlogController::class)->group(function () {

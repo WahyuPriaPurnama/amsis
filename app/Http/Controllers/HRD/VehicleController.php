@@ -168,65 +168,62 @@ class VehicleController extends Controller
             );
     }
 
-    public function foto($foto, $jenis)
+    public function foto($foto, $jenis, $nopol)
     {
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/foto/' . $foto);
-        $downloadName = 'foto-' . $cleanJenis . '-' . $foto;
+        $downloadName = 'foto-' . $cleanJenis . '-' . $cleanNopol;
 
         return response()->download($path, $downloadName);
     }
 
-    public function stnk($stnk, $jenis)
+    public function stnk($stnk, $jenis, $nopol)
     {
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/stnk/' . $stnk);
-        $downloadName = 'stnk-' . $cleanJenis . '-' . $stnk;
+        $downloadName = 'stnk-' . $cleanJenis . '-' . $cleanNopol;
 
         return response()->download($path, $downloadName);
     }
 
-    public function pajak($pajak, $jenis)
+    public function pajak($pajak, $jenis, $nopol)
     {
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/pajak/' . $pajak);
-        $downloadName = 'pajak-' . $cleanJenis . '-' . $pajak;
+        $downloadName = 'pajak-' . $cleanJenis . '-' . $cleanNopol;
 
         return response()->download($path, $downloadName);
     }
 
-    public function kir($kir, $jenis)
+    public function qr($qr, $jenis, $nopol)
     {
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
-        $path = storage_path('app/public/vehicles/kir/' . $kir);
-        $downloadName = 'kir-' . $cleanJenis . '-' . $kir;
-
-        return response()->download($path, $downloadName);
-    }
-
-    public function qr($qr, $jenis)
-    {
-        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/qr/' . $qr);
-        $downloadName = 'qr-' . $cleanJenis . '-' . $qr;
+        $downloadName = 'qr-' . $cleanJenis . '-' . $cleanNopol;
 
         return response()->download($path, $downloadName);
     }
 
-    public function polis($polis, $jenis)
+    public function polis($polis, $jenis, $nopol)
     {
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/polis/' . $polis);
-        $downloadName = 'polis-' . $cleanJenis . '-' . $polis;
+        $downloadName = 'polis-' . $cleanJenis . '-' . $cleanNopol;
 
         return response()->download($path, $downloadName);
     }
 
-    public function service($service, $jenis)
+    public function service($service, $jenis, $nopol)
     {
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $cleanNopol = strtolower(str_replace(' ', '-', $nopol));    
         $path = storage_path('app/public/vehicles/service/' . $service);
-        $downloadName = 'service-' . $cleanJenis . '-' . $service;
+        $downloadName = 'service-' . $cleanJenis . '-' . $cleanNopol;
 
         return response()->download($path, $downloadName);
     }
