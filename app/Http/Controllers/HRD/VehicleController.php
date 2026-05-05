@@ -168,39 +168,67 @@ class VehicleController extends Controller
             );
     }
 
-    public function foto($foto)
+    public function foto($foto, $jenis)
     {
-        return Response::download('storage/vehicles/foto/' . $foto);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/foto/' . $foto);
+        $downloadName = 'foto-' . $cleanJenis . '-' . $foto;
+
+        return response()->download($path, $downloadName);
     }
 
-    public function stnk($stnk)
+    public function stnk($stnk, $jenis)
     {
-        return Response::download('storage/vehicles/stnk/' . $stnk);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/stnk/' . $stnk);
+        $downloadName = 'stnk-' . $cleanJenis . '-' . $stnk;
+
+        return response()->download($path, $downloadName);
     }
 
-    public function pajak($pajak)
+    public function pajak($pajak, $jenis)
     {
-        return Response::download('storage/vehicles/pajak/' . $pajak);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/pajak/' . $pajak);
+        $downloadName = 'pajak-' . $cleanJenis . '-' . $pajak;
+
+        return response()->download($path, $downloadName);
     }
 
-    public function kir($kir)
+    public function kir($kir, $jenis)
     {
-        return Response::download('storage/vehicles/kir/' . $kir);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/kir/' . $kir);
+        $downloadName = 'kir-' . $cleanJenis . '-' . $kir;
+
+        return response()->download($path, $downloadName);
     }
 
-    public function qr($qr)
+    public function qr($qr, $jenis)
     {
-        return Response::download('storage/vehicles/qr/' . $qr);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/qr/' . $qr);
+        $downloadName = 'qr-' . $cleanJenis . '-' . $qr;
+
+        return response()->download($path, $downloadName);
     }
 
-    public function polis($polis)
+    public function polis($polis, $jenis)
     {
-        $this->authorize('view', Vehicle::class);
-        return Response::download('storage/vehicles/polis/' . $polis);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/polis/' . $polis);
+        $downloadName = 'polis-' . $cleanJenis . '-' . $polis;
+
+        return response()->download($path, $downloadName);
     }
-    public function service($service)
+
+    public function service($service, $jenis)
     {
-        return Response::download('storage/vehicles/service/' . $service);
+        $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
+        $path = storage_path('app/public/vehicles/service/' . $service);
+        $downloadName = 'service-' . $cleanJenis . '-' . $service;
+
+        return response()->download($path, $downloadName);
     }
 
     public function index_pdf()

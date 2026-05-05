@@ -294,41 +294,70 @@ class EmployeeController extends Controller
         }
     }
 
-    public function pp($pp)
+    public function pp($pp, $name)
     {
-        return Response::download('storage/foto_profil/' . $pp);
-    }
-    public function ktp($ktp)
-    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
 
-        return Response::download('storage/KTP/' . $ktp);
-    }
-    public function npwp($npwp)
-    {
+        $path = storage_path('app/public/foto_profil/' . $pp);
 
-        return Response::download('storage/NPWP/' . $npwp);
-    }
-    public function kk($kk)
-    {
+        $downloadName = 'foto-' . $cleanName . '-' . $pp;
 
-        return Response::download('storage/Kartu Keluarga/' . $kk);
-    }
-    public function bpjs_ket($bpjs_ket)
-    {
-
-        return Response::download('storage/BPJS Ketenagakerjaan/' . $bpjs_ket);
-    }
-    public function bpjs_kes($bpjs_kes)
-    {
-
-        return Response::download('storage/BPJS Kesehatan/' . $bpjs_kes);
-    }
-    public function ttd($ttd)
-    {
-
-        return Response::download('storage/ttd/' . $ttd);
+        return response()->download($path, $downloadName);
     }
 
+    public function ktp($ktp, $name)
+    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
+        $path = storage_path('app/public/KTP/' . $ktp);
+        $downloadName = 'ktp-' . $cleanName . '-' . $ktp;
+
+        return response()->download($path, $downloadName);
+    }
+
+    public function npwp($npwp, $name)
+    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
+        $path = storage_path('app/public/NPWP/' . $npwp);
+        $downloadName = 'npwp-' . $cleanName . '-' . $npwp;
+
+        return response()->download($path, $downloadName);
+    }
+
+    public function kk($kk, $name)
+    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
+        $path = storage_path('app/public/Kartu Keluarga/' . $kk);
+        $downloadName = 'kk-' . $cleanName . '-' . $kk;
+
+        return response()->download($path, $downloadName);
+    }
+
+    public function bpjs_ket($bpjs_ket, $name)
+    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
+        $path = storage_path('app/public/BPJS Ketenagakerjaan/' . $bpjs_ket);
+        $downloadName = 'bpjs-ketenagakerjaan-' . $cleanName . '-' . $bpjs_ket;
+
+        return response()->download($path, $downloadName);
+    }
+
+    public function bpjs_kes($bpjs_kes, $name)
+    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
+        $path = storage_path('app/public/BPJS Kesehatan/' . $bpjs_kes);
+        $downloadName = 'bpjs-kesehatan-' . $cleanName . '-' . $bpjs_kes;
+
+        return response()->download($path, $downloadName);
+    }
+
+    public function ttd($ttd, $name)
+    {
+        $cleanName = strtolower(str_replace(' ', '-', $name));
+        $path = storage_path('app/public/ttd/' . $ttd);
+        $downloadName = 'ttd-' . $cleanName . '-' . $ttd;
+
+        return response()->download($path, $downloadName);
+    }
     public function index_pdf()
     {
 

@@ -391,7 +391,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('employee.pp', $employee->pp) }}"></x-buttons.download>
+                                                                href="{{ route('employee.pp', ['pp' => $employee->pp, 'name' => $employee->nama]) }}"></x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -404,8 +404,7 @@
                                                         @if ($employee->ktp == null)
                                                             <p class="font-monospace">kosong</p>
                                                         @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.ktp', $employee->ktp) }}"></x-buttons.download>
+                                                            <x-buttons.download href="{{ route('employee.ktp', ['ktp' => $employee->ktp, 'name' => $employee->nama]) }}"></x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -419,7 +418,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('employee.npwp', $employee->npwp2) }}"></x-buttons.download>
+                                                                href="{{ route('employee.npwp', ['npwp' => $employee->npwp2, 'name' => $employee->nama]) }}"></x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -433,7 +432,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('employee.kk', $employee->kk) }}"></x-buttons.download>
+                                                                href="{{ route('employee.kk', ['kk' => $employee->kk, 'name' => $employee->nama]) }}"></x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -447,7 +446,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('employee.bpjs_ket', $employee->bpjs_ket) }}">
+                                                                href="{{ route('employee.bpjs_ket', ['bpjs_ket' => $employee->bpjs_ket, 'name' => $employee->nama]) }}">
                                                             </x-buttons.download>
                                                         @endif
                                                     </div>
@@ -462,7 +461,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('employee.bpjs_kes', $employee->bpjs_kes) }}"></x-buttons.download>
+                                                                href="{{ route('employee.bpjs_kes', ['bpjs_kes' => $employee->bpjs_kes, 'name' => $employee->nama]) }}"></x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -476,7 +475,7 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('employee.ttd', $employee->ttd) }}"></x-buttons.download>
+                                                                href="{{ route('employee.ttd', ['ttd' => $employee->ttd, 'name' => $employee->nama]) }}"></x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>

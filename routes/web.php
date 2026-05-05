@@ -40,13 +40,13 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('employees', EmployeeController::class);
     Route::prefix('employee')->controller(EmployeeController::class)->group(function () {
-        Route::get('foto_profil/{pp}', 'pp')->name('employee.pp');
-        Route::get('KTP/{ktp}', 'ktp')->name('employee.ktp');
-        Route::get('NPWP/{npwp}', 'npwp')->name('employee.npwp');
-        Route::get('KK/{kk}', 'kk')->name('employee.kk');
-        Route::get('BPJS-ket/{bpjs_ket}', 'bpjs_ket')->name('employee.bpjs_ket');
-        Route::get('BPJS-kes/{bpjs_kes}', 'bpjs_kes')->name('employee.bpjs_kes');
-        Route::get('ttd/{ttd}', 'ttd')->name('employee.ttd');
+        Route::get('foto_profil/{pp}/{name}', 'pp')->name('employee.pp');
+        Route::get('KTP/{ktp}/{name}', 'ktp')->name('employee.ktp');
+        Route::get('NPWP/{npwp}/{name}', 'npwp')->name('employee.npwp');
+        Route::get('KK/{kk}/{name}', 'kk')->name('employee.kk');
+        Route::get('BPJS-ket/{bpjs_ket}/{name}', 'bpjs_ket')->name('employee.bpjs_ket');
+        Route::get('BPJS-kes/{bpjs_kes}/{name}', 'bpjs_kes')->name('employee.bpjs_kes');
+        Route::get('ttd/{ttd}/{name}', 'ttd')->name('employee.ttd');
         Route::post('import', [EmployeeController::class, 'import'])->name('employees.import');
         Route::get('export-pdf', [EmployeeController::class, 'index_pdf'])->name('employees.pdf');
         Route::get('export-excel', [EmployeeController::class, 'index_excel'])->name('employees.excel');
@@ -74,16 +74,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     Route::resource('vehicles', VehicleController::class);
-    Route::prefix('vehicle')->controller(VehicleController::class)->group(function () {
-        Route::get('foto/{foto}', 'foto')->name('vehicle.foto');
-        Route::get('stnk/{stnk}', 'stnk')->name('vehicle.stnk');
-        Route::get('pajak/{pajak}', 'pajak')->name('vehicle.pajak');
-        Route::get('kir/{kir}', 'kir')->name('vehicle.kir');
-        Route::get('qr/{qr}', 'qr')->name('vehicle.qr');
-        Route::get('polis/{polis}', 'polis')->name('vehicle.polis');
-        Route::get('export-pdf', 'index_pdf')->name('vehicles.pdf');
-        Route::get('show-pdf/{id}', 'show_pdf')->name('vehicle.pdf');
-    });
+ Route::prefix('vehicle')->controller(VehicleController::class)->group(function () {
+    Route::get('foto/{foto}/{jenis}', 'foto')->name('vehicle.foto');
+    Route::get('stnk/{stnk}/{jenis}', 'stnk')->name('vehicle.stnk');
+    Route::get('pajak/{pajak}/{jenis}', 'pajak')->name('vehicle.pajak');
+    Route::get('kir/{kir}/{jenis}', 'kir')->name('vehicle.kir');
+    Route::get('qr/{qr}/{jenis}', 'qr')->name('vehicle.qr');
+    Route::get('polis/{polis}/{jenis}', 'polis')->name('vehicle.polis');
+    // Service jika ada pada lampiran (jika menggunakan, silakan tambahkan sendiri dengan format sama)
+    
+    Route::get('export-pdf', 'index_pdf')->name('vehicles.pdf');
+    Route::get('show-pdf/{id}', 'show_pdf')->name('vehicle.pdf');
+});
 
     Route::get('scanlog', [ScanlogController::class, 'index'])->name('scanlog.index');
     Route::prefix('scanlog')->controller(ScanlogController::class)->group(function () {

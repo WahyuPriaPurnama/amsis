@@ -306,7 +306,6 @@
 
                                         <div class="tab-pane fade show" id="lampiran-tab-pane" role="tabpanel"
                                             aria-labelledby="lampiran-tab" tabindex="0">
-
                                             <div class="row g-0">
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">Foto Kendaraan</div>
@@ -318,10 +317,12 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.foto', $vehicle->foto) }}"></x-buttons.download>
+                                                                href="{{ route('vehicle.foto', ['foto' => $vehicle->foto, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                            </x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">STNK</div>
                                                 </div>
@@ -332,10 +333,12 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.stnk', $vehicle->f_stnk) }}"></x-buttons.download>
+                                                                href="{{ route('vehicle.stnk', ['stnk' => $vehicle->f_stnk, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                            </x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">PAJAK</div>
                                                 </div>
@@ -346,10 +349,12 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.pajak', $vehicle->f_pajak) }}"></x-buttons.download>
+                                                                href="{{ route('vehicle.pajak', ['pajak' => $vehicle->f_pajak, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                            </x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">KIR</div>
                                                 </div>
@@ -360,10 +365,12 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.kir', $vehicle->f_kir) }}"></x-buttons.download>
+                                                                href="{{ route('vehicle.kir', ['kir' => $vehicle->f_kir, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                            </x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">QR Code BBM Subsidi</div>
                                                 </div>
@@ -374,10 +381,12 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.qr', $vehicle->qr) }}"></x-buttons.download>
+                                                                href="{{ route('vehicle.qr', ['qr' => $vehicle->qr, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                            </x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                                 <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
                                                     <div class="p-2">Polis Asuransi</div>
                                                 </div>
@@ -388,7 +397,8 @@
                                                             <p class="font-monospace">kosong</p>
                                                         @else
                                                             <x-buttons.download
-                                                                href="{{ route('vehicle.polis', $vehicle->f_polis) }}"></x-buttons.download>
+                                                                href="{{ route('vehicle.polis', ['polis' => $vehicle->f_polis, 'jenis' => $vehicle->jenis_kendaraan]) }}">
+                                                            </x-buttons.download>
                                                         @endif
                                                     </div>
                                                 </div>
