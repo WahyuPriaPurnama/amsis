@@ -173,7 +173,7 @@ class VehicleController extends Controller
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
         $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/foto/' . $foto);
-        $downloadName = 'foto-' . $cleanJenis . '-' . $cleanNopol;
+        $downloadName = 'foto-' . $cleanJenis . '-' . $cleanNopol.'-'.$foto;
 
         return response()->download($path, $downloadName);
     }
@@ -183,7 +183,7 @@ class VehicleController extends Controller
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
         $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/stnk/' . $stnk);
-        $downloadName = 'stnk-' . $cleanJenis . '-' . $cleanNopol;
+        $downloadName = 'stnk-' . $cleanJenis . '-' . $cleanNopol.'-'.$stnk;
 
         return response()->download($path, $downloadName);
     }
@@ -193,7 +193,7 @@ class VehicleController extends Controller
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
         $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/pajak/' . $pajak);
-        $downloadName = 'pajak-' . $cleanJenis . '-' . $cleanNopol;
+        $downloadName = 'pajak-' . $cleanJenis . '-' . $cleanNopol.'-'.$pajak;
 
         return response()->download($path, $downloadName);
     }
@@ -203,7 +203,7 @@ class VehicleController extends Controller
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
         $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/qr/' . $qr);
-        $downloadName = 'qr-' . $cleanJenis . '-' . $cleanNopol;
+        $downloadName = 'qr-' . $cleanJenis . '-' . $cleanNopol.'-'.$qr;
 
         return response()->download($path, $downloadName);
     }
@@ -213,7 +213,7 @@ class VehicleController extends Controller
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
         $cleanNopol = strtolower(str_replace(' ', '-', $nopol));
         $path = storage_path('app/public/vehicles/polis/' . $polis);
-        $downloadName = 'polis-' . $cleanJenis . '-' . $cleanNopol;
+        $downloadName = 'polis-' . $cleanJenis . '-' . $cleanNopol.'-'.$polis;
 
         return response()->download($path, $downloadName);
     }
@@ -223,7 +223,7 @@ class VehicleController extends Controller
         $cleanJenis = strtolower(str_replace(' ', '-', $jenis));
         $cleanNopol = strtolower(str_replace(' ', '-', $nopol));    
         $path = storage_path('app/public/vehicles/service/' . $service);
-        $downloadName = 'service-' . $cleanJenis . '-' . $cleanNopol;
+        $downloadName = 'service-' . $cleanJenis . '-' . $cleanNopol.'-'.$service;
 
         return response()->download($path, $downloadName);
     }
