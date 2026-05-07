@@ -11,6 +11,7 @@
                 @can('subsidiary.edit')
                     <x-buttons.edit href="{{ route('subsidiaries.edit', ['subsidiary' => $subsidiary->id]) }}"></x-buttons.edit>
                 @endcan
+                
                 @can('subsidiary.delete')
                     <form action="{{ route('subsidiaries.destroy', ['subsidiary' => $subsidiary->id]) }}" id="hapus"
                         method="post">

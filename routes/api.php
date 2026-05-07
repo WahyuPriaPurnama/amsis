@@ -26,3 +26,5 @@ Route::apiResource('/posts', PostController::class);
 Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);
 Route::get('/counter', [App\Http\Controllers\Api\CounterController::class, 'index']);
 Route::get('/counter/{range}', [App\Http\Controllers\Api\CounterController::class, 'indexhourly']);
+
+

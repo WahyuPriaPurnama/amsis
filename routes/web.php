@@ -64,7 +64,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/roles/assign-subsidiary', [RolePermissionController::class, 'assignSubsidiary'])
         ->name('roles.assign.subsidiary');
 
-    Route::resource('subsidiaries', SubsidiaryController::class);
+        Route::get('subsidiaries/transfer', [SubsidiaryController::class, 'transferView'])->name('subsidiaries.transfer');
+        Route::post('subsidiaries/transfer', [SubsidiaryController::class, 'transferStore'])->name('subsidiaries.transfer.store');
+        Route::resource('subsidiaries', SubsidiaryController::class);
+
     Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
     Route::post('/users/password', [UserController::class, 'updatePassword'])->name('password.update2');
     Route::get('/users/password', [UserController::class, 'editPassword'])->name('password.edit');

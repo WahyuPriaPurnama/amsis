@@ -11,7 +11,10 @@
 
             {{-- tombol create --}}
             @can('subsidiary.create')
-                <x-buttons.create href="{{ route('subsidiaries.create') }}" />
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <x-buttons.create href="{{ route('subsidiaries.create') }}" />
+                    <a class="btn btn-primary" href="{{ route('subsidiaries.transfer') }}">Transfer Karyawan</a>
+                </div>
             @endcan
 
 

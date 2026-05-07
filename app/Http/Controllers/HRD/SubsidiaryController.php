@@ -4,9 +4,12 @@ namespace App\Http\Controllers\HRD;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SubsidiaryRequest;
+use App\Http\Requests\TransferEmployeeRequest;
+use App\Models\HRD\Employee;
 use App\Models\HRD\Subsidiary;
 use App\Traits\FileUpload;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SubsidiaryController extends Controller
@@ -98,5 +101,29 @@ class SubsidiaryController extends Controller
         $subsidiary->delete();
 
         return redirect()->route('subsidiaries.index')->with('success', "Hapus data {$subsidiary->name} berhasil");
+    }
+
+    public function transferView()
+    {
+        $subsidiaries = Subsidiary::withCount('employees')->get();
+        return view('hrd.subsidiary.transfer', compact('subsidiaries'));
+    }
+
+    public function transferStore(TransferEmployeeRequest $request)
+    {
+        try {
+            DB::transaction(function () use ($request) {
+                Employee::where('subsidiary_id', $request->from_subsidiary_id)
+                    ->update(['subsidiary_id' => $request->to_subsidiary_id]);
+            });
+
+            // Ambil data plant tujuan untuk ditampilkan pada pesan sukses
+            $toPlant = Subsidiary::find($request->to_subsidiary_id);
+
+            return redirect()->route('subsidiaries.index')
+                ->with('success', "Seluruh karyawan berhasil dipindahkan ke {$toPlant->name}");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat memindahkan karyawan: ' . $e->getMessage());
+        }
     }
 }
