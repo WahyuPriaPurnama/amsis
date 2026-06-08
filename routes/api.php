@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::apiResource('/posts', PostController::class);
-
+Route::apiResource('/retort-logs', App\Http\Controllers\Api\RetortLogController::class);
 
 
 Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);

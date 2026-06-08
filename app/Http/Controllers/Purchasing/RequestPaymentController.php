@@ -9,6 +9,7 @@ use App\Models\Purchasing\RequestPaymentItem;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class RequestPaymentController extends Controller
@@ -165,7 +166,25 @@ class RequestPaymentController extends Controller
      */
     public function edit(RequestPayment $requestPayment)
     {
-        //
+        // 1. Cek Permission (Hak Akses)
+        if (!Auth::user()->can('request-payment.edit')) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
+        }
+
+        // 2. Pastikan hanya status 'pending' yang bisa diedit
+        if ($requestPayment->status !== 'pending') {
+            return redirect()->route('request-payment.show', $requestPayment->id)
+                ->with('error', 'Hanya Request Payment berstatus Pending yang dapat diubah.');
+        }
+
+        // 3. Load relasi items agar data barang muncul di form Alpine.js
+        $payment = $requestPayment->load('items');
+
+        // 4. Ambil data subsidiary/plant untuk dropdown
+        $subsidiaries = Subsidiary::all(); // Sesuaikan dengan namespace model Anda
+
+        // 5. Kembalikan ke view form edit
+        return view('purchasing.request_payment.edit', compact('payment', 'subsidiaries'));
     }
 
     /**
@@ -173,9 +192,102 @@ class RequestPaymentController extends Controller
      */
     public function update(Request $request, RequestPayment $requestPayment)
     {
-        //
-    }
+        // 1. Cek Hak Akses
+        if (!Auth::user()->can('request-payment.edit')) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
+        }
 
+        // 2. Pastikan hanya RO berstatus pending yang bisa diedit
+        if ($requestPayment->status !== 'pending') {
+            return redirect()->route('request-payment.show', $requestPayment->id)
+                ->with('error', 'Hanya Request Payment berstatus Pending yang dapat diubah.');
+        }
+
+        // 3. Validasi Input Data
+        $validated = $request->validate([
+            'subsidiary_id'  => 'required|exists:subsidiaries,id',
+            'division'       => 'required|string|max:255',
+            'date'           => 'required|date',
+            'payment_number' => 'required|string|max:100',
+            'purpose'        => 'required|string',
+            'attachment'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'grand_total'    => 'required|numeric|min:0',
+
+            // Validasi array barang
+            'items'              => 'required|array|min:1',
+            'items.*.id'         => 'nullable|exists:request_payment_items,id', // Nullable karena barang baru tidak punya ID
+            'items.*.item_name'  => 'required|string|max:255',
+            'items.*.quantity'   => 'required|numeric|min:0.01',
+            'items.*.unit'       => 'required|string|max:50',
+            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.amount'     => 'required|numeric|min:0',
+            'items.*.due_date'   => 'nullable|date',
+        ]);
+
+        try {
+            return DB::transaction(function () use ($request, $requestPayment, $validated) {
+
+                // 4. Update Lampiran (Jika user mengunggah file baru)
+                $attachmentPath = $requestPayment->attachment;
+                if ($request->hasFile('attachment')) {
+                    // Hapus file lama di storage jika ada
+                    if ($attachmentPath && Storage::disk('public')->exists($attachmentPath)) {
+                        Storage::disk('public')->delete($attachmentPath);
+                    }
+                    $attachmentPath = $request->file('attachment')->store('attachments/payments', 'public');
+                }
+
+                // 5. Update Data Induk Request Payment
+                $requestPayment->update([
+                    'subsidiary_id'  => $validated['subsidiary_id'],
+                    'division'       => $validated['division'],
+                    'date'           => $validated['date'],
+                    'payment_number' => $validated['payment_number'],
+                    'purpose'        => $validated['purpose'],
+                    'grand_total'    => $validated['grand_total'],
+                    'attachment'     => $attachmentPath,
+                ]);
+
+                // 6. Sinkronisasi Data Barang (Items)
+                // Kumpulkan ID item dari form yang tidak kosong
+                $submittedItemIds = collect($validated['items'])
+                    ->pluck('id')
+                    ->filter()
+                    ->toArray();
+
+                // Hapus item di database yang ID-nya TIDAK ADA dalam data yang disubmit
+                // (Artinya item tersebut dihapus oleh user melalui UI)
+                $requestPayment->items()->whereNotIn('id', $submittedItemIds)->delete();
+
+                // Looping data item dari form untuk Update atau Create
+                foreach ($validated['items'] as $itemData) {
+                    // Siapkan array data untuk disimpan
+                    $dataToSave = [
+                        'item_name'  => $itemData['item_name'],
+                        'quantity'   => $itemData['quantity'],
+                        'unit'       => $itemData['unit'],
+                        'unit_price' => $itemData['unit_price'],
+                        'amount'     => $itemData['amount'],
+                        'due_date'   => $itemData['due_date'] ?? null,
+                    ];
+
+                    if (!empty($itemData['id'])) {
+                        // Update item yang sudah ada
+                        $requestPayment->items()->where('id', $itemData['id'])->update($dataToSave);
+                    } else {
+                        // Create item baru
+                        $requestPayment->items()->create($dataToSave);
+                    }
+                }
+
+                // Selesai, arahkan ke halaman detail
+                return redirect()->route('request-payment.show', $requestPayment->id)
+                    ->with('success', 'Request Payment berhasil diperbarui.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
+        }
+    }
     /**
      * Remove the specified resource from storage.
      */

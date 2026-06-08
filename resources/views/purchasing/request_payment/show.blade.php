@@ -8,44 +8,74 @@
             @slot('header')
                 Detail Request Payment
             @endslot
-            <div class="row mt-3">
-                <div class="col-12 col-md-8 mb-2 mb-md-0">
+            <div class="row mt-3 align-items-center mb-4">
+                {{-- Kolom Kiri: Status Badge --}}
+                <div class="col-12 col-md-8 mb-3 mb-md-0">
                     @switch($payment->status)
                         @case('pending')
-                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
-                                Menunggu Persetujuan Manager
+                            <span class="badge bg-warning text-dark fs-6 p-2 w-100 text-center shadow-sm">
+                                <i class="bi bi-hourglass-split me-1"></i> Menunggu Persetujuan Manager
                             </span>
                         @break
 
                         @case('approved_by_manager')
-                            <span class="badge bg-warning text-dark fs-5 w-100 text-center">
-                                Menunggu Persetujuan BOD
+                            <span class="badge bg-warning text-dark fs-6 p-2 w-100 text-center shadow-sm">
+                                <i class="bi bi-hourglass-split me-1"></i> Menunggu Persetujuan BOD
                             </span>
                         @break
 
                         @case('approved_by_bod')
-                            <span class="badge bg-success fs-5 w-100 text-center">Approved</span>
+                            <span class="badge bg-success fs-6 p-2 w-100 text-center shadow-sm">
+                                <i class="bi bi-check-circle me-1"></i> Approved
+                            </span>
                         @break
 
                         @default
-                            <span class="badge bg-secondary fs-5 w-100 text-center">{{ $payment->status }}</span>
+                            <span class="badge bg-secondary fs-6 p-2 w-100 text-center shadow-sm">
+                                {{ strtoupper($payment->status) }}
+                            </span>
                         @break
                     @endswitch
                 </div>
+
+                {{-- Kolom Kanan: Action Buttons --}}
+                <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center gap-2">
+                    {{-- Tombol Edit --}}
+                    @can('request-payment.edit')
+                        @if ($payment->status === 'pending')
+                            <a href="{{ route('request-payment.edit', $payment->id) }}"
+                                class="btn btn-warning btn-sm shadow-sm d-flex align-items-center">
+                                <i class="bi bi-pencil-square me-1"></i> Edit
+                            </a>
+                        @endif
+                    @endcan
+
+                    {{-- Tombol Delete --}}
+                    @can('request-payment.delete')
+                        @if ($payment->status === 'pending')
+                            <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
+                        @endif
+                    @endcan
+                </div>
             </div>
+
             {{-- Data umum --}}
-            <div class="row mb-3">
-                <div class="col-md-3">
-                    <strong>Plant:</strong> {{ $payment->subsidiary->name ?? '-' }}
+            <div class="row mb-4 p-3 bg-light border rounded mx-0 shadow-sm">
+                <div class="col-6 col-md-3 mb-2 mb-md-0">
+                    <span class="d-block small text-muted">Plant</span>
+                    <strong class="fs-6">{{ $payment->subsidiary->name ?? '-' }}</strong>
                 </div>
-                <div class="col-md-3">
-                    <strong>Divisi:</strong> {{ $payment->division }}
+                <div class="col-6 col-md-3 mb-2 mb-md-0">
+                    <span class="d-block small text-muted">Divisi</span>
+                    <strong class="fs-6">{{ $payment->division }}</strong>
                 </div>
-                <div class="col-md-3">
-                    <strong>Tanggal:</strong> {{ $payment->date }}
+                <div class="col-6 col-md-3">
+                    <span class="d-block small text-muted">Tanggal</span>
+                    <strong class="fs-6">{{ \Carbon\Carbon::parse($payment->date)->format('d M Y') }}</strong>
                 </div>
-                <div class="col-md-3">
-                    <strong>Nomor Payment:</strong> {{ $payment->payment_number }}
+                <div class="col-6 col-md-3">
+                    <span class="d-block small text-muted">Nomor Payment</span>
+                    <strong class="fs-6 text-primary">{{ $payment->payment_number }}</strong>
                 </div>
             </div>
 
@@ -109,15 +139,20 @@
 
             <div class="mt-3 d-flex justify-content-between">
                 <a href="{{ route('request-payment.index') }}" class="btn btn-secondary">Kembali</a>
+
                 <div class="d-flex gap-1">
-                    @can('request-payment.delete')
-                        <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
-                    @endcan
+
+
+                    {{-- Tombol Lampiran --}}
                     @if ($payment->attachment)
                         <a href="{{ route('request-payment.attachment', $payment->id) }}" target="_blank"
                             class="btn btn-primary">Lampiran</a>
                     @endif
+
+                    {{-- Tombol PDF --}}
                     <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
+
+                    {{-- Approval Logic --}}
                     @can('request-payment.approve')
                         @if ($payment->status === 'pending')
                             <form action="{{ route('request-payment.approve_manager', ['id' => $payment->id, 'from' => 'show']) }}"

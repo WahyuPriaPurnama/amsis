@@ -181,7 +181,13 @@ class RequestOrderController extends Controller
      */
     public function edit(RequestOrder $requestOrder)
     {
-        //
+        if (!Auth::user()->can('request-order.edit')) {
+            abort(403);
+        }
+
+        $order = RequestOrder::with('items')->findOrFail($requestOrder->id);
+        $subsidiaries = Subsidiary::all();
+        return view('purchasing.request_order.edit', compact('order', 'subsidiaries'));
     }
 
     /**
@@ -189,64 +195,95 @@ class RequestOrderController extends Controller
      */
     public function update(Request $request, RequestOrder $requestOrder)
     {
+        // Cek hak akses
         if (!Auth::user()->can('request-order.edit')) {
             abort(403);
         }
 
+        // Pastikan hanya RO berstatus pending yang bisa diedit
+        if ($requestOrder->status !== 'pending') {
+            return redirect()->back()->with('error', 'Hanya Request Order berstatus Pending yang dapat diubah.');
+        }
+
+        // 1. VALIDASI DATA DARI FORM EDIT
         $validated = $request->validate([
-            'items' => 'required|array',
-            'items.*.id' => 'required|exists:request_order_items,id',
-            'items.*.date_received' => 'required|date', // Wajib diisi saat barang datang
-            'items.*.qty_received'  => 'required|integer|min:1', // Minimal terima 1
-            'items.*.po_date'       => 'nullable|date',
-            'items.*.po_number'     => 'nullable|string|max:100',
-            'items.*.receipt_attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'subsidiary_id' => 'required|exists:subsidiaries,id',
+            'division'      => 'required|string|max:255',
+            'request_date'  => 'required|date',
+            'purpose'       => 'required|string',
+            'attachment'    => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+
+            'items'             => 'required|array|min:1',
+            'items.*.id'        => 'nullable|exists:request_order_items,id', // Nullable karena barang baru tidak punya ID
+            'items.*.item_name' => 'required|string|max:255',
+            'items.*.quantity'  => 'required|numeric|min:0.01',
+            'items.*.unit'      => 'required|string|max:50',
+            'items.*.remark'    => 'nullable|string|max:255',
         ]);
 
         try {
             return DB::transaction(function () use ($request, $requestOrder, $validated) {
 
-                foreach ($validated['items'] as $index => $itemData) {
-                    $item = $requestOrder->items()->findOrFail($itemData['id']);
-
-                    // VALIDASI: Cek agar qty yang diterima tidak melebihi qty permintaan (quantity)
-                    // Jika sistem kamu mengizinkan penerimaan bertahap, logika ini perlu disesuaikan
-                    if ($itemData['qty_received'] > $item->quantity) {
-                        throw new \Exception("Jumlah diterima untuk barang [{$item->item_name}] melebihi jumlah permintaan.");
+                // 2. UPDATE LAMPIRAN HEADER (Jika ada file baru)
+                $attachmentPath = $requestOrder->attachment;
+                if ($request->hasFile('attachment')) {
+                    // Hapus file lama di storage jika ada
+                    if ($requestOrder->attachment && Storage::disk('public')->exists($requestOrder->attachment)) {
+                        Storage::disk('public')->delete($requestOrder->attachment);
                     }
-
-                    $updateData = collect($itemData)->except(['receipt_attachment'])->toArray();
-
-                    // Logic File Upload
-                    if ($request->hasFile("items.$index.receipt_attachment")) {
-                        if ($item->receipt_attachment && Storage::disk('public')->exists($item->receipt_attachment)) {
-                            Storage::disk('public')->delete($item->receipt_attachment);
-                        }
-                        $path = $request->file("items.$index.receipt_attachment")->store('attachments/receipts', 'public');
-                        $updateData['receipt_attachment'] = $path;
-                    }
-
-                    $item->update($updateData);
+                    $attachmentPath = $request->file('attachment')->store('attachments/ro', 'public');
                 }
 
-                // OTOMATISASI STATUS:
-                // Cek apakah semua item sudah diterima penuh
-                $isAllReceived = $requestOrder->items->every(function ($item) {
-                    return $item->qty_received >= $item->quantity;
-                });
+                // 3. UPDATE DATA INDUK REQUEST ORDER
+                $requestOrder->update([
+                    'subsidiary_id' => $validated['subsidiary_id'],
+                    'division'      => $validated['division'],
+                    'request_date'  => $validated['request_date'],
+                    'purpose'       => $validated['purpose'],
+                    'attachment'    => $attachmentPath,
+                ]);
 
-                if ($isAllReceived) {
-                    $requestOrder->update(['status' => 'completed']);
-                } else {
-                    $requestOrder->update(['status' => 'partial']);
+                // 4. SINKRONISASI DAFTAR BARANG
+                // Ambil semua ID barang yang dikirim dari form (yang nilainya tidak null)
+                $submittedItemIds = collect($validated['items'])
+                    ->pluck('id')
+                    ->filter()
+                    ->toArray();
+
+                // Hapus barang di database yang ID-nya TIDAK ADA di form 
+                // (Artinya user menekan tombol 'Trash' / hapus baris di form edit)
+                $requestOrder->items()->whereNotIn('id', $submittedItemIds)->delete();
+
+                // Looping data barang dari form untuk Update atau Create
+                foreach ($validated['items'] as $itemData) {
+                    if (!empty($itemData['id'])) {
+                        // Update barang yang sudah ada
+                        $requestOrder->items()->where('id', $itemData['id'])->update([
+                            'item_name' => $itemData['item_name'],
+                            'quantity'  => $itemData['quantity'],
+                            'unit'      => $itemData['unit'],
+                            'remark'    => $itemData['remark'],
+                        ]);
+                    } else {
+                        // Create barang baru (jika user menekan tombol 'Tambah Baris Barang')
+                        $requestOrder->items()->create([
+                            'item_name' => $itemData['item_name'],
+                            'quantity'  => $itemData['quantity'],
+                            'unit'      => $itemData['unit'],
+                            'remark'    => $itemData['remark'],
+                        ]);
+                    }
                 }
 
-                return redirect()->route('request-order.index')->with('success', 'Realisasi penerimaan barang berhasil disimpan.');
+                // Arahkan kembali ke halaman Detail setelah berhasil save
+                return redirect()->route('request-order.show', $requestOrder->id)
+                    ->with('success', 'Request Order berhasil diperbarui.');
             });
         } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
         }
     }
+
 
     public function receive(RequestOrder $requestOrder)
     {
