@@ -34,6 +34,7 @@
                                 ['nama' => 'Novian Hadi', 'link' => 'https://gofile.me/7hje9/SrAhV0hy2'],
                                 ['nama' => 'Nurul Hadi Syafaat', 'link' => 'https://gofile.me/7hje9/Qr6BWWEkH'],
                                 ['nama' => 'Rachmadiyanto', 'link' => 'https://gofile.me/7hje9/sCqJ5JoIi'],
+                                ['nama'=>'Rizki Maulana','link'=>'https://gofile.me/7hje9/tKZMOR2iF'],//1103
                                 ['nama' => 'Siti Mariyani', 'link' => 'https://gofile.me/7hje9/0jlLYf9IA'],
                                 ['nama' => 'Suparno', 'link' => 'https://gofile.me/7hje9/DG51ZNZA2'],
                                 ['nama' => 'Syajidi', 'link' => 'https://gofile.me/7hje9/wVTiLQSHF'],
