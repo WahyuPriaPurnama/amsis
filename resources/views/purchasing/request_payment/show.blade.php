@@ -42,19 +42,16 @@
                 <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center gap-2">
                     {{-- Tombol Edit --}}
                     @can('request-payment.edit')
-                        @if ($payment->status === 'pending')
                             <a href="{{ route('request-payment.edit', $payment->id) }}"
                                 class="btn btn-warning btn-sm shadow-sm d-flex align-items-center">
                                 <i class="bi bi-pencil-square me-1"></i> Edit
                             </a>
-                        @endif
                     @endcan
 
                     {{-- Tombol Delete --}}
                     @can('request-payment.delete')
-                        @if ($payment->status === 'pending')
                             <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
-                        @endif
+                       
                     @endcan
                 </div>
             </div>
