@@ -192,11 +192,6 @@ class RequestPaymentController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
         }
 
-        // 2. Pastikan hanya RO berstatus pending yang bisa diedit
-        if ($requestPayment->status !== 'pending') {
-            return redirect()->route('request-payment.show', $requestPayment->id)
-                ->with('error', 'Hanya Request Payment berstatus Pending yang dapat diubah.');
-        }
 
         // 3. Validasi Input Data
         $validated = $request->validate([
