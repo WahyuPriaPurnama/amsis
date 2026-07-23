@@ -199,7 +199,7 @@ class RequestPaymentController extends Controller
             'division'       => 'required|string|max:255',
             'date'           => 'required|date',
             'payment_number' => 'required|string|max:100',
-            'purpose'        => 'required|string',
+            'purpose'        => 'nullable|string',
             'attachment'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'grand_total'    => 'required|numeric|min:0',
 
