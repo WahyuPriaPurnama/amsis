@@ -31,10 +31,10 @@ class AssetRequest extends FormRequest
             'useful_life'        => 'nullable|integer|min:0',
             'subsidiary_id'      => 'required|exists:subsidiaries,id',
             // file upload
-            'delivery_receipt'   => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'manual_book'        => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'photo'              => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'attachment'         => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'delivery_receipt'   => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'manual_book'        => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+            'photo'              => 'nullable|image|mimes:jpg,jpeg,png',
+            'attachment'         => 'nullable|file|mimes:pdf,jpg,jpeg,png',
         ];
 
         if ($this->isMethod('post')) {
