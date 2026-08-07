@@ -27,6 +27,16 @@ class RequestOrder extends Model
         'approved_by_manager_at',
         'approved_by_bod_at',
         'attachment',
+        'revision_count',
+        'last_revised_at',
+    ];
+
+    protected $casts = [
+        'request_date' => 'date',
+        'approved_by_divhead_at' => 'datetime',
+        'approved_by_manager_at' => 'datetime',
+        'approved_by_bod_at' => 'datetime',
+        'last_revised_at' => 'datetime',
     ];
 
     /**

@@ -236,6 +236,8 @@ class RequestOrderController extends Controller
                     'request_date'  => $validated['request_date'],
                     'purpose'       => $validated['purpose'],
                     'attachment'    => $attachmentPath,
+                    'revision_count'  => $requestOrder->revision_count + 1, // Tambah hitungan revisi
+                    'last_revised_at' => now(),
                 ]);
 
                 // 4. SINKRONISASI DAFTAR BARANG
