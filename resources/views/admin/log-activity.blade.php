@@ -41,7 +41,6 @@
                             <th>Role</th>
                             <th>Waktu</th>
                             <th>Method</th>
-                            <th width="500px">Agent</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,7 +52,6 @@
                                 <td>{{ $log->role }}</td>
                                 <td>{{ $log->created_at }}</td>
                                 <td><label class="label label-info">{{ $log->method }}</label></td>
-                                <td class="text-danger">{{ $log->agent }}</td>
                             </tr>
                         @endforeach
                     </tbody>

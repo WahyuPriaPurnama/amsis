@@ -51,9 +51,8 @@
                 <div class="col-md-4 mt-2 mt-md-0 d-flex justify-content-md-end gap-1">
                     {{-- Tombol Edit --}}
                     @can('request-order.edit')
-                        @if ($order->status === 'pending')
                             <x-buttons.edit href="{{ route('request-order.edit', $order->id) }}"></x-buttons.edit>
-                        @endif
+    
                     @endcan
 
                     {{-- Tombol Delete (Bawaan) --}}

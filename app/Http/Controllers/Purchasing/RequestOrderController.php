@@ -200,11 +200,6 @@ class RequestOrderController extends Controller
             abort(403);
         }
 
-        // Pastikan hanya RO berstatus pending yang bisa diedit
-        if ($requestOrder->status !== 'pending') {
-            return redirect()->back()->with('error', 'Hanya Request Order berstatus Pending yang dapat diubah.');
-        }
-
         // 1. VALIDASI DATA DARI FORM EDIT
         $validated = $request->validate([
             'subsidiary_id' => 'required|exists:subsidiaries,id',
