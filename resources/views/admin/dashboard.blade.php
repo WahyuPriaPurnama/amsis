@@ -31,7 +31,7 @@
                 @endcomponent
             </div>
 
-            {{-- Bagian Produksi (Unified System) --}}
+            <!-- {{-- Bagian Produksi (Unified System) --}}
             {{-- Grafik Sejarah Produksi --}}
             <div class="col-md-8">
                 @component('components.dashboard.counter')
@@ -42,7 +42,7 @@
             <div class="col-md-4">
                 @component('components.dashboard.speed')
                 @endcomponent
-            </div>
+            </div> -->
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
