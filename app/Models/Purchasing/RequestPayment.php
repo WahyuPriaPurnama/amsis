@@ -22,6 +22,8 @@ class RequestPayment extends Model
         'subsidiary_id',
         'approved_by_manager_at',
         'approved_by_bod_at',
+        'revision_count',
+        'last_revised_at',
     ];
 
     public function items()

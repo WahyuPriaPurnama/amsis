@@ -229,13 +229,15 @@ class RequestPaymentController extends Controller
 
                 // 5. Update Data Induk Request Payment
                 $requestPayment->update([
-                    'subsidiary_id'  => $validated['subsidiary_id'],
+                    'subsidiary_id'   => $validated['subsidiary_id'],
                     'division'       => $validated['division'],
                     'date'           => $validated['date'],
                     'payment_number' => $validated['payment_number'],
                     'purpose'        => $validated['purpose'],
                     'grand_total'    => $validated['grand_total'],
                     'attachment'     => $attachmentPath,
+                    'revision_count' => $requestPayment->revision_count + 1,
+                    'last_revised_at'     => now(),
                 ]);
 
                 // 6. Sinkronisasi Data Barang (Items)

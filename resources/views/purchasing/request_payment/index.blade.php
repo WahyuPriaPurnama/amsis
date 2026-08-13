@@ -44,7 +44,6 @@
                         <tr>
                             <th>#</th>
                             <th>Plant</th>
-                            <th>Divisi</th>
                             <th>Tanggal</th>
                             <th>No. RFP</th>
                             <th>Deskripsi</th>
@@ -57,7 +56,6 @@
                             <tr>
                                 <th>{{ $payments->firstItem() + $loop->iteration - 1 }}</th>
                                 <td>{{ $payment->subsidiary->name ?? '-' }}</td>
-                                <td>{{ $payment->division }}</td>
                                 <td>{{ \Carbon\Carbon::parse($payment->date)->format('d-m-Y') }}</td>
                                 <td>
                                     @can('request-payment.view')
@@ -81,15 +79,15 @@
                                 <td>
                                     @switch($payment->status)
                                         @case('pending')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan Manager</span>
+                                            <span class="badge bg-warning text-dark">Menunggu Acc Direktur</span>
                                         @break
 
                                         @case('approved_by_manager')
-                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>
+                                            <span class="badge bg-warning text-dark">Menunggu Acc Direktur OP</span>
                                         @break
 
                                         @case('approved_by_bod')
-                                            <span class="badge bg-success">Approved</span>
+                                            <span class="badge bg-success">Disetujui</span>
                                         @break
 
                                         @default

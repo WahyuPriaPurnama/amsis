@@ -94,7 +94,7 @@
                 style="width:25%; border:1px solid #000; background-color:lightgray; text-align:center; vertical-align:middle;">
                 <strong><i>Approved By</i></strong>
             </td>
-            <td colspan="3"
+            <td colspan="2"
                 style="width:50%; border:1px solid #000; background-color:lightgray; text-align:center; vertical-align:middle;">
                 <strong><i>Approved By Head Office</i></strong>
             </td>
@@ -121,9 +121,6 @@
                 @endif
             </td>
             <td style="border:1px solid #000; border-bottom:none; text-align:center; vertical-align:middle;">
-               
-            </td>
-            <td style="border:1px solid #000; border-bottom:none; text-align:center; vertical-align:middle;">
                 
             </td>
         </tr>
@@ -137,22 +134,17 @@
             <td
                 style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
                 {{ $payment->plantManager->name ?? '-' }} <br>
-                <small>{{ $payment->approved_by_manager_at}}<br>Manager</small>
+                <small>{{ $payment->approved_by_manager_at}}<br>Direktur</small>
             </td>
             <td
                 style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
                 {{ $payment->bod->name ?? '-' }} <br>
-                <small>{{ $payment->approved_by_bod_at  }}<br>Operational Director</small>
-            </td>
-            <td
-                style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
-                Sestri Mahanani <br>
-                <small>Finance Director</small>
+                <small>{{ $payment->approved_by_bod_at  }}<br>Direktur Operasional</small>
             </td>
             <td
                 style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
                 Ahmad Musyafak <br>
-                <small>Director</small>
+                <small>CEO</small>
             </td>
         </tr>
     </table>
