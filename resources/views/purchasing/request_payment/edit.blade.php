@@ -84,7 +84,7 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label" for="payment_number">Nomor</label>
-                        <input type="text" id="payment_number" name="payment_number" x-ref="payment_number"
+                        <input type="text" readonly id="payment_number" name="payment_number" x-ref="payment_number"
                             value="{{ old('payment_number', $payment->payment_number) }}"
                             class="form-control @error('payment_number') is-invalid @enderror">
                         <small class="text-danger" x-text="errors.payment_number"></small>

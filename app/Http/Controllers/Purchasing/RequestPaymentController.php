@@ -68,14 +68,11 @@ class RequestPaymentController extends Controller
         }
 
         if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
-
             $subsidiaries = Subsidiary::orderBy('name')->get();
         } else {
-
             $subsidiaries = $user->roles
                 ->flatMap(fn($role) => $role->subsidiaries)
                 ->unique('id');
-
 
             if ($subsidiaries->isEmpty() && $user->subsidiary_id) {
                 $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
@@ -86,18 +83,19 @@ class RequestPaymentController extends Controller
             }
         }
 
-        return view('purchasing.request_payment.create', compact('subsidiaries'));
-    }
+        // Default nomor payment dari subsidiary pertama
+        $defaultSubsidiaryId = $subsidiaries->first()->id ?? null;
+        $autoPaymentNumber = $this->generatePaymentNumber($defaultSubsidiaryId);
 
+        return view('purchasing.request_payment.create', compact('subsidiaries', 'autoPaymentNumber'));
+    }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-
-        // Validasi input
         $validated = $request->validate([
-            'payment_number'    => 'required|string|max:50',
+            'payment_number'    => 'nullable|string|max:50',
             'date'              => 'required|date',
             'division'          => 'required|string|max:100',
             'purpose'           => 'nullable|string|max:255',
@@ -108,48 +106,49 @@ class RequestPaymentController extends Controller
             'items.*.quantity'  => 'required|integer|min:1',
             'items.*.unit'      => 'required|string|max:50',
             'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.due_date'    => 'nullable|date',
+            'items.*.due_date'  => 'nullable|date',
         ]);
 
-        $grandTotal = collect($validated['items'])->reduce(function ($carry, $item) {
-            return $carry + ($item['quantity'] * $item['unit_price']);
-        }, 0);
+        return DB::transaction(function () use ($request, $validated) {
+            $grandTotal = collect($validated['items'])->reduce(function ($carry, $item) {
+                return $carry + ($item['quantity'] * $item['unit_price']);
+            }, 0);
 
-        // Simpan header Request Payment
-        $payment = new RequestPayment();
-        $payment->payment_number = $validated['payment_number'];
-        $payment->date           = $validated['date'];
-        $payment->division       = $validated['division'];
-        $payment->purpose        = $validated['purpose'];
-        $payment->subsidiary_id  = $validated['subsidiary_id'];
-        $payment->requested_by   = Auth::id();
-        $payment->grand_total    = $grandTotal;
+            // Selalu generate ulang di server berdasarkan subsidiary_id pilihan user untuk menghindari duplikasi bersamaan
+            $paymentNumber = $this->generatePaymentNumber($validated['subsidiary_id']);
 
-        // Upload lampiran jika ada
-        if ($request->hasFile('attachment')) {
-            $payment->attachment = $request->file('attachment')
-                ->store('attachments/request-payments', 'public');
-        }
+            $payment = new RequestPayment();
+            $payment->payment_number = $paymentNumber;
+            $payment->date           = $validated['date'];
+            $payment->division       = $validated['division'];
+            $payment->purpose        = $validated['purpose'];
+            $payment->subsidiary_id  = $validated['subsidiary_id'];
+            $payment->requested_by   = Auth::id();
+            $payment->grand_total    = $grandTotal;
 
-        $payment->save();
+            if ($request->hasFile('attachment')) {
+                $payment->attachment = $request->file('attachment')
+                    ->store('attachments/request-payments', 'public');
+            }
 
-        // Simpan detail item
-        foreach ($validated['items'] as $item) {
-            RequestPaymentItem::create([
-                'request_payment_id' => $payment->id,
-                'item_name'          => $item['item_name'],
-                'quantity'           => $item['quantity'],
-                'unit'               => $item['unit'],
-                'unit_price'         => $item['unit_price'],
-                'amount'             => $item['quantity'] * $item['unit_price'],
-                'due_date'             => $item['due_date'] ?? null,
-            ]);
-        }
+            $payment->save();
 
-        return redirect()->route('request-payment.index')
-            ->with('success', 'Request Payment berhasil dibuat.');
+            foreach ($validated['items'] as $item) {
+                RequestPaymentItem::create([
+                    'request_payment_id' => $payment->id,
+                    'item_name'          => $item['item_name'],
+                    'quantity'           => $item['quantity'],
+                    'unit'               => $item['unit'],
+                    'unit_price'         => $item['unit_price'],
+                    'amount'             => $item['quantity'] * $item['unit_price'],
+                    'due_date'           => $item['due_date'] ?? null,
+                ]);
+            }
+
+            return redirect()->route('request-payment.index')
+                ->with('success', 'Request Payment berhasil dibuat dengan nomor ' . $paymentNumber);
+        });
     }
-
 
     /**
      * Display the specified resource.
@@ -356,5 +355,46 @@ class RequestPaymentController extends Controller
         }
 
         return response()->file(Storage::disk('public')->path($path));
+    }
+
+    /**
+     * Generate nomor payment otomatis secara berurutan tanpa gap/loncatan.
+     */
+    /**
+     * Generate nomor payment otomatis per subsidiary/plant tanpa gap/loncatan.
+     */
+    /**
+     * Generate nomor payment otomatis (Tanpa Kode Subsidiary, Reset Setiap Tahun).
+     */
+    private function generatePaymentNumber($subsidiaryId, $date = null)
+    {
+        if (!$subsidiaryId) {
+            return '';
+        }
+
+        $targetDate = $date ? strtotime($date) : time();
+        $year = date('Y', $targetDate);
+        $yearMonth = date('Ym', $targetDate);
+
+        // Hitung transaksi aktif di subsidiary ini khusus untuk TAHUN berjalan
+        $nextSequence = RequestPayment::where('subsidiary_id', $subsidiaryId)
+            ->whereYear('date', $year)
+            ->count() + 1;
+
+        // Format: YYYYMM/0001
+        return sprintf('%s/%04d', $yearMonth, $nextSequence);
+    }
+    
+    public function getNextPaymentNumber(Request $request)
+    {
+        $subsidiaryId = $request->input('subsidiary_id');
+
+        if (!$subsidiaryId) {
+            return response()->json(['payment_number' => '']);
+        }
+
+        $paymentNumber = $this->generatePaymentNumber($subsidiaryId);
+
+        return response()->json(['payment_number' => $paymentNumber]);
     }
 }

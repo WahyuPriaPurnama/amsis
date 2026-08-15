@@ -125,16 +125,28 @@ Route::middleware('auth')->group(function () {
 
     // Request Payment
     Route::prefix('request-payment')->name('request-payment.')->group(function () {
+
+        // 1. Taruh route spesifik SEBELUM resource route (mencegah bentrok dengan {request_payment} ID)
+        Route::get('get-next-number', [RequestPaymentController::class, 'getNextPaymentNumber'])
+            ->name('get-next-number'); // Menjadi 'request-payment.get-next-number'
+
+        // 2. Resource route
         Route::resource('/', RequestPaymentController::class)->parameters([
             '' => 'request_payment'
         ]);
+
+        // 3. Custom routes lainnya
         Route::post('approve/{id}', [RequestPaymentController::class, 'approveManager'])
             ->name('approve_manager');
+
         Route::post('approve-bod/{id}', [RequestPaymentController::class, 'approveBod'])
             ->name('approve_bod');
+
         Route::get('{id}/pdf', [RequestPaymentController::class, 'pdf'])
             ->name('pdf');
-        Route::get('attachment/{id}', [RequestPaymentController::class, 'attachment'])->name('attachment');
+
+        Route::get('attachment/{id}', [RequestPaymentController::class, 'attachment'])
+            ->name('attachment');
     });
 
     // Asset
