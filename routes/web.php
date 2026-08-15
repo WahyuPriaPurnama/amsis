@@ -108,6 +108,8 @@ Route::middleware('auth')->group(function () {
 
     // Request Order
     Route::prefix('request-order')->name('request-order.')->group(function () {
+        Route::get('get-next-number', [RequestOrderController::class, 'getNextRequestNumber'])
+            ->name('get-next-number');
         Route::resource('/', RequestOrderController::class)->parameters([
             '' => 'request_order'
         ]);

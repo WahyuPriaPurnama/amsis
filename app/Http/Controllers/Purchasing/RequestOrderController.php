@@ -61,20 +61,54 @@ class RequestOrderController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+
+    private function generateRequestNumber($subsidiaryId, $date = null)
+    {
+        if (!$subsidiaryId) {
+            return '';
+        }
+
+        $targetDate = $date ? strtotime($date) : time();
+        $year = date('Y', $targetDate);
+        $yearMonth = date('Ym', $targetDate);
+
+        // Hitung transaksi aktif khusus subsidiary ini di TAHUN berjalan
+        $nextSequence = RequestOrder::where('subsidiary_id', $subsidiaryId)
+            ->whereYear('request_date', $year)
+            ->count() + 1;
+
+        // Format: YYYYMM/0001
+        return sprintf('%s/%04d', $yearMonth, $nextSequence);
+    }
+
+    /**
+     * Endpoint AJAX untuk form Alpine.js
+     */
+    public function getNextRequestNumber(Request $request)
+    {
+        $subsidiaryId = $request->input('subsidiary_id');
+        $date = $request->input('request_date');
+
+        if (!$subsidiaryId) {
+            return response()->json(['request_number' => '']);
+        }
+
+        $requestNumber = $this->generateRequestNumber($subsidiaryId, $date);
+
+        return response()->json(['request_number' => $requestNumber]);
+    }
+
     public function create()
     {
         $user = Auth::user();
 
-        // Full access role → semua subsidiaries
         if ($user->hasAnyRole(['super-admin', 'holding-admin'])) {
             $subsidiaries = Subsidiary::all();
         } else {
-            // Ambil semua subsidiaries dari role yang dimiliki user
             $subsidiaries = $user->roles
                 ->flatMap(fn($role) => $role->subsidiaries)
                 ->unique('id');
 
-            // Kalau employee/div-head → fallback ke subsidiary_id miliknya
             if ($subsidiaries->isEmpty() && $user->subsidiary_id) {
                 $subsidiaries = Subsidiary::where('id', $user->subsidiary_id)->get();
             }
@@ -84,7 +118,11 @@ class RequestOrderController extends Controller
             }
         }
 
-        return view('purchasing.request_order.create', compact('subsidiaries'));
+        // Nomor otomatis default dari subsidiary pertama & tanggal hari ini
+        $defaultSubsidiaryId = $subsidiaries->first()->id ?? null;
+        $autoRequestNumber = $this->generateRequestNumber($defaultSubsidiaryId, date('Y-m-d'));
+
+        return view('purchasing.request_order.create', compact('subsidiaries', 'autoRequestNumber'));
     }
 
 
@@ -94,13 +132,7 @@ class RequestOrderController extends Controller
             'subsidiary_id'      => 'required|exists:subsidiaries,id',
             'division'           => 'required|string|max:100',
             'request_date'       => 'required|date',
-            'request_number'     => [
-                'required',
-                'string',
-                Rule::unique('request_orders')->where(
-                    fn($q) => $q->where('subsidiary_id', $request->subsidiary_id)
-                ),
-            ],
+            'request_number'     => 'nullable|string|max:50',
             'purpose'            => 'nullable|string|max:500',
             'attachment'         => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
             'items'              => 'required|array|min:1',
@@ -113,51 +145,42 @@ class RequestOrderController extends Controller
             'items.*.receipt_attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'items.*.po_date'       => 'nullable|date',
             'items.*.po_number'     => 'nullable|string|max:100',
-        ], [
-            'request_number.unique' => 'Nomor RO sudah digunakan di plant ini.',
         ]);
 
         try {
             return DB::transaction(function () use ($request, $validated) {
+                // Generate nomor terbaru secara transaksional di server
+                $requestNumber = $this->generateRequestNumber($validated['subsidiary_id'], $validated['request_date']);
 
-                // 1. Handle File Attachment Utama (Header)
                 $attachmentPath = null;
                 if ($request->hasFile('attachment')) {
                     $attachmentPath = $request->file('attachment')->store('attachments/ro', 'public');
                 }
 
-                // 2. Simpan Data Header (Request Order)
                 $ro = RequestOrder::create([
                     'subsidiary_id'  => $validated['subsidiary_id'],
                     'division'       => $validated['division'],
                     'request_date'   => $validated['request_date'],
-                    'request_number' => $validated['request_number'],
+                    'request_number' => $requestNumber,
                     'purpose'        => $validated['purpose'] ?? null,
                     'attachment'     => $attachmentPath,
                     'status'         => 'pending',
                     'requested_by'   => Auth::id(),
                 ]);
 
-                // 3. Handle Items & File Attachment per Item
                 foreach ($validated['items'] as $index => $itemData) {
                     $itemFilePath = null;
-
-                    // Cek apakah ada file yang diupload pada index item ini
                     if ($request->hasFile("items.$index.receipt_attachment")) {
                         $itemFilePath = $request->file("items.$index.receipt_attachment")
                             ->store('attachments/ro_items', 'public');
                     }
-
-                    // Masukkan path file ke dalam array data sebelum disimpan
                     $itemData['receipt_attachment'] = $itemFilePath;
-
-                    // Simpan item satu per satu
                     $ro->items()->create($itemData);
                 }
 
                 return redirect()
                     ->route('request-order.index')
-                    ->with('success', 'Request Order berhasil dibuat.');
+                    ->with('success', 'Request Order berhasil dibuat dengan nomor ' . $requestNumber);
             });
         } catch (\Exception $e) {
             return redirect()->back()->withInput()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
