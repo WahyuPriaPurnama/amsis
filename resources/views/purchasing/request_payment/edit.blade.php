@@ -19,13 +19,11 @@
                 </div>
             @endslot
 
-            {{-- Form diarahkan ke rute update dan menyertakan ID payment --}}
             <form action="{{ route('request-payment.update', $payment->id) }}" method="POST" enctype="multipart/form-data"
                 @submit.prevent="
                 errors = {};
                 if (!$refs.division.value) errors.division = 'Divisi wajib diisi';
                 if (!$refs.date.value) errors.date = 'Tanggal wajib diisi';
-                if (!$refs.payment_number.value) errors.payment_number = 'Nomor wajib diisi';
 
                 items.forEach((item, i) => {
                     if (!item.item_name) errors[`item_name_${i}`] = 'Nama barang wajib diisi';
@@ -39,7 +37,9 @@
                 @csrf
                 @method('PUT')
 
-                {{-- Alert Validasi Error Bawaan Laravel --}}
+                {{-- Hidden input jika payment_number dibutuhkan di backend tetapi tidak diedit --}}
+                <input type="hidden" name="payment_number" value="{{ $payment->payment_number }}">
+
                 @if ($errors->any())
                     <div class="alert alert-danger mb-4 shadow-sm">
                         <ul class="mb-0">
@@ -50,7 +50,6 @@
                     </div>
                 @endif
 
-                {{-- Data umum --}}
                 <div class="row mb-3 mt-2">
                     <div class="col-md-3">
                         <label for="subsidiary_id" class="form-label">Plant</label>
@@ -84,7 +83,6 @@
                     </div>
                 </div>
 
-                {{-- Barang dinamis --}}
                 <h5 class="fw-semibold mb-3 mt-4 border-bottom pb-2">Detail Pembayaran</h5>
 
                 <div class="row fw-semibold mb-2">
@@ -99,7 +97,6 @@
 
                 <template x-for="(item, index) in items" :key="index">
                     <div class="row mb-2">
-                        {{-- Hidden ID untuk memberitahu controller ini item lama atau baru --}}
                         <input type="hidden" :name="`items[${index}][id]`" :value="item.id || ''">
 
                         <div class="col-md-4">
@@ -144,7 +141,6 @@
                     + Tambah Baris
                 </button>
 
-                {{-- Purpose & Attachment --}}
                 <div class="row mb-3">
                     <div class="col-md-8">
                         <label for="purpose" class="form-label">Note / Keperluan:</label>
@@ -160,7 +156,6 @@
                         <input type="file" name="attachment"
                             class="form-control @error('attachment') is-invalid @enderror">
 
-                        {{-- Indikator File Lama --}}
                         @if ($payment->attachment)
                             <small class="form-text mt-1 d-block">
                                 File saat ini: <a href="{{ asset('storage/' . $payment->attachment) }}" target="_blank">Lihat
@@ -176,7 +171,6 @@
                     </div>
                 </div>
 
-                {{-- Grand Total --}}
                 <div class="row mb-4">
                     <div class="col-12 text-end border-top pt-3">
                         <h5 class="fw-bold">Grand Total: <span class="text-primary" x-text="grandTotal.toFixed(2)"></span>
@@ -185,7 +179,6 @@
                     </div>
                 </div>
 
-                {{-- Action Buttons --}}
                 <div class="text-end d-flex justify-content-between">
                     <a href="{{ route('request-payment.index') }}" class="btn btn-secondary px-4">Kembali</a>
                     <button type="submit" class="btn btn-success px-4 shadow-sm">Simpan Perubahan</button>
