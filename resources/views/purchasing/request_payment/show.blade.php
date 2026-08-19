@@ -50,10 +50,12 @@
 
             {{-- Tombol Delete --}}
             @can('request-payment.delete')
+            @if ($payment->status === 'pending')
             <x-buttons.delete2 href="{{ route('request-payment.destroy', $payment->id) }}"></x-buttons.delete2>
-
+            @endif
             @endcan
         </div>
+
         {{-- Badges / Info Revisi --}}
         @if ($payment->revision_count > 0)
         <div class="alert alert-info py-2 px-3 mt-3 d-flex align-items-center mb-0" role="alert">
@@ -112,7 +114,7 @@
                     <td>{{ $item->unit }}</td>
                     <td>{{ number_format($item->unit_price, 2) }}</td>
                     <td>{{ number_format($item->amount, 2) }}</td>
-                    <td>{{ $item->due_date ?? '-' }}</td>
+                    <td>{{ $item->due_date ? \Carbon\Carbon::parse($item->due_date)->format('d/m/Y') : '-' }}</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -125,13 +127,11 @@
             </tfoot>
         </table>
     </div>
+
     <div class="row mb-3">
         <div class="col-md-12">
-            <strong>Note:</strong> {{ $payment->purpose }}
+            <strong>Note:</strong> {{ $payment->purpose ?? '-' }}
         </div>
-
-
-
     </div>
 
     <div class="row mt-3">
@@ -146,11 +146,31 @@
         </div>
     </div>
 
-    <div class="mt-3 d-flex justify-content-between">
-        <a href="{{ route('request-payment.index') }}" class="btn btn-secondary">Kembali</a>
+    <div class="mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ route('request-payment.index') }}" class="btn btn-secondary px-4">Kembali</a>
 
-        <div class="d-flex gap-1">
+        <div class="d-flex gap-2 align-items-center">
+            {{-- Tombol Unapprove --}}
+            @php
+            $canUnapprove = false;
+            $user = auth()->user();
 
+            if ($payment->status === 'approved_by_manager' && ($user->can('request-payment.approve-manager') || $user->can('request-payment.unapprove') || $user->hasRole('super-admin'))) {
+            $canUnapprove = true;
+            } elseif ($payment->status === 'approved_by_bod' && ($user->can('request-payment.approve-bod') || $user->can('request-payment.unapprove') || $user->hasRole('super-admin'))) {
+            $canUnapprove = true;
+            }
+            @endphp
+
+            @if ($canUnapprove)
+            <form action="{{ route('request-payment.unapprove', $payment->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan persetujuan ini?')">
+                @csrf
+                <input type="hidden" name="from" value="show">
+                <button type="submit" class="btn btn-warning" title="Batal Approve">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Unapprove
+                </button>
+            </form>
+            @endif
 
             {{-- Tombol Lampiran --}}
             @if ($payment->attachment)
@@ -162,26 +182,27 @@
             <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
 
             {{-- Approval Logic --}}
-            @can('request-payment.approve')
-            @if ($payment->status === 'pending')
-            <form action="{{ route('request-payment.approve_manager', ['id' => $payment->id, 'from' => 'show']) }}"
-                method="POST">
+            @php
+            $approveRoute = null;
+            $btnLabel = '';
+
+            if ($payment->status === 'pending' && ($user->can('request-payment.approve-manager') || $user->hasRole('super-admin'))) {
+            $approveRoute = route('request-payment.approve_manager', ['id' => $payment->id, 'from' => 'show']);
+            $btnLabel = 'Acc Direktur';
+            } elseif ($payment->status === 'approved_by_manager' && ($user->can('request-payment.approve-bod') || $user->hasRole('super-admin'))) {
+            $approveRoute = route('request-payment.approve_bod', ['id' => $payment->id, 'from' => 'show']);
+            $btnLabel = 'Acc Direktur Op';
+            }
+            @endphp
+
+            @if ($approveRoute)
+            <form action="{{ $approveRoute }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyetujui Request Payment ini?')">
                 @csrf
                 <button type="submit" class="btn btn-success">
-                    Acc Direktur
+                    <i class="bi bi-check2-circle me-1"></i> {{ $btnLabel }}
                 </button>
             </form>
             @endif
-            @if ($payment->status === 'approved_by_manager')
-            <form action="{{ route('request-payment.approve_bod', ['id' => $payment->id, 'from' => 'show']) }}"
-                method="POST">
-                @csrf
-                <button type="submit" class="btn btn-success">
-                    Acc Direktur Op
-                </button>
-            </form>
-            @endif
-            @endcan
         </div>
     </div>
     @endcomponent

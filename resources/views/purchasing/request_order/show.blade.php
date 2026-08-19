@@ -52,10 +52,9 @@
             {{-- Tombol Edit --}}
             @can('request-order.edit')
             <x-buttons.edit href="{{ route('request-order.edit', $order->id) }}"></x-buttons.edit>
-
             @endcan
 
-            {{-- Tombol Delete (Bawaan) --}}
+            {{-- Tombol Delete --}}
             @can('request-order.delete')
             @if ($order->status === 'pending')
             <x-buttons.delete2 href="{{ route('request-order.destroy', $order->id) }}"></x-buttons.delete2>
@@ -80,7 +79,7 @@
         </div>
         <div class="col-6 col-md-3">
             <label class="text-muted small d-block">Dibuat Oleh</label>
-            <span class="fw-bold">{{ $order->user->name ?? '-' }}</span>
+            <span class="fw-bold">{{ $order->requester->name ?? '-' }}</span>
         </div>
         {{-- Badges / Info Revisi --}}
         @if ($order->revision_count > 0)
@@ -119,7 +118,7 @@
                     <th class="text-center">Qty Req</th>
                     <th class="text-center">Qty Rec</th>
                     <th>Satuan</th>
-                    <th class="text-center" width="150">Realisasi</th> {{-- Kolom Baru --}}
+                    <th class="text-center" width="150">Realisasi</th>
                     <th>Info PO</th>
                     <th class="text-center">Bukti</th>
                 </tr>
@@ -127,11 +126,8 @@
             <tbody>
                 @foreach ($order->items as $item)
                 @php
-                // Kalkulasi Persentase
-                $percentage =
-                $item->quantity > 0 ? round(($item->qty_received / $item->quantity) * 100) : 0;
+                $percentage = $item->quantity > 0 ? round(($item->qty_received / $item->quantity) * 100) : 0;
 
-                // Tentukan warna progress bar
                 $barColor = 'bg-danger';
                 if ($percentage >= 100) {
                 $barColor = 'bg-success';
@@ -149,14 +145,12 @@
                     </td>
                     <td class="text-center">{{ $item->quantity }}</td>
                     <td class="text-center">
-                        <span
-                            class="badge {{ $item->qty_received >= $item->quantity ? 'bg-success' : ($item->qty_received > 0 ? 'bg-info text-dark' : 'bg-secondary') }}">
+                        <span class="badge {{ $item->qty_received >= $item->quantity ? 'bg-success' : ($item->qty_received > 0 ? 'bg-info text-dark' : 'bg-secondary') }}">
                             {{ $item->qty_received ?? 0 }}
                         </span>
                     </td>
                     <td>{{ $item->unit }}</td>
 
-                    {{-- KOLOM PROGRESS BARU --}}
                     <td>
                         <div class="d-flex align-items-center justify-content-between mb-1">
                             <small class="fw-bold {{ $percentage >= 100 ? 'text-success' : 'text-muted' }}">
@@ -174,8 +168,7 @@
                             {{ $item->date_received ? \Carbon\Carbon::parse($item->date_received)->format('d/m/Y') : '-' }}
                         </div>
                     </td>
-                    </td>
-                    {{-- KOLOM INFO PO --}}
+
                     <td>
                         @if ($item->po_number)
                         <div class="small fw-bold text-dark">{{ $item->po_number }}</div>
@@ -225,7 +218,7 @@
         </div>
     </div>
 
-    {{-- Footer / Approval History --}}
+    {{-- Footer / Approval Tracking --}}
     <div class="mt-4 p-3 border-top bg-light rounded shadow-sm">
         <h6 class="fw-bold mb-3 border-bottom pb-2 text-dark">
             <i class="bi bi-clock-history me-2"></i>Approval Tracking
@@ -274,49 +267,66 @@
             </div>
         </div>
     </div>
-    <div class="mt-4 d-flex justify-content-between">
+
+    {{-- Tombol Aksi Bawah --}}
+    <div class="mt-4 d-flex justify-content-between align-items-center">
         <a href="{{ route('request-order.index') }}" class="btn btn-secondary px-4">Kembali</a>
 
-        <div class="d-flex gap-1">
+        <div class="d-flex gap-2 align-items-center">
+            {{-- Pengecekan Akses Tombol Unapprove --}}
+            @php
+            $canUnapprove = false;
+            $user = auth()->user();
+
+            if ($order->status === 'approved_by_div_head' && ($user->can('request-order.approve-division') || $user->can('request-order.unapprove') || $user->hasRole('super-admin'))) {
+            $canUnapprove = true;
+            } elseif ($order->status === 'approved_by_manager' && ($user->can('request-order.approve-manager') || $user->can('request-order.unapprove') || $user->hasRole('super-admin'))) {
+            $canUnapprove = true;
+            } elseif ($order->status === 'approved_by_bod' && ($user->can('request-order.approve-bod') || $user->can('request-order.unapprove') || $user->hasRole('super-admin'))) {
+            $canUnapprove = true;
+            }
+            @endphp
+
+            @if ($canUnapprove)
+            <form action="{{ route('request-order.unapprove', $order->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan persetujuan ini?')">
+                @csrf
+                <input type="hidden" name="from" value="show">
+                <button type="submit" class="btn btn-warning" title="Batal Approve">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Unapprove
+                </button>
+            </form>
+            @endif
+
+            {{-- Tombol Cetak PDF --}}
+            @if ($order->status === 'approved_by_bod' || ($order->subsidiary_id == 2 && $order->status === 'approved_by_manager'))
             <x-buttons.pdf href="{{ route('request-order.pdf', $order->id) }}"></x-buttons.pdf>
+            @endif
 
             {{-- Logic Approval Forms --}}
-            @can('request-order.approve')
             @php
             $approveRoute = null;
             $btnLabel = '';
 
-            if ($order->status === 'pending') {
-            $approveRoute = route('request-order.approve_div_head', [
-            'id' => $order->id,
-            'from' => 'show',
-            ]);
-            $btnLabel = 'Approve Divisi';
-            } elseif ($order->status === 'approved_by_div_head') {
-            $approveRoute = route('request-order.approve_manager', [
-            'id' => $order->id,
-            'from' => 'show',
-            ]);
+            if ($order->status === 'pending' && ($user->can('request-order.approve-division') || $user->hasRole('super-admin'))) {
+            $approveRoute = route('request-order.approve_div_head', ['id' => $order->id, 'from' => 'show']);
+            $btnLabel = 'Approve Kadiv';
+            } elseif ($order->status === 'approved_by_div_head' && ($user->can('request-order.approve-manager') || $user->hasRole('super-admin'))) {
+            $approveRoute = route('request-order.approve_manager', ['id' => $order->id, 'from' => 'show']);
             $btnLabel = 'Approve Manager';
-            } elseif ($order->status === 'approved_by_manager' && $order->subsidiary_id != 2) {
-            $approveRoute = route('request-order.approve_bod', [
-            'id' => $order->id,
-            'from' => 'show',
-            ]);
+            } elseif ($order->status === 'approved_by_manager' && $order->subsidiary_id != 2 && ($user->can('request-order.approve-bod') || $user->hasRole('super-admin'))) {
+            $approveRoute = route('request-order.approve_bod', ['id' => $order->id, 'from' => 'show']);
             $btnLabel = 'Approve BOD';
             }
             @endphp
 
             @if ($approveRoute)
-            <form action="{{ $approveRoute }}" method="POST"
-                onsubmit="return confirm('Apakah Anda yakin ingin menyetujui RO ini?')">
+            <form action="{{ $approveRoute }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menyetujui RO ini?')">
                 @csrf
                 <button type="submit" class="btn btn-success">
                     <i class="bi bi-check2-circle me-1"></i> {{ $btnLabel }}
                 </button>
             </form>
             @endif
-            @endcan
         </div>
     </div>
     @endcomponent

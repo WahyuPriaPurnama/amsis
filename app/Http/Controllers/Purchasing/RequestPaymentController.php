@@ -10,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class RequestPaymentController extends Controller
@@ -33,11 +34,10 @@ class RequestPaymentController extends Controller
                 $query->whereIn('subsidiary_id', $subsidiaryIds);
             }
 
-            // 2. Filter berdasarkan Dropdown Plant (Subsidiary)
+            // Filter berdasarkan Dropdown Plant (Subsidiary)
             if ($subsidiaryId = $request->input('subsidiary_id')) {
                 $query->where('subsidiary_id', $subsidiaryId);
             }
-
 
             $search = $request->input('search');
             if ($search) {
@@ -49,13 +49,14 @@ class RequestPaymentController extends Controller
                         });
                 });
             }
-            $payments = $query->paginate(20)->appends(['search' => $search]);
+            $payments = $query->paginate(20)->appends($request->all());
 
             return view('purchasing.request_payment.index', compact('payments', 'search', 'allSubsidiaries'));
         }
 
         abort(403, 'Anda tidak memiliki izin untuk melihat Request Payment.');
     }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -83,12 +84,12 @@ class RequestPaymentController extends Controller
             }
         }
 
-        // Default nomor payment dari subsidiary pertama
         $defaultSubsidiaryId = $subsidiaries->first()->id ?? null;
         $autoPaymentNumber = $this->generatePaymentNumber($defaultSubsidiaryId);
 
         return view('purchasing.request_payment.create', compact('subsidiaries', 'autoPaymentNumber'));
     }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -114,7 +115,6 @@ class RequestPaymentController extends Controller
                 return $carry + ($item['quantity'] * $item['unit_price']);
             }, 0);
 
-            // Selalu generate ulang di server berdasarkan subsidiary_id pilihan user untuk menghindari duplikasi bersamaan
             $paymentNumber = $this->generatePaymentNumber($validated['subsidiary_id']);
 
             $payment = new RequestPayment();
@@ -155,9 +155,8 @@ class RequestPaymentController extends Controller
      */
     public function show($id)
     {
-        $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id); {
-            return view('purchasing.request_payment.show', compact('payment'));
-        }
+        $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id);
+        return view('purchasing.request_payment.show', compact('payment'));
     }
 
     /**
@@ -165,19 +164,13 @@ class RequestPaymentController extends Controller
      */
     public function edit(RequestPayment $requestPayment)
     {
-        // 1. Cek Permission (Hak Akses)
         if (!Auth::user()->can('request-payment.edit')) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
         }
 
-
-        // 3. Load relasi items agar data barang muncul di form Alpine.js
         $payment = $requestPayment->load('items');
+        $subsidiaries = Subsidiary::all();
 
-        // 4. Ambil data subsidiary/plant untuk dropdown
-        $subsidiaries = Subsidiary::all(); // Sesuaikan dengan namespace model Anda
-
-        // 5. Kembalikan ke view form edit
         return view('purchasing.request_payment.edit', compact('payment', 'subsidiaries'));
     }
 
@@ -186,13 +179,10 @@ class RequestPaymentController extends Controller
      */
     public function update(Request $request, RequestPayment $requestPayment)
     {
-        // 1. Cek Hak Akses
         if (!Auth::user()->can('request-payment.edit')) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit dokumen ini.');
         }
 
-
-        // 3. Validasi Input Data
         $validated = $request->validate([
             'subsidiary_id'  => 'required|exists:subsidiaries,id',
             'division'       => 'required|string|max:255',
@@ -201,10 +191,8 @@ class RequestPaymentController extends Controller
             'purpose'        => 'nullable|string',
             'attachment'     => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'grand_total'    => 'required|numeric|min:0',
-
-            // Validasi array barang
             'items'              => 'required|array|min:1',
-            'items.*.id'         => 'nullable|exists:request_payment_items,id', // Nullable karena barang baru tidak punya ID
+            'items.*.id'         => 'nullable|exists:request_payment_items,id',
             'items.*.item_name'  => 'required|string|max:255',
             'items.*.quantity'   => 'required|numeric|min:0.01',
             'items.*.unit'       => 'required|string|max:50',
@@ -215,18 +203,14 @@ class RequestPaymentController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $requestPayment, $validated) {
-
-                // 4. Update Lampiran (Jika user mengunggah file baru)
                 $attachmentPath = $requestPayment->attachment;
                 if ($request->hasFile('attachment')) {
-                    // Hapus file lama di storage jika ada
                     if ($attachmentPath && Storage::disk('public')->exists($attachmentPath)) {
                         Storage::disk('public')->delete($attachmentPath);
                     }
                     $attachmentPath = $request->file('attachment')->store('attachments/payments', 'public');
                 }
 
-                // 5. Update Data Induk Request Payment
                 $requestPayment->update([
                     'subsidiary_id'   => $validated['subsidiary_id'],
                     'division'       => $validated['division'],
@@ -236,23 +220,17 @@ class RequestPaymentController extends Controller
                     'grand_total'    => $validated['grand_total'],
                     'attachment'     => $attachmentPath,
                     'revision_count' => $requestPayment->revision_count + 1,
-                    'last_revised_at'     => now(),
+                    'last_revised_at' => now(),
                 ]);
 
-                // 6. Sinkronisasi Data Barang (Items)
-                // Kumpulkan ID item dari form yang tidak kosong
                 $submittedItemIds = collect($validated['items'])
                     ->pluck('id')
                     ->filter()
                     ->toArray();
 
-                // Hapus item di database yang ID-nya TIDAK ADA dalam data yang disubmit
-                // (Artinya item tersebut dihapus oleh user melalui UI)
                 $requestPayment->items()->whereNotIn('id', $submittedItemIds)->delete();
 
-                // Looping data item dari form untuk Update atau Create
                 foreach ($validated['items'] as $itemData) {
-                    // Siapkan array data untuk disimpan
                     $dataToSave = [
                         'item_name'  => $itemData['item_name'],
                         'quantity'   => $itemData['quantity'],
@@ -263,15 +241,12 @@ class RequestPaymentController extends Controller
                     ];
 
                     if (!empty($itemData['id'])) {
-                        // Update item yang sudah ada
                         $requestPayment->items()->where('id', $itemData['id'])->update($dataToSave);
                     } else {
-                        // Create item baru
                         $requestPayment->items()->create($dataToSave);
                     }
                 }
 
-                // Selesai, arahkan ke halaman detail
                 return redirect()->route('request-payment.show', $requestPayment->id)
                     ->with('success', 'Request Payment berhasil diperbarui.');
             });
@@ -279,6 +254,7 @@ class RequestPaymentController extends Controller
             return redirect()->back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
         }
     }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -286,6 +262,7 @@ class RequestPaymentController extends Controller
     {
         $requestPayment->items()->delete();
         $requestPayment->delete();
+
         return redirect()->route('request-payment.index')
             ->with('success', 'Request Payment berhasil dihapus.');
     }
@@ -304,7 +281,8 @@ class RequestPaymentController extends Controller
             'approved_by_manager'    => auth()->id(),
             'approved_by_manager_at' => now(),
         ]);
-        $message = 'Request Order telah disetujui Plant Manager.';
+
+        $message = 'Request Payment telah disetujui Plant Manager.';
 
         if ($request->input('from') === 'show') {
             return redirect()->route('request-payment.show', $id)
@@ -314,7 +292,8 @@ class RequestPaymentController extends Controller
         return redirect()->route('request-payment.index')
             ->with('success', $message);
     }
-    public function approveBod($id)
+
+    public function approveBod(Request $request, $id)
     {
         $payment = RequestPayment::findOrFail($id);
 
@@ -324,13 +303,67 @@ class RequestPaymentController extends Controller
         }
 
         $payment->update([
-            'status'              => 'approved_by_bod',
-            'approved_by_bod'     => auth()->id(),
-            'approved_by_bod_at'  => now(),
+            'status'             => 'approved_by_bod',
+            'approved_by_bod'    => auth()->id(),
+            'approved_by_bod_at' => now(),
         ]);
 
+        $message = 'Request Payment berhasil disetujui oleh BOD.';
+
+        if ($request->input('from') === 'show') {
+            return redirect()->route('request-payment.show', $id)
+                ->with('success', $message);
+        }
+
         return redirect()->route('request-payment.index')
-            ->with('success', 'Request Payment berhasil disetujui oleh BOD.');
+            ->with('success', $message);
+    }
+
+    /**
+     * Membatalkan persetujuan Request Payment (Unapprove)
+     */
+    public function unapprove(Request $request, $id)
+    {
+        try {
+            $payment = RequestPayment::findOrFail($id);
+            $user = auth()->user();
+
+            switch ($payment->status) {
+                case 'approved_by_manager':
+                    if (!$user->can('request-payment.approve-manager') && !$user->can('request-payment.unapprove') && !$user->hasRole('super-admin')) {
+                        return redirect()->back()->with('error', 'Anda tidak memiliki hak akses untuk membatalkan persetujuan ini.');
+                    }
+                    $payment->status = 'pending';
+                    $payment->approved_by_manager = null;
+                    $payment->approved_by_manager_at = null;
+                    break;
+
+                case 'approved_by_bod':
+                    if (!$user->can('request-payment.approve-bod') && !$user->can('request-payment.unapprove') && !$user->hasRole('super-admin')) {
+                        return redirect()->back()->with('error', 'Anda tidak memiliki hak akses untuk membatalkan persetujuan ini.');
+                    }
+                    $payment->status = 'approved_by_manager';
+                    $payment->approved_by_bod = null;
+                    $payment->approved_by_bod_at = null;
+                    break;
+
+                default:
+                    return redirect()->back()->with('error', 'Status Request Payment tidak dapat di-unapprove.');
+            }
+
+            $payment->save();
+
+            $message = 'Persetujuan Request Payment berhasil dibatalkan.';
+
+            if ($request->input('from') === 'show') {
+                return redirect()->route('request-payment.show', $id)->with('success', $message);
+            }
+
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Error Unapprove RP: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal membatalkan persetujuan: ' . $e->getMessage());
+        }
     }
 
     public function pdf($id)
@@ -338,6 +371,7 @@ class RequestPaymentController extends Controller
         $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
         $pdf = Pdf::loadView('purchasing.request_payment.pdf', compact('payment', 'timestamp'));
+
         return $pdf->stream('Request_Payment_' . $payment->subsidiary->name . '_' . $payment->payment_number . '.pdf');
     }
 
@@ -357,15 +391,6 @@ class RequestPaymentController extends Controller
         return response()->file(Storage::disk('public')->path($path));
     }
 
-    /**
-     * Generate nomor payment otomatis secara berurutan tanpa gap/loncatan.
-     */
-    /**
-     * Generate nomor payment otomatis per subsidiary/plant tanpa gap/loncatan.
-     */
-    /**
-     * Generate nomor payment otomatis (Tanpa Kode Subsidiary, Reset Setiap Tahun).
-     */
     private function generatePaymentNumber($subsidiaryId, $date = null)
     {
         if (!$subsidiaryId) {
@@ -376,15 +401,13 @@ class RequestPaymentController extends Controller
         $year = date('Y', $targetDate);
         $yearMonth = date('Ym', $targetDate);
 
-        // Hitung transaksi aktif di subsidiary ini khusus untuk TAHUN berjalan
         $nextSequence = RequestPayment::where('subsidiary_id', $subsidiaryId)
             ->whereYear('date', $year)
             ->count() + 1;
 
-        // Format: YYYYMM/0001
         return sprintf('%s/%04d', $yearMonth, $nextSequence);
     }
-    
+
     public function getNextPaymentNumber(Request $request)
     {
         $subsidiaryId = $request->input('subsidiary_id');

@@ -60,6 +60,7 @@ class PermissionSeeder extends Seeder
             'request-order.approve-division',
             'request-order.approve-manager',
             'request-order.approve-bod',
+            'request-order.unapprove',
         ];
         $RequestPaymentPermissions = [
             'request-payment.list',
@@ -69,6 +70,7 @@ class PermissionSeeder extends Seeder
             'request-payment.delete',
             'request-payment.approve-manager',
             'request-payment.approve-bod',
+            'request-payment.unapprove',
         ];
 
         $masterSupplierPermissions = [

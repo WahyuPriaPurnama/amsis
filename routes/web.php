@@ -16,6 +16,7 @@ use App\Http\Controllers\Purchasing\ReceiptController;
 use App\Http\Controllers\Purchasing\RequestOrderController;
 use App\Http\Controllers\Purchasing\RequestPaymentController;
 use App\Http\Controllers\RolePermissionController;
+use Illuminate\Support\Facades\Http;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,29 +122,27 @@ Route::middleware('auth')->group(function () {
             ->name('approve_manager');
         Route::post('approve-bod/{id}', [RequestOrderController::class, 'approveBod'])
             ->name('approve_bod');
+        Route::post('{id}/unapprove', [RequestOrderController::class, 'unapprove'])
+            ->name('unapprove');
         Route::get('{id}/pdf', [RequestOrderController::class, 'pdf'])
             ->name('pdf');
     });
 
     // Request Payment
     Route::prefix('request-payment')->name('request-payment.')->group(function () {
-
-        // 1. Taruh route spesifik SEBELUM resource route (mencegah bentrok dengan {request_payment} ID)
         Route::get('get-next-number', [RequestPaymentController::class, 'getNextPaymentNumber'])
-            ->name('get-next-number'); // Menjadi 'request-payment.get-next-number'
+            ->name('get-next-number');
 
-        // 2. Resource route
         Route::resource('/', RequestPaymentController::class)->parameters([
             '' => 'request_payment'
         ]);
 
-        // 3. Custom routes lainnya
         Route::post('approve/{id}', [RequestPaymentController::class, 'approveManager'])
             ->name('approve_manager');
 
         Route::post('approve-bod/{id}', [RequestPaymentController::class, 'approveBod'])
             ->name('approve_bod');
-
+        Route::post('{id}/unapprove', [RequestPaymentController::class, 'unapprove'])->name('unapprove');
         Route::get('{id}/pdf', [RequestPaymentController::class, 'pdf'])
             ->name('pdf');
 
@@ -160,12 +159,10 @@ Route::middleware('auth')->group(function () {
     Route::get('asset/export/pdf', [AssetController::class, 'export_pdf'])->name('asset.export_pdf');
     Route::get('asset/export/excel', [AssetController::class, 'export_excel'])->name('asset.export_excel');
 
-    //Master Supplier
+    // Master Supplier
     Route::resource('master-supplier', MasterSupplierController::class);
     Route::resource('receipts', ReceiptController::class);
 });
-// routes/web.php
-use Illuminate\Support\Facades\Http;
 
 Route::get('/test-wa', function () {
     $response = Http::withHeaders([
@@ -178,10 +175,6 @@ Route::get('/test-wa', function () {
     return $response->json();
 });
 
-
-// Auth::routes([
-//     'register' => false
-// ]);
 Route::redirect('/', '/login');
 
 // e-slip routes

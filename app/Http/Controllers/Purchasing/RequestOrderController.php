@@ -473,4 +473,58 @@ class RequestOrderController extends Controller
         $pdf = Pdf::loadView('purchasing.request_order.pdf', compact('order', 'timestamp'));
         return $pdf->stream('Request_Order_' . $order->subsidiary->name . '_' . $order->request_number . '.pdf');
     }
+    public function unapprove(Request $request, $id)
+    {
+        try {
+            $requestOrder = RequestOrder::findOrFail($id);
+            $user = auth()->user();
+
+            switch ($requestOrder->status) {
+                case 'approved_by_div_head':
+                    if (!$user->can('request-order.approve-division') && !$user->can('request-order.unapprove') && !$user->hasRole('super-admin')) {
+                        return redirect()->back()->with('error', 'Anda tidak memiliki hak akses untuk membatalkan persetujuan ini.');
+                    }
+                    $requestOrder->status = 'pending';
+                    $requestOrder->approved_by_div_head = null;
+                    $requestOrder->approved_by_divhead_at = null;
+                    break;
+
+                case 'approved_by_manager':
+                    if (!$user->can('request-order.approve-manager') && !$user->can('request-order.unapprove') && !$user->hasRole('super-admin')) {
+                        return redirect()->back()->with('error', 'Anda tidak memiliki hak akses untuk membatalkan persetujuan ini.');
+                    }
+                    $requestOrder->status = 'approved_by_div_head';
+                    $requestOrder->approved_by_manager = null;
+                    $requestOrder->approved_by_manager_at = null;
+                    break;
+
+                case 'approved_by_bod':
+                    if (!$user->can('request-order.approve-bod') && !$user->can('request-order.unapprove') && !$user->hasRole('super-admin')) {
+                        return redirect()->back()->with('error', 'Anda tidak memiliki hak akses untuk membatalkan persetujuan ini.');
+                    }
+                    $requestOrder->status = 'approved_by_manager';
+                    $requestOrder->approved_by_bod = null;
+                    $requestOrder->approved_by_bod_at = null;
+                    break;
+
+                default:
+                    return redirect()->back()->with('error', 'Status Request Order tidak dapat di-unapprove.');
+            }
+
+            $requestOrder->save();
+
+            $message = 'Persetujuan Request Order berhasil dibatalkan.';
+
+            if ($request->input('from') === 'show') {
+                return redirect()->route('request-order.show', $id)->with('success', $message);
+            }
+
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            // Log error asli ke storage/logs/laravel.log untuk mempermudah pengecekan
+            \Illuminate\Support\Facades\Log::error('Error Unapprove RO: ' . $e->getMessage());
+
+            return redirect()->back()->with('error', 'Gagal membatalkan persetujuan: ' . $e->getMessage());
+        }
+    }
 }
