@@ -168,7 +168,7 @@
                 method="POST">
                 @csrf
                 <button type="submit" class="btn btn-success">
-                    Approve Manager
+                    Acc Direktur
                 </button>
             </form>
             @endif
@@ -177,7 +177,7 @@
                 method="POST">
                 @csrf
                 <button type="submit" class="btn btn-success">
-                    Approve BOD
+                    Acc Direktur Op
                 </button>
             </form>
             @endif
