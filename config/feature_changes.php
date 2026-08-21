@@ -2,10 +2,10 @@
 
 return [
     'notes' => [
-        'menu revisi request order dan request payment',
+        'menu revisi RO dan RFP',
         'fitur transfer karyawan antar plant',
-        'auto number request order (format: YYYYMM/0001)',
-        'auto number request payment (format: YYYYMM/0001)',
-        'fitur unapprove request order dan request payment',
+        'auto number RO dan RFP (format: YYYYMM/0001)',
+        'fitur unapprove RO dan RFP',
+        'bug fix pada fitur edit RO dan RFP',
     ],
 ];

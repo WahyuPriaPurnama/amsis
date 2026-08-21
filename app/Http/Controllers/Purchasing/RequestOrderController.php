@@ -7,7 +7,6 @@ use App\Models\Purchasing\RequestOrder;
 use App\Models\HRD\Subsidiary;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;

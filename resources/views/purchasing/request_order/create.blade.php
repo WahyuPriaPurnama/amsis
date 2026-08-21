@@ -146,8 +146,9 @@
             const initialItems = @json(old('items', $defaultItems));
 
             return {
-                requestNumber: '{{ old('
-                request_number ', $autoRequestNumber) }}',
+                // BUG FIX 1: Perbaikan string concatenation & line break pada old()
+                requestNumber: "{{ old('request_number', $autoRequestNumber ?? '') }}",
+
                 items: initialItems.map(item => ({
                     item_name: item.item_name || '',
                     quantity: item.quantity || 1,
@@ -156,6 +157,14 @@
                 })),
 
                 errors: {},
+
+                // Menjalankan fungsi saat komponen pertama kali dimuat
+                init() {
+                    // Jika nomor RO belum ada tapi Plant sudah terpilih, ambil nomor otomatis
+                    if (!this.requestNumber && this.$refs.subsidiary_id?.value) {
+                        this.updateRequestNumber();
+                    }
+                },
 
                 async updateRequestNumber() {
                     const subsidiaryId = this.$refs.subsidiary_id.value;
