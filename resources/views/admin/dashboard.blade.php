@@ -5,7 +5,7 @@
 <div class="container">
     @if (session('feature_changes'))
     <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <h5 class="fw-bold mb-2">🔔 Info Peningkatan Fitur:</h5>
+        <h5 class="fw-bold mb-2">🔔 Release Note:</h5>
         <ul class="mb-0 ps-3">
             @php
             $notes = session('feature_changes');

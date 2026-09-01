@@ -2,10 +2,9 @@
 
 return [
     'notes' => [
-        'menu revisi RO dan RFP',
-        'fitur transfer karyawan antar plant',
-        'auto number RO dan RFP (format: YYYYMM/0001)',
+        'auto number RO dan RFP (format: YYYYMM/001)',
         'fitur unapprove RO dan RFP',
         'bug fix pada fitur edit RO dan RFP',
+        'peningkatan performa, navigasi lebih responsive tanpa reload halaman.'
     ],
 ];
