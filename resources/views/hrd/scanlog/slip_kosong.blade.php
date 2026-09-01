@@ -1,3 +1,0 @@
-<html>
-    slip kosong
-</html>

@@ -1,7 +1,4 @@
-@extends('layouts.app')
-@section('title', 'E-Slip HAKA')
-@section('menuHAKA', 'active')
-@section('content')
+<div>
     <div class="container">
         @component('components.card')
             @slot('header')
@@ -59,4 +56,4 @@
             </div>
         @endcomponent
     </div>
-@endsection
+</div>

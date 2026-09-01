@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RequestPaymentController extends Controller
 {
@@ -51,7 +52,7 @@ class RequestPaymentController extends Controller
             }
             $payments = $query->paginate(20)->appends($request->all());
 
-            return view('purchasing.request_payment.index', compact('payments', 'search', 'allSubsidiaries'));
+            return view('purchasing.request-payment.index', compact('payments', 'search', 'allSubsidiaries'));
         }
 
         abort(403, 'Anda tidak memiliki izin untuk melihat Request Payment.');
@@ -87,7 +88,7 @@ class RequestPaymentController extends Controller
         $defaultSubsidiaryId = $subsidiaries->first()->id ?? null;
         $autoPaymentNumber = $this->generatePaymentNumber($defaultSubsidiaryId);
 
-        return view('purchasing.request_payment.create', compact('subsidiaries', 'autoPaymentNumber'));
+        return view('purchasing.request-payment.create', compact('subsidiaries', 'autoPaymentNumber'));
     }
 
     /**
@@ -156,7 +157,7 @@ class RequestPaymentController extends Controller
     public function show($id)
     {
         $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id);
-        return view('purchasing.request_payment.show', compact('payment'));
+        return view('purchasing.request-payment.show', compact('payment'));
     }
 
     /**
@@ -171,7 +172,7 @@ class RequestPaymentController extends Controller
         $payment = $requestPayment->load('items');
         $subsidiaries = Subsidiary::all();
 
-        return view('purchasing.request_payment.edit', compact('payment', 'subsidiaries'));
+        return view('purchasing.request-payment.edit', compact('payment', 'subsidiaries'));
     }
 
     /**
@@ -370,9 +371,12 @@ class RequestPaymentController extends Controller
     {
         $payment = RequestPayment::with(['items', 'requester', 'subsidiary', 'plantManager', 'bod'])->findOrFail($id);
         $timestamp = now()->format('d/m/Y H:i:s');
-        $pdf = Pdf::loadView('purchasing.request_payment.pdf', compact('payment', 'timestamp'));
+        $cleanSubsidiary = Str::slug($payment->subsidiary->name, '_');
+        $cleanRequestNumber = Str::slug($payment->payment_number, '-');
+        $fileName = "Request_Payment_{$cleanSubsidiary}_{$cleanRequestNumber}.pdf";
+        $pdf = Pdf::loadView('purchasing.request-payment.pdf', compact('payment', 'timestamp'));
 
-        return $pdf->stream('Request_Payment_' . $payment->subsidiary->name . '_' . $payment->payment_number . '.pdf');
+        return $pdf->stream($fileName);
     }
 
     public function attachment($id)

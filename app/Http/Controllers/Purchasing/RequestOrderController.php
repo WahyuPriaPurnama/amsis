@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RequestOrderController extends Controller
 {
@@ -465,12 +466,20 @@ class RequestOrderController extends Controller
         return redirect()->route('request-order.index')
             ->with('success', $message);
     }
+
     public function pdf($id)
     {
         $order = RequestOrder::with(['items', 'requester', 'subsidiary', 'divHead', 'plantManager'])->findOrFail($id);
+
         $timestamp = now()->format('d/m/Y H:i:s');
-        $pdf = Pdf::loadView('purchasing.request_order.pdf', compact('order', 'timestamp'));
-        return $pdf->stream('Request_Order_' . $order->subsidiary->name . '_' . $order->request_number . '.pdf');
+
+        $cleanSubsidiary = Str::slug($order->subsidiary->name, '_');
+        $cleanRequestNumber = Str::slug($order->request_number, '-');
+
+        $fileName = "Request_Order_{$cleanSubsidiary}_{$cleanRequestNumber}.pdf";
+        $pdf = Pdf::loadView('purchasing.request-order.pdf', compact('order', 'timestamp'));
+
+        return $pdf->stream($fileName);
     }
     public function unapprove(Request $request, $id)
     {

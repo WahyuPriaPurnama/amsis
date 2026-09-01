@@ -1,75 +1,161 @@
-@extends('layouts.app')
-@section('title', "Data $subsidiary->name")
-@section('menuSubsidiaries', 'active')
-@section('content')
-    <div class="container mt-3">
-        @component('components.card')
-            @slot('header')
-                Data Perusahaan
-            @endslot
-            <div class="btn-group d-flex gap-2 flex-wrap">
-                @can('subsidiary.edit')
-                    <x-buttons.edit href="{{ route('subsidiaries.edit', ['subsidiary' => $subsidiary->id]) }}"></x-buttons.edit>
-                @endcan
-                
-                @can('subsidiary.delete')
-                    <form action="{{ route('subsidiaries.destroy', ['subsidiary' => $subsidiary->id]) }}" id="hapus"
-                        method="post">
-                        @method('DELETE')
-                        @csrf
-                        <button type="submit" form="hapus" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top"
-                            data-bs-title="Delete"><i class="bi bi-trash3-fill"></i></button>
-                    </form>
-                @endcan
-            </div>
-            <div class="row my-3 align-items-center text-center">
-                <div class="col-md-3 mx-auto">
-                    @php
-                        $logoPath = $subsidiary->logo
-                            ? asset("storage/subsidiary/logo/{$subsidiary->logo}")
-                            : asset('storage/subsidiary/logo/default.png');
-                    @endphp
-                    <img class="img-thumbnail" src="{{ $logoPath }}" alt="Logo {{ $subsidiary->name }}" loading="lazy"
-                        oncontextmenu="return false">
-                </div>
-                <div class="col-md-7 mx-auto">
-                    <h3>{{ $subsidiary->name }}</h3>
-                    <div>
-                        {{ $subsidiary->tagline ?? '-' }}
-                        | {{ $subsidiary->npwp ?? '-' }}
-                        | {{ $subsidiary->email ?? '-' }}
-                        | {{ $subsidiary->phone ?? '-' }}
-                        | {{ $subsidiary->address ?? '-' }}
-                    </div>
-                </div>
-            </div>
-            <hr>
-            <div class="table-responsive">
-                <table class="table table-hover" id="table">
-                    <thead>
-                        <tr>
-                            <th>NO</th>
-                            <th>NAMA KARYAWAN</th>
-                            <th>POSISI</th>
-                            <th>STATUS PEGAWAI</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($subsidiary->employees as $employee)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none"
-                                        data-bs-toggle="tooltip" data-bs-title="klik untuk lihat detail">
-                                        {{ $employee->nama }}
-                                    </a></td>
-                                <td>{{ $employee->posisi }}</td>
-                                <td>{{ $employee->status_peg }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endcomponent
-    </div>
+<div class="container mt-3">
 
-@endsection
+    @component('components.card')
+        @slot('header')
+            Data Perusahaan
+        @endslot
+
+        {{-- Action Buttons --}}
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('subsidiaries.index') }}" class="btn btn-secondary btn-sm" wire:navigate>
+                    <i class="bi bi-arrow-left me-1"></i> Kembali
+                </a>
+
+                @can('subsidiary.edit')
+                    <button type="button" class="btn btn-warning btn-sm text-white" wire:click="toggleEditForm">
+                        <i class="bi bi-pencil-square me-1"></i> {{ $isEditing ? 'Batal Edit' : 'Edit Perusahaan' }}
+                    </button>
+                @endcan
+
+                @can('subsidiary.delete')
+                    <button type="button" 
+                            class="btn btn-danger btn-sm"
+                            wire:click="deleteSubsidiary"
+                            wire:confirm="Yakin mau hapus perusahaan {{ $subsidiary->name }}?"
+                            wire:loading.attr="disabled">
+                        <i class="bi bi-trash3-fill me-1"></i> Hapus
+                    </button>
+                @endcan
+            </div>
+        </div>
+
+        {{-- Form Edit Inline (Tampil Ketika Tombol Edit Diklik) --}}
+        @if ($isEditing)
+            <div class="card bg-light border-warning border mb-4 shadow-sm">
+                <div class="card-header bg-warning text-white fw-bold">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Data Perusahaan
+                </div>
+                <div class="card-body">
+                    <form wire:submit.prevent="update">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Nama Perusahaan <span class="text-danger">*</span></label>
+                                <input type="text" wire:model="name" class="form-control @error('name') is-invalid @enderror">
+                                @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Tagline</label>
+                                <input type="text" wire:model="tagline" class="form-control @error('tagline') is-invalid @enderror">
+                                @error('tagline') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-semibold">NPWP</label>
+                                <input type="text" wire:model="npwp" class="form-control @error('npwp') is-invalid @enderror">
+                                @error('npwp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" wire:model="email" class="form-control @error('email') is-invalid @enderror">
+                                @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-semibold">Telepon</label>
+                                <input type="text" wire:model="phone" class="form-control @error('phone') is-invalid @enderror">
+                                @error('phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-8">
+                                <label class="form-label fw-semibold">Alamat</label>
+                                <input type="text" wire:model="address" class="form-control @error('address') is-invalid @enderror">
+                                @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label class="form-label fw-semibold">Ganti Logo (Opsional)</label>
+                                <input type="file" wire:model="new_logo" class="form-control @error('new_logo') is-invalid @enderror" accept="image/*">
+                                @error('new_logo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-end">
+                            <button type="button" class="btn btn-secondary btn-sm me-1" wire:click="toggleEditForm">Batal</button>
+                            <button type="submit" class="btn btn-success btn-sm" wire:loading.attr="disabled">
+                                <span wire:loading.remove><i class="bi bi-save me-1"></i> Perbarui</span>
+                                <span wire:loading><span class="spinner-border spinner-border-sm me-1"></span> Memproses...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+
+        {{-- Company Header / Profile --}}
+        <div class="row my-3 align-items-center text-center">
+            <div class="col-md-3 mx-auto">
+                @php
+                    $logoPath = $subsidiary->logo
+                        ? Storage::url('subsidiary/logo/' . $subsidiary->logo)
+                        : asset('storage/subsidiary/logo/default.png');
+                @endphp
+                <img class="img-thumbnail shadow-sm" src="{{ $logoPath }}" alt="Logo {{ $subsidiary->name }}" loading="lazy"
+                    oncontextmenu="return false" style="max-height: 150px; object-fit: contain;">
+            </div>
+            <div class="col-md-7 mx-auto">
+                <h3 class="fw-bold">{{ $subsidiary->name }}</h3>
+                <div class="text-muted">
+                    {{ $subsidiary->tagline ?? '-' }}
+                    | {{ $subsidiary->npwp ?? '-' }}
+                    | {{ $subsidiary->email ?? '-' }}
+                    | {{ $subsidiary->phone ?? '-' }}
+                    | {{ $subsidiary->address ?? '-' }}
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        {{-- Table Employee List --}}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th width="5%">NO</th>
+                        <th>NAMA KARYAWAN</th>
+                        <th>POSISI</th>
+                        <th>STATUS PEGAWAI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($subsidiary->employees as $employee)
+                        <tr wire:key="{{ $employee->id }}">
+                            <td>{{ $loop->iteration }}</td>
+                            <td>
+                                <a href="{{ route('employees.show', $employee->id) }}" class="text-decoration-none fw-semibold" wire:navigate>
+                                    {{ $employee->nama }}
+                                </a>
+                            </td>
+                            <td>{{ $employee->posisi ?? '-' }}</td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">
+                                    {{ $employee->status_peg ?? '-' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                <i class="bi bi-people fs-3 d-block mb-1"></i>
+                                Belum ada karyawan yang terdaftar di perusahaan ini
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    @endcomponent
+</div>

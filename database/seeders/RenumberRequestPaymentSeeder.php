@@ -17,21 +17,21 @@ class RenumberRequestPaymentSeeder extends Seeder
                 ->orderBy('id', 'asc')
                 ->get();
 
-            // 2. Kelompokkan data per (Subsidiary + Tahun)
+            // 2. Kelompokkan data per (Subsidiary + Tahun + Bulan)
             $grouped = $allPayments->groupBy(function ($payment) {
-                $year = date('Y', strtotime($payment->date ?? $payment->created_at));
-                return $payment->subsidiary_id . '_' . $year;
+                $yearMonth = date('Ym', strtotime($payment->date ?? $payment->created_at));
+                return $payment->subsidiary_id . '_' . $yearMonth;
             });
 
             // 3. Loop untuk memperbarui penomoran
             foreach ($grouped as $key => $payments) {
-                $sequence = 1; // Reset ke 1 setiap berganti tahun / subsidiary
+                $sequence = 1; // Reset ke 1 tiap berganti subsidiary atau bulan
 
                 foreach ($payments as $payment) {
                     $yearMonth = date('Ym', strtotime($payment->date ?? $payment->created_at));
 
-                    // Format: YYYYMM/0001
-                    $newPaymentNumber = sprintf('%s/%04d', $yearMonth, $sequence);
+                    // Format: YYYYMM/001 (3 Digit)
+                    $newPaymentNumber = sprintf('%s/%03d', $yearMonth, $sequence);
 
                     $payment->update([
                         'payment_number' => $newPaymentNumber,
@@ -42,6 +42,6 @@ class RenumberRequestPaymentSeeder extends Seeder
             }
         });
 
-        $this->command->info('Nomor Request Payment berhasil diperbarui (Format: YYYYMM/0001)!');
+        $this->command->info('Nomor Request Payment berhasil diperbarui (Reset per Bulan/Subsidiary, Format: YYYYMM/001)!');
     }
 }

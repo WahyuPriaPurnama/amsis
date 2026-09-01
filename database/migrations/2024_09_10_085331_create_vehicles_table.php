@@ -16,12 +16,12 @@ return new class extends Migration
             $table->string('jenis_kendaraan');
             $table->string('kategori');
             $table->foreignId('subsidiary_id');
-            $table->date('tgl_perolehan');
-            $table->string('pengguna');
-            $table->string('nama_warna');
-            $table->string('warna');
-            $table->string('tahun');
-            $table->string('atas_nama');
+            $table->date('tgl_perolehan')->nullable();
+            $table->string('pengguna')->nullable();
+            $table->string('nama_warna')->nullable();
+            $table->string('warna')->nullable();
+            $table->string('tahun')->nullable();
+            $table->string('atas_nama')->nullable();
             $table->string('nopol')->unique();
             $table->date('tgl_service')->nullable();
             $table->integer('km_akhir')->nullable();

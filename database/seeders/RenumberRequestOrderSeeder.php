@@ -17,21 +17,21 @@ class RenumberRequestOrderSeeder extends Seeder
                 ->orderBy('id', 'asc')
                 ->get();
 
-            // 2. Kelompokkan data per (Subsidiary + Tahun)
+            // 2. Kelompokkan data per (Subsidiary + Tahun + Bulan)
             $grouped = $allOrders->groupBy(function ($order) {
-                $year = date('Y', strtotime($order->request_date ?? $order->created_at));
-                return $order->subsidiary_id . '_' . $year;
+                $yearMonth = date('Ym', strtotime($order->request_date ?? $order->created_at));
+                return $order->subsidiary_id . '_' . $yearMonth;
             });
 
-            // 3. Loop per pembaruan nomor
+            // 3. Loop untuk pembaruan nomor
             foreach ($grouped as $key => $orders) {
-                $sequence = 1; // Reset ke 1 tiap ganti subsidiary/tahun
+                $sequence = 1; // Reset ke 1 tiap berganti subsidiary atau bulan
 
                 foreach ($orders as $order) {
                     $yearMonth = date('Ym', strtotime($order->request_date ?? $order->created_at));
 
-                    // Format: YYYYMM/0001
-                    $newRequestNumber = sprintf('%s/%04d', $yearMonth, $sequence);
+                    // Format: YYYYMM/001 (3 Digit)
+                    $newRequestNumber = sprintf('%s/%03d', $yearMonth, $sequence);
 
                     $order->update([
                         'request_number' => $newRequestNumber,
@@ -42,6 +42,6 @@ class RenumberRequestOrderSeeder extends Seeder
             }
         });
 
-        $this->command->info('Semua nomor Request Order berhasil diperbarui (Format: YYYYMM/0001)!');
+        $this->command->info('Semua nomor Request Order berhasil diperbarui (Reset per Bulan/Subsidiary, Format: YYYYMM/001)!');
     }
 }

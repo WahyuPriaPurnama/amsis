@@ -57,10 +57,15 @@ class PermissionSeeder extends Seeder
             'request-order.edit',
             'request-order.delete',
             'request-order.receive',
+            // Permissions Approve
             'request-order.approve-division',
             'request-order.approve-manager',
             'request-order.approve-bod',
-            'request-order.unapprove',
+
+            // Permissions Unapprove (Terpisah per jabatan)
+            'request-order.unapprove-division',
+            'request-order.unapprove-manager',
+            'request-order.unapprove-bod',
         ];
         $RequestPaymentPermissions = [
             'request-payment.list',

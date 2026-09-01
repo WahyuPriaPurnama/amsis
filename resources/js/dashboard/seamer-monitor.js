@@ -1,23 +1,55 @@
 /**
  * Dashboard Monitor Unified System
- * Indikator Offline Aktif: 3 Detik
+ * Support: Livewire 4 SPA (Wire Navigate) & Memory Leak Protection
  */
 const DashboardMonitor = (() => {
     let gaugeChart = null;
     let historyChart = null;
     let lastDataTime = Date.now();
+    let dataIntervalId = null;
+    let redrawIntervalId = null;
+
     const OFFLINE_THRESHOLD = 3000; // 3 detik dalam milidetik
 
     const colors = {
-        'Seamer1': '#fd7e14', 
-        'Seamer2': '#0d6efd', 
+        'Seamer1': '#fd7e14',
+        'Seamer2': '#0d6efd',
         'Seamer3': '#198754',
         'danger': '#dc3545'
     };
 
     const formatNumber = (num) => new Intl.NumberFormat('id-ID').format(num || 0);
 
+    const destroyCharts = () => {
+        if (gaugeChart) {
+            gaugeChart.destroy();
+            gaugeChart = null;
+        }
+        if (historyChart) {
+            historyChart.destroy();
+            historyChart = null;
+        }
+    };
+
+    const clearIntervals = () => {
+        if (dataIntervalId) {
+            clearInterval(dataIntervalId);
+            dataIntervalId = null;
+        }
+        if (redrawIntervalId) {
+            clearInterval(redrawIntervalId);
+            redrawIntervalId = null;
+        }
+    };
+
+    const cleanup = () => {
+        clearIntervals();
+        destroyCharts();
+    };
+
     const initCharts = () => {
+        destroyCharts();
+
         const gaugeCtx = document.getElementById('rpmGauge')?.getContext('2d');
         if (gaugeCtx) {
             gaugeChart = new Chart(gaugeCtx, {
@@ -43,7 +75,7 @@ const DashboardMonitor = (() => {
                         const { ctx, width, height } = chart;
                         const rpm = chart.data.datasets[0].data[0];
                         const counter = chart.config._counterValue || 0;
-                        
+
                         ctx.save();
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
@@ -59,13 +91,11 @@ const DashboardMonitor = (() => {
                         ctx.fillText(`Total Perjam: ${formatNumber(counter)}`, width / 2, height / 2 + 25);
 
                         // --- LOGIKA INDIKATOR OFFLINE ---
-                        // Memeriksa selisih waktu sekarang dengan data terakhir
                         const timeDiff = Date.now() - lastDataTime;
-                        
+
                         if (timeDiff > OFFLINE_THRESHOLD) {
                             ctx.fillStyle = colors.danger;
                             ctx.font = 'bold italic 11px sans-serif';
-                            // Menambahkan info berapa detik terlambat untuk transparansi
                             const seconds = Math.floor(timeDiff / 1000);
                             ctx.fillText(`Menunggu Data... (${seconds}s)`, width / 2, height / 2 + 45);
                         } else {
@@ -106,7 +136,15 @@ const DashboardMonitor = (() => {
     };
 
     const refreshData = async () => {
-        const seamerId = document.getElementById('filterSeamer')?.value || 'Seamer1';
+        const seamerElem = document.getElementById('filterSeamer');
+
+        // Guard Clause Utama: Bersihkan timer jika elemen DOM hilang saat fetch berjalan
+        if (!seamerElem) {
+            cleanup();
+            return;
+        }
+
+        const seamerId = seamerElem.value || 'Seamer1';
         const date = document.getElementById('filterDate')?.value || new Date().toLocaleDateString('en-CA');
         const themeColor = colors[seamerId] || colors.Seamer1;
 
@@ -115,8 +153,6 @@ const DashboardMonitor = (() => {
             if (!response.ok) throw new Error('Network response was not ok');
             const json = await response.json();
 
-            // Update timestamp data terakhir dari server (jika tersedia) 
-            // atau gunakan waktu saat fetch berhasil diterima
             if (json.last_timestamp) {
                 lastDataTime = json.last_timestamp * 1000;
             } else {
@@ -126,12 +162,12 @@ const DashboardMonitor = (() => {
             // Update Gauge
             const latestRPM = json.rpm?.length > 0 ? json.rpm[json.rpm.length - 1] : 0;
             const latestCounter = json.counter?.length > 0 ? json.counter[json.counter.length - 1] : 0;
-            
+
             if (gaugeChart) {
                 gaugeChart.data.datasets[0].data = [latestRPM, Math.max(0, 120 - latestRPM)];
                 gaugeChart.data.datasets[0].backgroundColor[0] = themeColor;
                 gaugeChart.config._counterValue = latestCounter;
-                gaugeChart.update('none'); 
+                gaugeChart.update('none');
             }
 
             // Update Line Chart
@@ -144,35 +180,56 @@ const DashboardMonitor = (() => {
             }
 
             // UI Elements
-            document.getElementById('totalProduksiCount').innerText = formatNumber(json.total_produksi);
-            document.getElementById('totalProduksiBadge').style.backgroundColor = themeColor;
+            const totalProduksiElem = document.getElementById('totalProduksiCount');
+            if (totalProduksiElem) {
+                totalProduksiElem.innerText = formatNumber(json.total_produksi);
+            }
+
+            const badgeElem = document.getElementById('totalProduksiBadge');
+            if (badgeElem) {
+                badgeElem.style.backgroundColor = themeColor;
+            }
 
         } catch (error) {
             console.error("Dashboard Sync Error:", error);
-            // Jika fetch gagal, lastDataTime tidak diupdate, memicu indikator "Menunggu Data"
         }
     };
 
     return {
         init: () => {
+            // Guard Clause: Halaman ini bukan modul produksi (tidak ada gauge), langsung bersihkan
+            if (!document.getElementById('rpmGauge')) {
+                cleanup();
+                return;
+            }
+
+            cleanup();
             initCharts();
             refreshData();
-            
-            // Interval fetch data: tiap 2 detik (agar selalu di bawah threshold 3 detik)
-            setInterval(refreshData, 2000);
-            
-            // Interval redraw UI: tiap 500ms agar teks "Menunggu data (Xs)" terupdate real-time
-            setInterval(() => {
+
+            dataIntervalId = setInterval(refreshData, 2000);
+            redrawIntervalId = setInterval(() => {
                 if (gaugeChart) {
                     gaugeChart.draw();
                 }
             }, 500);
         },
+        destroy: cleanup,
         reset: () => {
-            document.getElementById('filterDate').value = new Date().toLocaleDateString('en-CA');
+            const dateElem = document.getElementById('filterDate');
+            if (dateElem) {
+                dateElem.value = new Date().toLocaleDateString('en-CA');
+            }
             refreshData();
         }
     };
 })();
 
+// Inisialisasi awal saat Full Reload
 document.addEventListener("DOMContentLoaded", DashboardMonitor.init);
+
+// Inisialisasi ulang saat navigasi SPA selesai
+document.addEventListener("livewire:navigated", DashboardMonitor.init);
+
+// Bersihkan interval & memori canvas sesaat SEBELUM halaman berpindah (SPA Exit)
+document.addEventListener("livewire:navigating", DashboardMonitor.destroy);

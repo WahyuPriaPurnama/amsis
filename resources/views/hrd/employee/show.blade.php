@@ -1,494 +1,299 @@
-@extends('layouts.app')
-@section('title', "Biodata $employee->nama")
-@section('menuEmployees', 'active')
-@section('content')
-    <div class="container mt-3">
-        @if (Auth::check() && Auth::user()->hasRole('employee') && session('feature_changes'))
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <h5>🔔 Update Terbaru:</h5>
-                <ul>
-                    @foreach (session('feature_changes') as $date => $note)
-                        <li><strong>{{ $date }}:</strong> {{ $note }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @component('components.card')
-            @slot('header')
-                {{ $employee->nama }}
-            @endslot
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <div class="btn-group d-flex gap-2 flex-wrap">
-                    @can('employee.edit')
-                        <x-buttons.edit href="{{ route('employees.edit', ['employee' => $employee->id]) }}"></x-buttons.edit>
-                        <x-buttons.pdf href="{{ route('employee.pdf', ['employee' => $employee->id]) }}"></x-buttons.pdf>
-                    @endcan
-                    @can('employee.delete')
-                        <x-buttons.delete data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                        </x-buttons.delete>
-                    @endcan
-                    {{-- @php
-                        $user = auth()->user();
-                    @endphp
-                   
-                    @if ($user->employee_id && $user->role == 'employee')
-                        <x-buttons.create href="#">Pengajuan
-                            Cuti</x-buttons.create>
-                    @endif --}}
-                </div>
-                <img src="{{ Storage::url('subsidiary/logo/' . $employee->subsidiary->logo) }}"
-                    class="img-fluid ms-auto me-md-3" alt="Logo {{ $employee->subsidiary->name }}"
-                    style="max-width: 200px; height: auto;">
-            </div>
-            <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Yakin mau hapus {{ $employee->nama }}?
-                            </h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <button type="button" class="btn btn-success" data-bs-dismiss="modal">Gak Jadi</button>
-                            <button type="submit" form="delete" class="btn btn-danger ms-3">Iya, Yakin</button>
-                            <form id="delete" action="{{ route('employees.destroy', ['employee' => $employee->id]) }}"
-                                method="post">
-                                @method('DELETE')
-                                @csrf
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <section class="bg-light py-3 py-md-5 py-xl-8">
-                <div class="container">
-                    <div class="row gy-4 gy-lg-0">
-                        <div class="col-12 col-lg-4 col-xl-3">
-                            <div class="row gy-4">
-                                <div class="col-12">
-                                    <div class="card widget-card border-light shadow-sm">
-                                        <div class="card-header text-bg-secondary">
-                                            {{ $employee->subsidiary->name }}
-                                        </div>
-                                        <div class="card-body text-center">
-                                            <div class="mb-3">
-                                                @php
-                                                    $fotoPath = $employee->pp
-                                                        ? Storage::url('public/foto_profil/' . $employee->pp)
-                                                        : Storage::url('public/foto_profil/default.png');
-                                                @endphp
-
-                                                <img class="img-thumbnail" oncontextmenu="return false"
-                                                    src="{{ $fotoPath }}" alt="Foto Profil" />
-                                            </div>
-                                            <div class="mb-3">
-                                                <h5 class="mb-1">👤 {{ $employee->nama }}</h5>
-                                                <span class="text-muted">📧 username: {{ $employee->user->email }}</span><br>
-                                                <span>🎂 Usia: {{ \Carbon\Carbon::parse($employee->tgl_lahir)->age }}
-                                                    Tahun</span>
-                                                <p class="text-secondary mb-4">💼 {{ $employee->posisi }}</p>
-                                                <hr>
-                                            </div>
-                                            <div class="card-body text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                                    <path
-                                                        d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
-                                                </svg>
-
-                                                {{ $employee->status_peg == 'PKWT' ? 'PKWT' : '' }}
-                                                {{ $employee->status_peg == 'PKWTT' ? 'PKWTT' : '' }}<br>
-
-                                                @if ($employee->status_peg === 'PKWT')
-                                                    <i class="bi bi-calendar-week"></i>
-                                                    {{ \Carbon\Carbon::parse($employee->akhir_kontrak)->format('d M Y') }}<br>
-
-                                                    @php
-                                                        $daysRemaining = \Carbon\Carbon::now()->diffInDays(
-                                                            $employee->akhir_kontrak,
-                                                            false,
-                                                        );
-                                                        $daysRaw = $daysRemaining;
-                                                        $days = floor($daysRaw);
-                                                        $hours = floor(($daysRaw - $days) * 24);
-                                                        $minutes = floor((($daysRaw - $days) * 24 - $hours) * 60);
-                                                    @endphp
-
-                                                    @if ($daysRemaining < 0)
-                                                        <span class="text-danger">Kontrak sudah berakhir</span>
-                                                    @else
-                                                        <span class="text-success">
-                                                            Sisa {{ $days }} hari {{ $hours }} jam
-                                                            {{ $minutes }} menit
-                                                        </span>
-                                                    @endif
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-8 col-xl-9">
-                            <div class="card widget-card border-light shadow-sm">
-                                <div class="card-body p-4">
-                                    <ul class="nav nav-tabs" id="biodataTab" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="organisasi-tab" data-bs-toggle="tab"
-                                                data-bs-target="#organisasi-tab-pane" type="button" role="tab"
-                                                aria-controls="organisasi-tab-pane" aria-selected="true">Organisasi</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="biodata-tab" data-bs-toggle="tab"
-                                                data-bs-target="#biodata-tab-pane" type="button" role="tab"
-                                                aria-controls="biodata-tab-pane" aria-selected="false">Biodata</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="emergency-tab" data-bs-toggle="tab"
-                                                data-bs-target="#emergency-tab-pane" type="button" role="tab"
-                                                aria-controls="emergency-tab-pane" aria-selected="false">Kontak
-                                                Darurat</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="lampiran-tab" data-bs-toggle="tab"
-                                                data-bs-target="#lampiran-tab-pane" type="button" role="tab"
-                                                aria-controls="lampiran-tab-pane" aria-selected="false">Lampiran</button>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content pt-4" id="organisasiTabContent">
-                                        <div class="tab-pane fade show active" id="organisasi-tab-pane" role="tabpanel"
-                                            aria-labelledby="organisasi-tab" tabindex="0">
-
-                                            <div class="row g-0">
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">NIP</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->nip }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Nama Lengkap</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->nama }}</div>
-                                                </div>
-
-
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Perusahaan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->subsidiary->name }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Divisi</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->divisi }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Departemen</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->departemen }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Seksi</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->seksi }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Jabatan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->posisi }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Tgl Masuk / Masa Kerja</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->tgl_masuk)
-                                                            @php
-                                                                $start = \Carbon\Carbon::parse($employee->tgl_masuk);
-                                                                $now = \Carbon\Carbon::now();
-                                                                $diff = $start->diff($now);
-
-                                                                $years = $diff->y;
-                                                                $months = $diff->m;
-                                                                $days = $diff->d;
-                                                            @endphp
-
-                                                            {{ $start->isoFormat('dddd, D MMMM YYYY') }}
-                                                            / {{ $years }} Tahun {{ $months }} Bulan
-                                                            {{ $days }} Hari
-                                                        @else
-                                                            Belum ada data
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="tab-pane fade show" id="biodata-tab-pane" role="tabpanel"
-                                            aria-labelledby="biodata-tab" tabindex="0">
-                                            <div class="row g-0">
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">NIK</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->nik }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Tempat Lahir</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->tmpt_lahir }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Tanggal Lahir</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        {{ Carbon\Carbon::create($employee->tgl_lahir)->isoFormat('dddd, D MMMM YYYY') }}
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Jenis Kelamin</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        {{ $employee->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Alamat</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->alamat }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">No. Telepon</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->no_telp }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Email</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->email }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Pendidikan Terakhir</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->pend_trkhr }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Jurusan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->jurusan }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Tahun Lulus</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->thn_lulus }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Nama Ibu</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->nama_ibu }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">NPWP</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->npwp }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Status Pernikahan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->status }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Jumlah Anak</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->jml_ank }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-
-                                        <div class="tab-pane fade show" id="emergency-tab-pane" role="tabpanel"
-                                            aria-labelledby="emergency-tab" tabindex="0">
-
-                                            <div class="row g-0">
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Nama</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->nama_kd }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">No. Telepon</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->no_kd }}</div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Hubungan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">{{ $employee->hubungan }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="tab-pane fade show" id="lampiran-tab-pane" role="tabpanel"
-                                            aria-labelledby="lampiran-tab" tabindex="0">
-
-                                            <div class="row g-0">
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Foto Profil</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->pp == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.pp', ['pp' => $employee->pp, 'name' => $employee->nama]) }}"></x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">KTP</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->ktp == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download href="{{ route('employee.ktp', ['ktp' => $employee->ktp, 'name' => $employee->nama]) }}"></x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">NPWP</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->npwp2 == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.npwp', ['npwp' => $employee->npwp2, 'name' => $employee->nama]) }}"></x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Kartu Keluarga</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->kk == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.kk', ['kk' => $employee->kk, 'name' => $employee->nama]) }}"></x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">BPJS Ketenagakerjaan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->bpjs_ket == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.bpjs_ket', ['bpjs_ket' => $employee->bpjs_ket, 'name' => $employee->nama]) }}">
-                                                            </x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">BPJS Kesehatan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->bpjs_kes == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.bpjs_kes', ['bpjs_kes' => $employee->bpjs_kes, 'name' => $employee->nama]) }}"></x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                <div class="col-5 col-md-3 bg-light border-bottom border-white border-3">
-                                                    <div class="p-2">Tanda Tangan</div>
-                                                </div>
-                                                <div
-                                                    class="col-7 col-md-9 bg-light border-start border-bottom border-white border-3">
-                                                    <div class="p-2">
-                                                        @if ($employee->ttd == null)
-                                                            <p class="font-monospace">kosong</p>
-                                                        @else
-                                                            <x-buttons.download
-                                                                href="{{ route('employee.ttd', ['ttd' => $employee->ttd, 'name' => $employee->nama]) }}"></x-buttons.download>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-        </div>
-        </section>
-    @endcomponent
+<div class="container mt-3">
+    {{-- Alert Update Fitur --}}
+    @if (Auth::check() && Auth::user()->hasRole('employee') && session('feature_changes'))
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <h5 class="alert-heading">🔔 Update Terbaru:</h5>
+        <ul class="mb-0">
+            @foreach (session('feature_changes') as $date => $note)
+            <li><strong>{{ $date }}:</strong> {{ $note }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-@endsection
+    @endif
+
+    @component('components.card')
+    @slot('header')
+    👤 {{ $employee->nama }}
+    @endslot
+
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+            <!-- 1. Tombol Kembali -->
+            <a href="{{ route('employees.index') }}"
+                class="btn btn-secondary btn-sm rounded-3 d-inline-flex align-items-center justify-content-center px-3 py-2"
+                wire:navigate>
+                <i class="bi bi-arrow-left me-1"></i> Kembali
+            </a>
+
+            <!-- 2. Tombol Edit & PDF -->
+            @can('employee.edit')
+            <x-buttons.edit href="{{ route('employees.edit', ['employee' => $employee->id]) }}" wire:navigate></x-buttons.edit>
+            <x-buttons.pdf href="{{ route('employee.pdf', ['employee' => $employee->id]) }}"></x-buttons.pdf>
+            @endcan
+
+            <!-- 3. Tombol Hapus -->
+            @can('employee.delete')
+            <button type="button"
+                class="btn btn-danger btn-sm rounded-3 d-inline-flex align-items-center justify-content-center px-3 py-2"
+                wire:click="deleteEmployee"
+                wire:confirm="Yakin mau hapus {{ $employee->nama }}?"
+                wire:loading.attr="disabled">
+                <i class="bi bi-trash-fill me-1"></i> Hapus
+            </button>
+            @endcan
+        </div>
+
+        @if ($employee->subsidiary?->logo)
+        <img src="{{ Storage::url('subsidiary/logo/' . $employee->subsidiary->logo) }}"
+            class="img-fluid ms-auto me-md-3"
+            alt="Logo {{ $employee->subsidiary->name }}"
+            style="max-width: 200px; height: auto;">
+        @endif
+    </div>
+
+    <section class="bg-light py-3 py-md-4 py-xl-5 rounded">
+        <div class="container-fluid">
+            <div class="row gy-4">
+                {{-- Left Sidebar: Profile Card --}}
+                <div class="col-12 col-lg-4 col-xl-3">
+                    <div class="card widget-card border-light shadow-sm">
+                        <div class="card-header text-bg-secondary fw-semibold">
+                            {{ $employee->subsidiary?->name ?? 'Perusahaan Tidak Ditemukan' }}
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                @php
+                                $fotoPath = $employee->pp
+                                ? Storage::url('public/foto_profil/' . $employee->pp)
+                                : Storage::url('public/foto_profil/default.png');
+                                @endphp
+                                <img class="img-thumbnail rounded-circle shadow-sm"
+                                    style="width: 140px; height: 140px; object-fit: cover;"
+                                    oncontextmenu="return false"
+                                    src="{{ $fotoPath }}"
+                                    alt="Foto Profil {{ $employee->nama }}" />
+                            </div>
+
+                            <h5 class="mb-1 fw-bold">👤 {{ $employee->nama }}</h5>
+                            <p class="text-muted small mb-1">
+                                📧 {{ $employee->user?->email ?? '-' }}
+                            </p>
+                            <p class="text-muted small mb-2">
+                                🎂 Usia: {{ $age }} Tahun
+                            </p>
+                            <p class="text-secondary fw-semibold mb-3">💼 {{ $employee->posisi ?? '-' }}</p>
+                            <hr>
+
+                            <div class="text-center small">
+                                <i class="bi bi-person-fill me-1"></i>
+                                <span class="fw-bold">{{ $employee->status_peg ?? '-' }}</span><br>
+
+                                @if ($employee->status_peg === 'PKWT' && $contractStatus)
+                                <i class="bi bi-calendar-week me-1"></i>
+                                {{ $contractStatus['date_formatted'] }}<br>
+
+                                @if ($contractStatus['is_expired'])
+                                <span class="badge bg-danger mt-1">{{ $contractStatus['text'] }}</span>
+                                @else
+                                <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
+                                    {{ $contractStatus['text'] }}
+                                </span>
+                                @endif
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Right Main Content: Tabs detail data --}}
+                <div class="col-12 col-lg-8 col-xl-9">
+                    <div class="card widget-card border-light shadow-sm" x-data="{ activeTab: 'organisasi' }">
+                        <div class="card-body p-4">
+                            {{-- Tab Navigation via Alpine.js --}}
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <button class="nav-link" :class="{ 'active': activeTab === 'organisasi' }" @click="activeTab = 'organisasi'">Organisasi</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" :class="{ 'active': activeTab === 'biodata' }" @click="activeTab = 'biodata'">Biodata</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" :class="{ 'active': activeTab === 'emergency' }" @click="activeTab = 'emergency'">Kontak Darurat</button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="nav-link" :class="{ 'active': activeTab === 'lampiran' }" @click="activeTab = 'lampiran'">Lampiran</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content pt-4">
+                                {{-- TAB 1: ORGANISASI --}}
+                                <div class="tab-pane fade show" :class="{ 'active': activeTab === 'organisasi' }" x-show="activeTab === 'organisasi'">
+                                    <div class="row g-0">
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">NIP</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->nip ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Nama Lengkap</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->nama }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Perusahaan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->subsidiary?->name ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Divisi</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->divisi ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Departemen</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->departemen ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Seksi</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->seksi ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Jabatan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->posisi ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Tgl Masuk / Masa Kerja</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $masaKerja }}</div>
+                                    </div>
+                                </div>
+
+                                {{-- TAB 2: BIODATA --}}
+                                <div class="tab-pane fade show" :class="{ 'active': activeTab === 'biodata' }" x-show="activeTab === 'biodata'">
+                                    <div class="row g-0">
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">NIK</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->nik ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Tempat Lahir</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->tmpt_lahir ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Tanggal Lahir</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            {{ $employee->tgl_lahir ? \Carbon\Carbon::parse($employee->tgl_lahir)->isoFormat('dddd, D MMMM YYYY') : '-' }}
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Jenis Kelamin</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            {{ $employee->jenis_kelamin === 'L' ? 'Laki-laki' : ($employee->jenis_kelamin === 'P' ? 'Perempuan' : '-') }}
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Alamat</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->alamat ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">No. Telepon</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->no_telp ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Email</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->email ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Pendidikan Terakhir</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->pend_trkhr ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Jurusan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->jurusan ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Tahun Lulus</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->thn_lulus ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Nama Ibu</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->nama_ibu ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">NPWP</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->npwp ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Status Pernikahan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->status ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Jumlah Anak</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->jml_ank ?? '0' }}</div>
+                                    </div>
+                                </div>
+
+                                {{-- TAB 3: KONTAK DARURAT --}}
+                                <div class="tab-pane fade show" :class="{ 'active': activeTab === 'emergency' }" x-show="activeTab === 'emergency'">
+                                    <div class="row g-0">
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Nama</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->nama_kd ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">No. Telepon</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->no_kd ?? '-' }}</div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Hubungan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">{{ $employee->hubungan ?? '-' }}</div>
+                                    </div>
+                                </div>
+
+                                {{-- TAB 4: LAMPIRAN BERKAS --}}
+                                <div class="tab-pane fade show" :class="{ 'active': activeTab === 'lampiran' }" x-show="activeTab === 'lampiran'">
+                                    <div class="row g-0">
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Foto Profil</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->pp)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.pp', ['pp' => $employee->pp, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">KTP</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->ktp)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.ktp', ['ktp' => $employee->ktp, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">NPWP</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->npwp2)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.npwp', ['npwp' => $employee->npwp2, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Kartu Keluarga</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->kk)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.kk', ['kk' => $employee->kk, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">BPJS Ketenagakerjaan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->bpjs_ket)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.bpjs_ket', ['bpjs_ket' => $employee->bpjs_ket, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">BPJS Kesehatan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->bpjs_kes)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.bpjs_kes', ['bpjs_kes' => $employee->bpjs_kes, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+
+                                        <div class="col-5 col-md-3 bg-light border-bottom p-2 fw-semibold">Tanda Tangan</div>
+                                        <div class="col-7 col-md-9 bg-light border-start border-bottom p-2">
+                                            @if (!$employee->ttd)
+                                            <span class="text-muted font-monospace">kosong</span>
+                                            @else
+                                            <x-buttons.download href="{{ route('employee.ttd', ['ttd' => $employee->ttd, 'name' => $employee->nama]) }}"></x-buttons.download>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endcomponent
+</div>

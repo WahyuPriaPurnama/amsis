@@ -129,33 +129,4 @@ class UserController extends Controller
 
         return Excel::download(new UsersExport, 'amsis-users ' . now() . '.xlsx');
     }
-
-    public function editPassword()
-    {
-        return view('hrd.employee.change-password');
-    }
-
-    public function updatePassword(Request $request)
-    {
-        $validated = $request->validate([
-            'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = \App\Models\User::find(auth()->id());
-
-        if (!Hash::check($validated['current_password'], $user->password)) {
-            // Tambahkan error ke session tanpa menimpa error validasi
-            return back()->withErrors([
-                'current_password' => 'Password lama tidak cocok'
-            ])->withInput();
-        }
-
-        $user->update([
-            'password' => Hash::make($validated['password']),
-        ]);
-
-        return redirect()->route('employees.show', $user->employee_id)
-            ->with('alert', 'Password berhasil diubah.');
-    }
 }
