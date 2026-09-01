@@ -78,24 +78,6 @@ class PermissionSeeder extends Seeder
             'request-payment.unapprove',
         ];
 
-        $masterSupplierPermissions = [
-            'master-supplier.list',
-            'master-supplier.view',
-            'master-supplier.create',
-            'master-supplier.edit',
-            'master-supplier.delete',
-            'master-supplier.show',
-        ];
-
-        $receiptPermissions = [
-            'receipts.list',
-            'receipts.view',
-            'receipts.create',
-            'receipts.edit',
-            'receipts.delete',
-            'receipts.show',
-        ];
-
 
         $allPermissions = array_merge(
             $SubsidiaryPermissions,
@@ -105,8 +87,6 @@ class PermissionSeeder extends Seeder
             $AssetPermissions,
             $RequestOrderPermissions,
             $RequestPaymentPermissions,
-            $masterSupplierPermissions,
-            $receiptPermissions
         );
         foreach ($allPermissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);

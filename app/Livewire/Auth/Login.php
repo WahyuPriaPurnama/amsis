@@ -22,6 +22,8 @@ class Login extends Component
 
     public bool $remember = false;
 
+    public $lastLogin;
+    public $notes = [];
     // Definisikan pesan kustom secara eksplisit per-field di sini
     public function messages()
     {
@@ -31,6 +33,17 @@ class Login extends Component
             'password.required' => 'Password tidak boleh kosong.',
             'password.string'   => 'Password harus berupa teks.',
         ];
+    }
+
+    public function mount()
+    {
+        if (Auth::check()) {
+            $this->lastLogin = \App\Models\LogActivity::where('user_id', Auth::id())
+                ->where('action', 'login berhasil')
+                ->latest('created_at')
+                ->first();
+        }
+        $this->notes = config('feature_changes.notes', []);
     }
 
     public function authenticate()

@@ -295,7 +295,7 @@ class AssetController extends Controller
             $subsidiary = Subsidiary::findOrFail($subsidiaryId);
         }
 
-        $pdf = Pdf::loadView('hrd.asset.export_pdf', compact('assets', 'subsidiary'));
+        $pdf = Pdf::loadView('livewire.hrd.asset.export-pdf', compact('assets', 'subsidiary'));
 
         return $pdf->stream('asset_list.pdf');
     }

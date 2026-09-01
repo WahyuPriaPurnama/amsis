@@ -14,20 +14,4 @@
         </a>
     </li>
     @endcan
-
-    @can('master-supplier.list')
-    <li>
-        <a class="dropdown-item @yield('menuSupplier')" href="{{ route('master-supplier.index') }}" wire:navigate>
-            <i class="bi bi-truck me-2"></i>Master Supplier
-        </a>
-    </li>
-    @endcan
-
-    @can('receipts.list')
-    <li>
-        <a class="dropdown-item @yield('menuReceipt')" href="{{ route('receipts.index') }}" wire:navigate>
-            <i class="bi bi-box-seam me-2"></i>Penerimaan
-        </a>
-    </li>
-    @endcan
 </ul>

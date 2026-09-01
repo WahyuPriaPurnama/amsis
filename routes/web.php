@@ -4,19 +4,11 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\HRD\AssetController;
 use App\Http\Controllers\HRD\EmployeeController;
-use App\Http\Controllers\HRD\SubsidiaryController;
 use App\Http\Controllers\HRD\VehicleController;
-use App\Http\Controllers\Purchasing\MasterSupplierController;
-use App\Http\Controllers\Purchasing\ReceiptController;
 use App\Http\Controllers\Purchasing\RequestOrderController;
 use App\Http\Controllers\Purchasing\RequestPaymentController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\UserController;
-use App\Livewire\Purchasing\RequestOrderCreate;
-use App\Livewire\Purchasing\RequestOrderEdit;
-use App\Livewire\Purchasing\RequestOrderIndex;
-use App\Livewire\Purchasing\RequestOrderShow;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,10 +28,10 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
     // Employee Management
-    Route::get('/employees', App\Livewire\Hrd\EmployeeIndex::class)->name('employees.index');
-    Route::get('/employees/create', App\Livewire\Hrd\EmployeeCreate::class)->name('employees.create');
-    Route::get('/employees/{employee}', App\Livewire\Hrd\EmployeeShow::class)->name('employees.show');
-    Route::get('/employees/{employee}/edit', App\Livewire\Hrd\EmployeeEdit::class)->name('employees.edit');
+    Route::get('/employees', App\Livewire\Hrd\Employee\EmployeeIndex::class)->name('employees.index');
+    Route::get('/employees/create', App\Livewire\Hrd\Employee\EmployeeCreate::class)->name('employees.create');
+    Route::get('/employees/{employee}', App\Livewire\Hrd\Employee\EmployeeShow::class)->name('employees.show');
+    Route::get('/employees/{employee}/edit', App\Livewire\Hrd\Employee\EmployeeEdit::class)->name('employees.edit');
     Route::prefix('employee')->controller(EmployeeController::class)->group(function () {
         Route::get('foto_profil/{pp}/{name}', 'pp')->name('employee.pp');
         Route::get('KTP/{ktp}/{name}', 'ktp')->name('employee.ktp');
@@ -67,9 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/roles/assign-subsidiary', [RolePermissionController::class, 'assignSubsidiary'])->name('roles.assign.subsidiary');
 
     // Subsidiaries
-    Route::get('/subsidiaries', App\Livewire\Hrd\SubsidiaryIndex::class)->name('subsidiaries.index');
-    Route::get('/subsidiaries/{subsidiary}', App\Livewire\Hrd\SubsidiaryShow::class)->name('subsidiaries.show');
-    Route::get('/subsidiaries/{subsidiary}/edit', App\Livewire\Hrd\SubsidiaryEdit::class)->name('subsidiaries.edit');
+    Route::get('/subsidiaries', App\Livewire\Hrd\Subsidiary\SubsidiaryIndex::class)->name('subsidiaries.index');
+    Route::get('/subsidiaries/{subsidiary}', App\Livewire\Hrd\Subsidiary\SubsidiaryShow::class)->name('subsidiaries.show');
 
     // Users & System Dashboard
     Route::get('/users/export', [UserController::class, 'export'])->name('users.export');
@@ -78,10 +69,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [HomeController::class, 'index'])->name('dashboard');
 
     // Vehicle Management
-    Route::get('/vehicles', App\Livewire\Hrd\VehicleIndex::class)->name('vehicles.index');
-    Route::get('/vehicles/create', App\Livewire\Hrd\VehicleCreate::class)->name('vehicles.create');
-    Route::get('/vehicles/{vehicle}', App\Livewire\Hrd\VehicleShow::class)->name('vehicles.show');
-    Route::get('/vehicles/{vehicle}/edit', App\Livewire\Hrd\VehicleEdit::class)->name('vehicles.edit');
+    Route::get('/vehicles', App\Livewire\Hrd\Vehicle\VehicleIndex::class)->name('vehicles.index');
+    Route::get('/vehicles/create', App\Livewire\Hrd\Vehicle\VehicleCreate::class)->name('vehicles.create');
+    Route::get('/vehicles/{vehicle}', App\Livewire\Hrd\Vehicle\VehicleShow::class)->name('vehicles.show');
+    Route::get('/vehicles/{vehicle}/edit', App\Livewire\Hrd\Vehicle\VehicleEdit::class)->name('vehicles.edit');
     Route::prefix('vehicle')->controller(VehicleController::class)->group(function () {
         Route::get('foto/{foto}/{jenis}/{nopol}', 'foto')->name('vehicle.foto');
         Route::get('stnk/{stnk}/{jenis}/{nopol}', 'stnk')->name('vehicle.stnk');
@@ -95,35 +86,30 @@ Route::middleware('auth')->group(function () {
 
     // Request Order
     Route::prefix('request-order')->name('request-order.')->group(function () {
-        Route::get('/', RequestOrderIndex::class)->name('index');
-        Route::get('/create', RequestOrderCreate::class)->name('create');
-        Route::get('/get-next-number', [RequestOrderController::class, 'getNextRequestNumber'])->name('get-next-number');
-        Route::get('/{requestOrder}', RequestOrderShow::class)->name('show');
-        Route::get('/{requestOrder}/edit', RequestOrderEdit::class)->name('edit');
+        Route::get('/', App\Livewire\Purchasing\RequestOrder\RequestOrderIndex::class)->name('index');
+        Route::get('/create', App\Livewire\Purchasing\RequestOrder\RequestOrderCreate::class)->name('create');
+        Route::get('/{requestOrder}', App\Livewire\Purchasing\RequestOrder\RequestOrderShow::class)->name('show');
+        Route::get('/{requestOrder}/edit', App\Livewire\Purchasing\RequestOrder\RequestOrderEdit::class)->name('edit');
         Route::get('/{id}/pdf', [RequestOrderController::class, 'pdf'])->name('pdf');
     });
 
     Route::prefix('request-payment')->name('request-payment.')->group(function () {
-        Route::get('/', App\Livewire\Purchasing\RequestPaymentIndex::class)->name('index');
-        Route::get('/create', App\Livewire\Purchasing\RequestPaymentCreate::class)->name('create');
-        Route::get('/{requestPayment}', App\Livewire\Purchasing\RequestPaymentShow::class)->name('show');
-        Route::get('/{requestPayment}/edit', App\Livewire\Purchasing\RequestPaymentEdit::class)->name('edit');
+        Route::get('/', App\Livewire\Purchasing\RequestPayment\RequestPaymentIndex::class)->name('index');
+        Route::get('/create', App\Livewire\Purchasing\RequestPayment\RequestPaymentCreate::class)->name('create');
+        Route::get('/{requestPayment}', App\Livewire\Purchasing\RequestPayment\RequestPaymentShow::class)->name('show');
+        Route::get('/{requestPayment}/edit', App\Livewire\Purchasing\RequestPayment\RequestPaymentEdit::class)->name('edit');
     });
 
     Route::prefix('request-payment')->name('request-payment.')->group(function () {
-        Route::get('get-next-number', [RequestPaymentController::class, 'getNextPaymentNumber'])->name('get-next-number');
-        Route::post('approve/{id}', [RequestPaymentController::class, 'approveManager'])->name('approve_manager');
-        Route::post('approve-bod/{id}', [RequestPaymentController::class, 'approveBod'])->name('approve_bod');
-        Route::post('{id}/unapprove', [RequestPaymentController::class, 'unapprove'])->name('unapprove');
         Route::get('{id}/pdf', [RequestPaymentController::class, 'pdf'])->name('pdf');
         Route::get('attachment/{id}', [RequestPaymentController::class, 'attachment'])->name('attachment');
     });
 
     // Asset Management
-    Route::get('/assets', App\Livewire\Hrd\AssetIndex::class)->name('asset.index');
-    Route::get('/assets/create', App\Livewire\Hrd\AssetCreate::class)->name('asset.create');
-    Route::get('/assets/{asset}', App\Livewire\Hrd\AssetShow::class)->name('asset.show');
-    Route::get('/assets/{asset}/edit', App\Livewire\Hrd\AssetEdit::class)->name('asset.edit');
+    Route::get('/assets', App\Livewire\Hrd\Asset\AssetIndex::class)->name('asset.index');
+    Route::get('/assets/create', App\Livewire\Hrd\Asset\AssetCreate::class)->name('asset.create');
+    Route::get('/assets/{asset}', App\Livewire\Hrd\Asset\AssetShow::class)->name('asset.show');
+    Route::get('/assets/{asset}/edit', App\Livewire\Hrd\Asset\AssetEdit::class)->name('asset.edit');
     Route::prefix('asset')->controller(AssetController::class)->group(function () {
         Route::get('photo/{id}', 'photo')->name('asset.photo');
         Route::get('attachment/{id}', 'attachment')->name('asset.attachment');
@@ -132,20 +118,6 @@ Route::middleware('auth')->group(function () {
         Route::get('export/pdf', 'export_pdf')->name('asset.export_pdf');
         Route::get('export/excel', 'export_excel')->name('asset.export_excel');
     });
-
-    // Master Purchasing
-    Route::resource('master-supplier', MasterSupplierController::class);
-    Route::resource('receipts', ReceiptController::class);
-});
-
-// Testing Utilities & Redirects
-Route::get('/test-wa', function () {
-    return Http::withHeaders([
-        'Authorization' => env('FONNTE_TOKEN'),
-    ])->post('https://api.fonnte.com/send', [
-        'target' => '085745334330',
-        'message' => 'Test pesan dari Browser Lokal',
-    ])->json();
 });
 
 Route::redirect('/', '/login');

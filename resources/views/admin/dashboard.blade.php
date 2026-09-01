@@ -3,26 +3,19 @@
 
 @section('content')
 <div class="container">
-    @if (session('feature_changes'))
+
+    @if(!empty($notes))
     <div class="alert alert-info alert-dismissible fade show" role="alert">
         <h5 class="fw-bold mb-2">🔔 Release Note:</h5>
         <ul class="mb-0 ps-3">
-            @php
-            $notes = session('feature_changes');
-            if (is_array($notes) && isset($notes[0]) && is_array($notes[0])) {
-            $notes = $notes[0];
-            }
-            @endphp
+            @foreach($notes as $note)
+            <li>
+                {{ $note['text'] }}
+                @if($lastLogin && \Carbon\Carbon::parse($note['updated_at'])->gt($lastLogin->created_at))
+                <span class="badge bg-success">Baru</span>
+                @endif
 
-            @foreach ((array) $notes as $note)
-            @if (is_string($note))
-            <li class="mb-1">
-                {{ $note }}
-                @if ($loop->remaining < 3)
-                    <span class="badge bg-danger ms-1" style="font-size: 0.65rem;">BARU</span>
-                    @endif
             </li>
-            @endif
             @endforeach
         </ul>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
