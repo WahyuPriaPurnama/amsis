@@ -90,18 +90,18 @@ class SubsidiaryShow extends Component
         // Handle Logo Header Kop Surat
         if ($this->new_kop_header) {
             if ($this->subsidiary->kop_header) {
-                Storage::delete('public/subsidiary/logo/' . $this->subsidiary->kop_header);
+                Storage::delete('public/subsidiary/kop_header/' . $this->subsidiary->kop_header);
             }
-            $path = $this->new_kop_header->store('public/subsidiary/logo');
+            $path = $this->new_kop_header->store('public/subsidiary/kop_header');
             $validatedData['kop_header'] = basename($path);
         }
 
         // Handle Logo Footer Kop Surat
         if ($this->new_kop_footer) {
             if ($this->subsidiary->kop_footer) {
-                Storage::delete('public/subsidiary/logo/' . $this->subsidiary->kop_footer);
+                Storage::delete('public/subsidiary/kop_footer/' . $this->subsidiary->kop_footer);
             }
-            $path = $this->new_kop_footer->store('public/subsidiary/logo');
+            $path = $this->new_kop_footer->store('public/subsidiary/kop_footer');
             $validatedData['kop_footer'] = basename($path);
         }
 
@@ -113,7 +113,7 @@ class SubsidiaryShow extends Component
         session()->flash('success', 'Data perusahaan berhasil diperbarui.');
         $this->isEditing = false;
     }
-
+    
     public function deleteSubsidiary()
     {
         try {
