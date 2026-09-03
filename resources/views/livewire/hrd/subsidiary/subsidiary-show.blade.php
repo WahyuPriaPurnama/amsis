@@ -82,15 +82,31 @@
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <label for="logo_header" class="form-label fw-semibold">Logo Header Kop Surat</label>
-                        <input type="file" id="logo_header" wire:model="new_logo_header" class="form-control @error('new_logo_header') is-invalid @enderror" accept="image/*">
-                        @error('new_logo_header') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label for="kop_header" class="form-label fw-semibold">Logo Header Kop Surat</label>
+                        <input type="file" id="kop_header" wire:model="new_kop_header" class="form-control @error('new_kop_header') is-invalid @enderror" accept="image/*">
+                        @error('new_kop_header') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        
+                        @if($subsidiary->kop_header)
+                            <div class="mt-2">
+                                <a href="{{ Storage::url('subsidiary/logo/' . $subsidiary->kop_header) }}" target="_blank" class="text-decoration-none small">
+                                    <i class="bi bi-file-earmark-image me-1"></i> Lihat Header Saat Ini
+                                </a>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="col-12 col-md-4">
-                        <label for="logo_footer" class="form-label fw-semibold">Logo Footer Kop Surat</label>
-                        <input type="file" id="logo_footer" wire:model="new_logo_footer" class="form-control @error('new_logo_footer') is-invalid @enderror" accept="image/*">
-                        @error('new_logo_footer') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label for="kop_footer" class="form-label fw-semibold">Logo Footer Kop Surat</label>
+                        <input type="file" id="kop_footer" wire:model="new_kop_footer" class="form-control @error('new_kop_footer') is-invalid @enderror" accept="image/*">
+                        @error('new_kop_footer') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        
+                        @if($subsidiary->kop_footer)
+                            <div class="mt-2">
+                                <a href="{{ Storage::url('subsidiary/logo/' . $subsidiary->kop_footer) }}" target="_blank" class="text-decoration-none small">
+                                    <i class="bi bi-file-earmark-image me-1"></i> Lihat Footer Saat Ini
+                                </a>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
