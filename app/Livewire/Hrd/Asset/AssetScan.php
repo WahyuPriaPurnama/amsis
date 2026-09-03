@@ -8,7 +8,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 // Gunakan layout guest/publik agar tidak ada menu admin yang muncul
-#[Layout('layouts.guest')]
+#[Layout('layouts.app')]
 #[Title('Informasi Aset')]
 class AssetScan extends Component
 {
