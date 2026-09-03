@@ -88,7 +88,7 @@
                         
                         @if($subsidiary->kop_header)
                             <div class="mt-2">
-                                <a href="{{ Storage::url('subsidiary/logo/' . $subsidiary->kop_header) }}" target="_blank" class="text-decoration-none small">
+                                <a href="{{ Storage::url('subsidiary/kop_header/' . $subsidiary->kop_header) }}" target="_blank" class="text-decoration-none small">
                                     <i class="bi bi-file-earmark-image me-1"></i> Lihat Header Saat Ini
                                 </a>
                             </div>
@@ -102,7 +102,7 @@
                         
                         @if($subsidiary->kop_footer)
                             <div class="mt-2">
-                                <a href="{{ Storage::url('subsidiary/logo/' . $subsidiary->kop_footer) }}" target="_blank" class="text-decoration-none small">
+                                <a href="{{ Storage::url('subsidiary/kop_footer/' . $subsidiary->kop_footer) }}" target="_blank" class="text-decoration-none small">
                                     <i class="bi bi-file-earmark-image me-1"></i> Lihat Footer Saat Ini
                                 </a>
                             </div>
