@@ -4,6 +4,7 @@ namespace App\Livewire\Hrd\Asset;
 
 use App\Models\HRD\Asset;
 use App\Models\HRD\Subsidiary;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -43,8 +44,16 @@ class AssetCreate extends Component
     protected function rules()
     {
         return [
-            'subsidiary_id'      => 'required|exists:subsidiaries,id',
-            'code'               => 'required|string|max:100|unique:assets,code',
+            'subsidiary_id' => 'required|exists:subsidiaries,id',
+            'code' => [
+                'required',
+                'string',
+                'max:100',
+                // Kode boleh sama jika subsidiary_id berbeda
+                Rule::unique('assets', 'code')->where(function ($query) {
+                    return $query->where('subsidiary_id', $this->subsidiary_id);
+                }),
+            ],
             'name'               => 'required|string|max:255',
             'location'           => 'required|string|max:255',
             'quantity'           => 'required|integer|min:1',
@@ -74,22 +83,19 @@ class AssetCreate extends Component
 
         $validatedData['user_id'] = auth()->id();
 
-        // Konversi string kosong ('') pada tanggal menjadi null agar tidak crash di MariaDB/MySQL
+        // Konversi string kosong ('') pada tanggal menjadi null agar aman di database
         $validatedData['usage_date']    = $this->usage_date ?: null;
         $validatedData['purchase_date'] = $this->purchase_date ?: null;
 
-        // Proses simpan berkas unggahan
-        $fileFields = ['delivery_receipt', 'manual_book', 'photo', 'attachment'];
-        foreach ($fileFields as $field) {
+        // Proses simpan berkas unggahan secara dinamis
+        foreach (['delivery_receipt', 'manual_book', 'photo', 'attachment'] as $field) {
             if ($this->$field) {
                 $path = $this->$field->store('public/assets/' . $field);
                 $validatedData[$field] = basename($path);
             }
         }
 
-        // Generate QR Code secara otomatis di backend
-        // Anda bisa menyimpannya berupa kode unik (misal: $this->code) 
-        // atau URL tautan detail jika nantinya ingin langsung di-scan via HP.
+        // Generate QR Code otomatis
         $validatedData['qr_code'] = $this->code;
 
         Asset::create($validatedData);
