@@ -26,6 +26,8 @@ class SubsidiaryShow extends Component
     public $phone;
     public $address;
     public $new_logo;
+    public $new_kop_header;
+    public $new_kop_footer;
 
     public function mount($subsidiary)
     {
@@ -52,7 +54,7 @@ class SubsidiaryShow extends Component
 
         if ($this->isEditing) {
             $this->fillForm();
-            $this->reset(['new_logo']);
+            $this->reset(['new_logo', 'new_kop_header', 'new_kop_footer']);
         }
         $this->resetErrorBag();
     }
@@ -60,13 +62,15 @@ class SubsidiaryShow extends Component
     protected function rules()
     {
         return [
-            'name'     => 'required|string|max:255',
-            'tagline'  => 'nullable|string|max:255',
-            'npwp'     => 'nullable|string|max:50',
-            'email'    => 'nullable|email|max:255',
-            'phone'    => 'nullable|string|max:50',
-            'address'  => 'nullable|string',
-            'new_logo' => 'nullable|image|max:2048',
+            'name'           => 'required|string|max:255',
+            'tagline'        => 'nullable|string|max:255',
+            'npwp'           => 'nullable|string|max:50',
+            'email'          => 'nullable|email|max:255',
+            'phone'          => 'nullable|string|max:50',
+            'address'        => 'nullable|string',
+            'new_logo'       => 'nullable|image|max:2048',
+            'new_kop_header' => 'nullable|image|max:2048',
+            'new_kop_footer' => 'nullable|image|max:2048',
         ];
     }
 
@@ -74,18 +78,35 @@ class SubsidiaryShow extends Component
     {
         $validatedData = $this->validate();
 
+        // Handle Logo Utama
         if ($this->new_logo) {
-            // Hapus logo lama jika ada
             if ($this->subsidiary->logo) {
                 Storage::delete('public/subsidiary/logo/' . $this->subsidiary->logo);
             }
-
-            // Simpan logo baru
             $path = $this->new_logo->store('public/subsidiary/logo');
             $validatedData['logo'] = basename($path);
         }
 
-        unset($validatedData['new_logo']);
+        // Handle Logo Header Kop Surat
+        if ($this->new_kop_header) {
+            if ($this->subsidiary->kop_header) {
+                Storage::delete('public/subsidiary/logo/' . $this->subsidiary->kop_header);
+            }
+            $path = $this->new_kop_header->store('public/subsidiary/logo');
+            $validatedData['kop_header'] = basename($path);
+        }
+
+        // Handle Logo Footer Kop Surat
+        if ($this->new_kop_footer) {
+            if ($this->subsidiary->kop_footer) {
+                Storage::delete('public/subsidiary/logo/' . $this->subsidiary->kop_footer);
+            }
+            $path = $this->new_kop_footer->store('public/subsidiary/logo');
+            $validatedData['kop_footer'] = basename($path);
+        }
+
+        // Unset temporary file properties before updating database
+        unset($validatedData['new_logo'], $validatedData['new_kop_header'], $validatedData['new_kop_footer']);
 
         $this->subsidiary->update($validatedData);
 
