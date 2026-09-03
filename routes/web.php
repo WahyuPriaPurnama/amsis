@@ -122,6 +122,6 @@ Route::middleware('auth')->group(function () {
         Route::get('export/excel', 'export_excel')->name('asset.export_excel');
     });
 });
-Route::get('/assets/scan/{code}', App\Livewire\Hrd\Asset\AssetScan::class)->name('asset.scan');
+Route::get('/assets/scan/{asset}', App\Livewire\Hrd\Asset\AssetScan::class)->name('asset.scan');
 Route::redirect('/', '/login');
 Route::get('e-slip/{plant}', App\Livewire\Hrd\ESlipShow::class)->name('e-slip.show');

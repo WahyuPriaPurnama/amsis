@@ -14,10 +14,10 @@ class AssetScan extends Component
 {
     public Asset $asset;
 
-    public function mount($code)
+    public function mount(Asset $asset)
     {
         // Cari aset berdasarkan kode aset yang di-scan, jika tidak ada munculkan 404
-        $this->asset = Asset::with(['subsidiary'])->where('code', $code)->firstOrFail();
+        $this->asset = $asset->load(['subsidiary']);
     }
 
     public function render()

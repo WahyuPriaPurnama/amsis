@@ -108,7 +108,7 @@
 
                 {{-- Area ini yang akan tercetak --}}
                 <div class="bg-white p-3 d-inline-block rounded shadow-sm mb-2">
-                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(130)->generate(route('asset.scan', $asset->code)) !!}
+                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(130)->generate(route('asset.scan', $asset)) !!}
                 </div>
 
                 <div class="text-dark font-monospace fw-bold mt-1">{{ $asset->code }}</div>
