@@ -152,7 +152,7 @@ class EmployeeCreate extends Component
 
     public function render()
     {
-        return view('hrd.employee.employee-create', [
+        return view('livewire.hrd.employee.employee-create', [
             'subsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
         ]);
     }

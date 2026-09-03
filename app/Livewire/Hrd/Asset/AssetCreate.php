@@ -87,16 +87,21 @@ class AssetCreate extends Component
             }
         }
 
+        // Generate QR Code secara otomatis di backend
+        // Anda bisa menyimpannya berupa kode unik (misal: $this->code) 
+        // atau URL tautan detail jika nantinya ingin langsung di-scan via HP.
+        $validatedData['qr_code'] = $this->code;
+
         Asset::create($validatedData);
 
-        session()->flash('success', 'Data aset berhasil ditambahkan.');
+        session()->flash('success', 'Data aset beserta QR Code berhasil ditambahkan.');
 
         return $this->redirectRoute('asset.index', navigate: true);
     }
 
     public function render()
     {
-        return view('hrd.asset.asset-create', [
+        return view('livewire.hrd.asset.asset-create', [
             'subsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
         ]);
     }

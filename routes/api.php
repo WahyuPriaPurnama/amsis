@@ -1,9 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\LoginController;
-use App\Http\Controllers\Api\PostController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,8 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 
 
-Route::apiResource('/posts', PostController::class);
-Route::apiResource('/retort-logs', App\Http\Controllers\Api\RetortLogController::class);
 
 
 Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);

@@ -216,7 +216,7 @@ class UserManagement extends Component
             ->latest()
             ->paginate(10);
 
-        return view('auth.userlist', [
+        return view('livewire.admin.user-management', [
             'users' => $users,
             'roles' => Role::orderBy('name')->get(),
         ]);

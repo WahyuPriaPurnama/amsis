@@ -136,7 +136,7 @@ class AssetEdit extends Component
 
     public function render()
     {
-        return view('hrd.asset.asset-edit', [
+        return view('livewire.hrd.asset.asset-edit', [
             'subsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
         ]);
     }

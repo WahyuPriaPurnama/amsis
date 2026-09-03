@@ -84,7 +84,7 @@ class EmployeeShow extends Component
             }
         }
 
-        return view('hrd.employee.employee-show', [
+        return view('livewire.hrd.employee.employee-show', [
             'age'            => $age,
             'masaKerja'      => $masaKerja,
             'contractStatus' => $contractStatus,

@@ -46,6 +46,9 @@ Route::middleware('auth')->group(function () {
         Route::get('show-pdf/{employee}', 'show_pdf')->name('employee.pdf');
     });
 
+    // Leave
+    // Route::get('/leaves', App\Livewire\Hrd\Leave\LeaveIndex::class)->name('leaves.index');
+
     // Role & Permission Management
     Route::get('/admin/roles', App\Livewire\Admin\RoleManagement::class)->name('roles.index');
     Route::get('/users', App\Livewire\Admin\UserManagement::class)->name('users.index');
@@ -119,6 +122,6 @@ Route::middleware('auth')->group(function () {
         Route::get('export/excel', 'export_excel')->name('asset.export_excel');
     });
 });
-
+Route::get('/assets/scan/{code}', App\Livewire\Hrd\Asset\AssetScan::class)->name('asset.scan');
 Route::redirect('/', '/login');
 Route::get('e-slip/{plant}', App\Livewire\Hrd\ESlipShow::class)->name('e-slip.show');

@@ -49,7 +49,7 @@ class AssetIndex extends Component
             ->latest()
             ->paginate(10);
 
-        return view('hrd.asset.asset-index', [
+        return view('livewire.hrd.asset.asset-index', [
             'assets'          => $assets,
             'allSubsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
             'subsidiary_id'   => $this->subsidiary_id,

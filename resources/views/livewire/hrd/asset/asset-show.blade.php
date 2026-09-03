@@ -1,12 +1,5 @@
 <div>
     <div class="container mt-3">
-        {{-- Flash Notification --}}
-        @if (session()->has('error'))
-        <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        @endif
 
         @component('components.card')
         @slot('header')
@@ -107,6 +100,28 @@
             <p class="text-secondary mb-0">{{ $asset->description ?: '-' }}</p>
         </div>
 
+        {{-- Kotak QR Code Aset --}}
+        <div class="card bg-light border-0 mb-4" id="print-qr-section">
+            <div class="card-body text-center py-4">
+                {{-- Judul ini akan hilang saat diprint karena ada class no-print --}}
+                <h6 class="fw-bold mb-3 no-print"><i class="bi bi-qr-code me-1"></i> QR Code & Label Aset</h6>
+
+                {{-- Area ini yang akan tercetak --}}
+                <div class="bg-white p-3 d-inline-block rounded shadow-sm mb-2">
+                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(130)->generate(route('asset.scan', $asset->code)) !!}
+                </div>
+
+                <div class="text-dark font-monospace fw-bold mt-1">{{ $asset->code }}</div>
+                <div class="text-secondary small">{{ $asset->name }}</div>
+
+                {{-- Tombol cetak ini akan hilang saat diprint karena ada class no-print --}}
+                <div class="mt-3 no-print">
+                    <button onclick="window.print()" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-printer me-1"></i> Cetak Label Ini
+                    </button>
+                </div>
+            </div>
+        </div>
         <hr>
 
         {{-- Tombol Navigasi & Aksi --}}
@@ -136,3 +151,36 @@
         @endcomponent
     </div>
 </div>
+<style>
+    @media print {
+
+        /* 1. Sembunyikan SEMUA elemen di halaman */
+        body * {
+            visibility: hidden;
+        }
+
+        /* 2. Tampilkan HANYA area QR Code beserta isi di dalamnya */
+        #print-qr-section,
+        #print-qr-section * {
+            visibility: visible;
+        }
+
+        /* 3. Posisikan QR Code di pojok kiri atas kertas/label */
+        #print-qr-section {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            border: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+        }
+
+        /* 4. Sembunyikan elemen tertentu di dalam kotak QR saat diprint (seperti tombol cetak & judul card) */
+        .no-print {
+            display: none !important;
+        }
+    }
+</style>

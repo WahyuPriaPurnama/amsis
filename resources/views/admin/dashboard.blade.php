@@ -4,23 +4,7 @@
 @section('content')
 <div class="container">
 
-    @if(!empty($notes))
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <h5 class="fw-bold mb-2">🔔 Release Note:</h5>
-        <ul class="mb-0 ps-3">
-            @foreach($notes as $note)
-            <li>
-                {{ $note['text'] }}
-                @if($lastLogin && \Carbon\Carbon::parse($note['updated_at'])->gt($lastLogin->created_at))
-                <span class="badge bg-success">Baru</span>
-                @endif
-
-            </li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    @endif
+    <livewire:release-notes />
 
     <div class="row g-4">
         {{-- Bagian Grafik Karyawan --}}

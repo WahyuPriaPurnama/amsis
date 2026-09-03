@@ -94,7 +94,7 @@ class RoleManagement extends Component
 
     public function render()
     {
-        return view('admin.roles.index', [
+        return view('livewire.admin.role-management', [
             'roles' => Role::with(['permissions', 'subsidiaries'])->get(),
             'users' => User::select('id', 'name')->orderBy('name')->get(),
             'subsidiaries' => Subsidiary::select('id', 'name')->get(),

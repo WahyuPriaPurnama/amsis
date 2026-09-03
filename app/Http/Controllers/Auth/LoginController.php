@@ -27,20 +27,13 @@ class LoginController extends Controller
 
     protected function authenticated($user)
     {
-        $lastLogin = LogActivity::addToLog('login berhasil', [
+        LogActivity::addToLog('login berhasil', [
             'email' => $user->email,
             'subsidiary_id' => $user->subsidiary_id,
             'employee_id' => $user->employee_id,
         ]);
 
 
-        // Ambil array dari config/feature_changes.php
-        $featureChanges = config('feature_changes.notes', []);
-
-        // Kirim ke flash session hanya jika data di config tidak kosong
-        if (!empty($featureChanges)) {
-            session()->flash('feature_changes', $featureChanges);
-        }
     }
 
     /**

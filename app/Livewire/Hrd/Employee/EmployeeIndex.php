@@ -39,7 +39,7 @@ class EmployeeIndex extends Component
             ->latest()
             ->paginate(10);
 
-        return view('hrd.employee.employee-index', [
+        return view('livewire.hrd.employee.employee-index', [
             'employees' => $employees,
         ]);
     }

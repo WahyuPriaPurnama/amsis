@@ -41,6 +41,6 @@ class AssetShow extends Component
 
     public function render()
     {
-        return view('hrd.asset.asset-show');
+        return view('livewire.hrd.asset.asset-show');
     }
 }

@@ -216,7 +216,7 @@ class EmployeeEdit extends Component
     
     public function render()
     {
-        return view('hrd.employee.employee-edit', [
+        return view('livewire.hrd.employee.employee-edit', [
             'subsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
         ]);
     }
