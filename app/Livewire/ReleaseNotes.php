@@ -19,6 +19,7 @@ class ReleaseNotes extends Component
             ['text' => 'bug fix pada fitur edit RO dan RFP', 'updated_at' => '2026-09-01 08:00:00'],
             ['text' => 'peningkatan performa, navigasi lebih responsive tanpa reload halaman.', 'updated_at' => '2026-09-01 09:30:00'],
             ['text'=>'sistem qr code untuk asset, scan qr code untuk menampilkan detail asset', 'updated_at'=>'2026-09-02 10:00:00'],
+            ['text'=>'penambahan fitur ringkasan statistik asset, menampilkan jumlah asset berdasarkan nama barangnya', 'updated_at'=>'2026-09-02 11:00:00'],
         ];
 
         // 2. Cek apakah user sudah menutup (dismiss) notifikasi ini pada sesi aktif

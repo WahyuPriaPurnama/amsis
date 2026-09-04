@@ -36,24 +36,33 @@ class AssetIndex extends Component
 
     public function render()
     {
-        $assets = Asset::with(['subsidiary', 'user'])
-            ->when($this->subsidiary_id, function ($query) {
-                $query->where('subsidiary_id', $this->subsidiary_id);
+        $query = Asset::with(['subsidiary', 'user'])
+            ->when($this->subsidiary_id, function ($q) {
+                $q->where('subsidiary_id', $this->subsidiary_id);
             })
-            ->when($this->search, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
+            ->when($this->search, function ($q) {
+                $q->where(function ($subQ) {
+                    $subQ->where('name', 'like', '%' . $this->search . '%')
                         ->orWhere('code', 'like', '%' . $this->search . '%');
                 });
-            })
-            ->latest()
-            ->paginate(10);
+            });
+
+        $totalItemsCount = (clone $query)->count();
+
+        // Mengelompokkan dan menghitung jumlah aset berdasarkan nama barangnya secara spesifik
+        $assetBreakdown = (clone $query)
+            ->select('name', \DB::raw('count(*) as total'))
+            ->groupBy('name')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        $assets = (clone $query)->latest()->paginate(10);
 
         return view('livewire.hrd.asset.asset-index', [
-            'assets'          => $assets,
-            'allSubsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
-            'subsidiary_id'   => $this->subsidiary_id,
-            'search'          => $this->search,
+            'assets'           => $assets,
+            'allSubsidiaries'  => Subsidiary::orderBy('name', 'asc')->get(),
+            'totalItemsCount'  => $totalItemsCount,
+            'assetBreakdown'   => $assetBreakdown, // Kirim data rincian ke view
         ]);
     }
 }
