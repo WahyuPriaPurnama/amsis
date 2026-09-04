@@ -32,8 +32,8 @@
 
     {{-- Table Data --}}
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead>
+        <table class="table table-hover display align-middle" style="width: 100%;">
+            <thead class="table-dark">
                 <tr>
                     <th>#</th>
                     <th>PERUSAHAAN</th>

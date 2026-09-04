@@ -157,8 +157,8 @@
 
     {{-- Tabel Subsidiary --}}
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
+        <table class="table table-hover display align-middle" style="width: 100%;">
+            <thead class="table-dark">
                 <tr>
                     <th width="5%">#</th>
                     <th>Nama Perusahaan</th>
