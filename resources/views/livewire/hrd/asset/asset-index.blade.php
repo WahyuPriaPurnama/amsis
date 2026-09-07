@@ -82,8 +82,7 @@
                     <th>Nama</th>
                     <th>Qty</th> {{-- <-- Tambahkan Kolom Qty di Tabel jika diperlukan --}}
                     <th>Kondisi</th>
-                    <th>Lokasi</th>
-                    <th>Editor</th>
+                    <th>Lokasi</th> 
                     <th>Tgl Input</th>
                 </tr>
             </thead>
@@ -109,7 +108,6 @@
                         </span>
                     </td>
                     <td>{{ $asset->location ?? '-' }}</td>
-                    <td>{{ $asset->user?->name ?? '-' }}</td>
                     <td class="text-center">{{ $asset->created_at?->format('d-m-Y') }}</td>
                 </tr>
                 @empty

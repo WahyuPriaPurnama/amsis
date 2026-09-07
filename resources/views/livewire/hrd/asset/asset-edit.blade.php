@@ -105,33 +105,7 @@
                 </div>
             </div>
 
-            {{-- Baris 4: Nilai & Masa Manfaat --}}
-            <div class="row g-3 mb-3">
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Nilai Pembelian</label>
-                    <input type="number" step="0.01" wire:model="purchase_value" class="form-control @error('purchase_value') is-invalid @enderror">
-                    @error('purchase_value') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Nilai Penyusutan</label>
-                    <input type="number" step="0.01" wire:model="depreciation_value" class="form-control @error('depreciation_value') is-invalid @enderror">
-                    @error('depreciation_value') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Total Nilai</label>
-                    <input type="number" step="0.01" wire:model="total_value" class="form-control @error('total_value') is-invalid @enderror">
-                    @error('total_value') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                </div>
-
-                <div class="col-12 col-md-3">
-                    <label class="form-label">Masa Manfaat (bulan)</label>
-                    <input type="number" wire:model="useful_life" class="form-control @error('useful_life') is-invalid @enderror">
-                    @error('useful_life') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
-                </div>
-            </div>
-
+            
             {{-- Baris 5: File Uploads dengan Handler Universal (Kompresi Gambar & Pengecekan Ukuran File 2MB) --}}
             <div class="row g-3 mb-3" x-data="{
     isProcessing: false,
