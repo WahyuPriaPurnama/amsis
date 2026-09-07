@@ -3,11 +3,11 @@
 namespace App\Livewire\Hrd\Asset;
 
 use App\Models\HRD\Asset;
+use Illuminate\Support\Facades\URL;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-// Gunakan layout guest/publik agar tidak ada menu admin yang muncul
 #[Layout('layouts.app')]
 #[Title('Informasi Aset')]
 class AssetScan extends Component
@@ -16,7 +16,12 @@ class AssetScan extends Component
 
     public function mount(Asset $asset)
     {
-        // Cari aset berdasarkan kode aset yang di-scan, jika tidak ada munculkan 404
+        // Jika user belum login, simpan URL halaman ini agar setelah login diarahkan kembali ke sini
+        if (!auth()->check()) {
+            session(['url.intended' => URL::current()]);
+        }
+
+        // Cari aset berdasarkan kode/ID yang di-scan, load relasi subsidiary
         $this->asset = $asset->load(['subsidiary']);
     }
 

@@ -121,7 +121,16 @@ Route::middleware('auth')->group(function () {
     });
     Route::get('/assets/{asset}', App\Livewire\Hrd\Asset\AssetShow::class)->name('asset.show');
     Route::get('/assets/{asset}/edit', App\Livewire\Hrd\Asset\AssetEdit::class)->name('asset.edit');
+    Route::get('vendor/review', App\Livewire\Purchasing\Vendor\VendorReview::class)->name('admin.vendors.review');
+    Route::get('vendor/approved', App\Livewire\Purchasing\Vendor\VendorList::class)->name('admin.vendors.approved');
 });
 Route::get('/assets/scan/{asset}', App\Livewire\Hrd\Asset\AssetScan::class)->name('asset.scan');
+
+Route::get('/vendor/register', App\Livewire\Purchasing\Vendor\VendorRegister::class)->name('vendor.register');
+Route::get('/vendor/portal', App\Livewire\Purchasing\Vendor\VendorPortal::class)->name('vendor.portal');
+Route::get('/vendor/success', function () {
+    return "Registrasi berhasil! Berkas Anda sedang direview oleh admin.";
+})->name('vendor.success');
+
 Route::redirect('/', '/login');
 Route::get('e-slip/{plant}', App\Livewire\Hrd\ESlipShow::class)->name('e-slip.show');

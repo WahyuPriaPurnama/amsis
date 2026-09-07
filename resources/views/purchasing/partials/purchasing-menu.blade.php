@@ -14,4 +14,17 @@
         </a>
     </li>
     @endcan
+
+    @can('vendor.review')
+    <li>
+        <a class="dropdown-item {{ request()->routeIs('admin.vendors.review') ? 'active' : '' }}" href="{{ route('admin.vendors.review') }}" wire:navigate>
+            <i class="bi bi-clipboard-check me-2"></i>Review Vendor
+        </a>
+    </li>
+    <li>
+        <a class="dropdown-item {{ request()->routeIs('admin.vendors.approved') ? 'active' : '' }}" href="{{ route('admin.vendors.approved') }}" wire:navigate>
+            <i class="bi bi-building-check me-2"></i> Daftar Vendor
+        </a>
+    </li>
+    @endcan
 </ul>

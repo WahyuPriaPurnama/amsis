@@ -30,26 +30,6 @@
             <div class="col-12 col-md-3"><strong>Tanggal Pembelian:</strong><br>{{ $asset->purchase_date ?? '-' }}</div>
         </div>
 
-        {{-- Baris 4: Nilai Pembelian, Penyusutan, Total Nilai, Masa Manfaat --}}
-        <div class="row g-3 mb-3">
-            <div class="col-12 col-md-3">
-                <strong>Nilai Pembelian:</strong><br>
-                Rp {{ number_format($asset->purchase_value ?? 0, 2, ',', '.') }}
-            </div>
-            <div class="col-12 col-md-3">
-                <strong>Nilai Penyusutan:</strong><br>
-                Rp {{ number_format($asset->depreciation_value ?? 0, 2, ',', '.') }}
-            </div>
-            <div class="col-12 col-md-3">
-                <strong>Total Nilai:</strong><br>
-                Rp {{ number_format($asset->total_value ?? 0, 2, ',', '.') }}
-            </div>
-            <div class="col-12 col-md-3">
-                <strong>Masa Manfaat:</strong><br>
-                {{ $asset->useful_life ?? 0 }} bulan
-            </div>
-        </div>
-
         {{-- Baris 5: File Uploads --}}
         <div class="row g-3 mb-3">
             <div class="col-12 col-md-3">
