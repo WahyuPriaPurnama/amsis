@@ -132,11 +132,98 @@
                 </div>
             </div>
 
-            {{-- Baris 5: File Uploads --}}
-            <div class="row g-3 mb-3">
+            {{-- Baris 5: File Uploads dengan Handler Universal (Kompresi Gambar & Pengecekan Ukuran File 2MB) --}}
+            <div class="row g-3 mb-3" x-data="{
+    isProcessing: false,
+    processingType: '',
+    handleFile(event, wireProperty) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        this.isProcessing = true;
+        this.processingType = wireProperty;
+
+        // Jika file berupa gambar, kompres dulu baru cek ukurannya
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxWidth = 1200; // Batas lebar maksimal
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Kompres ke format JPEG dengan kualitas 0.8 (80%)
+                    canvas.toBlob((blob) => {
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now(),
+                        });
+
+                        // VALIDASI UKURAN SETELAH DIKOMPRESI (Maksimal 2MB)
+                        const maxSize = 2 * 1024 * 1024;
+                        if (compressedFile.size > maxSize) {
+                            alert('Ukuran foto masih terlalu besar setelah dikompresi. Silakan gunakan resolusi yang lebih rendah.');
+                            event.target.value = '';
+                            this.isProcessing = false;
+                            this.processingType = '';
+                            return;
+                        }
+
+                        // Kirim file hasil kompresi yang sudah aman ke Livewire
+                        @this.upload(wireProperty, compressedFile, () => {
+                            this.isProcessing = false;
+                            this.processingType = '';
+                        }, () => {
+                            this.isProcessing = false;
+                            this.processingType = '';
+                        });
+                    }, 'image/jpeg', 0.8);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Untuk file non-gambar (seperti PDF), tetap cek ukurannya di awal karena tidak bisa dikompres
+            const maxSize = 2 * 1024 * 1024;
+            if (file.size > maxSize) {
+                alert('Ukuran file terlalu besar! Maksimal 2MB.');
+                event.target.value = '';
+                this.isProcessing = false;
+                this.processingType = '';
+                return;
+            }
+
+            @this.upload(wireProperty, file, () => {
+                this.isProcessing = false;
+                this.processingType = '';
+            }, () => {
+                this.isProcessing = false;
+                this.processingType = '';
+            });
+        }
+    }
+}">
+                {{-- Tanda Terima --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Tanda Terima</label>
-                    <input type="file" wire:model="new_delivery_receipt" class="form-control @error('new_delivery_receipt') is-invalid @enderror">
+                    <input type="file" @change="handleFile($event, 'new_delivery_receipt')" class="form-control @error('new_delivery_receipt') is-invalid @enderror" :disabled="isProcessing">
+
+                    <div x-show="isProcessing && processingType === 'new_delivery_receipt'" style="display: none;" class="form-text text-primary mt-1 small">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Mengunggah berkas...
+                    </div>
+
                     @error('new_delivery_receipt') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
 
                     @if ($asset->delivery_receipt)
@@ -146,9 +233,15 @@
                     @endif
                 </div>
 
+                {{-- Manual Book --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Manual Book</label>
-                    <input type="file" wire:model="new_manual_book" class="form-control @error('new_manual_book') is-invalid @enderror">
+                    <input type="file" @change="handleFile($event, 'new_manual_book')" class="form-control @error('new_manual_book') is-invalid @enderror" :disabled="isProcessing">
+
+                    <div x-show="isProcessing && processingType === 'new_manual_book'" style="display: none;" class="form-text text-primary mt-1 small">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Mengunggah berkas...
+                    </div>
+
                     @error('new_manual_book') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
 
                     @if ($asset->manual_book)
@@ -158,9 +251,15 @@
                     @endif
                 </div>
 
+                {{-- Foto Aset (Ganti 'photo' menjadi 'new_photo') --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Foto Aset</label>
-                    <input type="file" wire:model="new_photo" class="form-control @error('new_photo') is-invalid @enderror" accept="image/*">
+                    <input type="file" @change="handleFile($event, 'new_photo')" class="form-control @error('new_photo') is-invalid @enderror" accept="image/*" capture="environment" :disabled="isProcessing">
+
+                    <div x-show="isProcessing && processingType === 'new_photo'" style="display: none;" class="form-text text-primary mt-1 small">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Mengompresi foto...
+                    </div>
+
                     @error('new_photo') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
 
                     @if ($asset->photo)
@@ -170,9 +269,15 @@
                     @endif
                 </div>
 
+                {{-- Lampiran --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Lampiran</label>
-                    <input type="file" wire:model="new_attachment" class="form-control @error('new_attachment') is-invalid @enderror">
+                    <input type="file" @change="handleFile($event, 'new_attachment')" class="form-control @error('new_attachment') is-invalid @enderror" :disabled="isProcessing">
+
+                    <div x-show="isProcessing && processingType === 'new_attachment'" style="display: none;" class="form-text text-primary mt-1 small">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Mengunggah berkas...
+                    </div>
+
                     @error('new_attachment') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
 
                     @if ($asset->attachment)

@@ -111,8 +111,6 @@ Route::middleware('auth')->group(function () {
     // Asset Management
     Route::get('/assets', App\Livewire\Hrd\Asset\AssetIndex::class)->name('asset.index');
     Route::get('/assets/create', App\Livewire\Hrd\Asset\AssetCreate::class)->name('asset.create');
-    Route::get('/assets/{asset}', App\Livewire\Hrd\Asset\AssetShow::class)->name('asset.show');
-    Route::get('/assets/{asset}/edit', App\Livewire\Hrd\Asset\AssetEdit::class)->name('asset.edit');
     Route::prefix('asset')->controller(AssetController::class)->group(function () {
         Route::get('photo/{id}', 'photo')->name('asset.photo');
         Route::get('attachment/{id}', 'attachment')->name('asset.attachment');
@@ -121,6 +119,8 @@ Route::middleware('auth')->group(function () {
         Route::get('export/pdf', 'export_pdf')->name('asset.export_pdf');
         Route::get('export/excel', 'export_excel')->name('asset.export_excel');
     });
+    Route::get('/assets/{asset}', App\Livewire\Hrd\Asset\AssetShow::class)->name('asset.show');
+    Route::get('/assets/{asset}/edit', App\Livewire\Hrd\Asset\AssetEdit::class)->name('asset.edit');
 });
 Route::get('/assets/scan/{asset}', App\Livewire\Hrd\Asset\AssetScan::class)->name('asset.scan');
 Route::redirect('/', '/login');

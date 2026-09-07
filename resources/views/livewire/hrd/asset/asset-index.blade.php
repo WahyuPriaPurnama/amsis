@@ -9,11 +9,12 @@
     <div class="card border-0 shadow-sm bg-light mb-4">
         <div class="card-body py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     <span class="fw-bold small text-muted text-uppercase">
                         <i class="bi bi-pie-chart-fill me-1"></i> Ringkasan Statistik Aset
                     </span>
-                    <span class="badge bg-primary">Total: {{ $totalItemsCount }} Item</span>
+                    <span class="badge bg-primary">Total Item: {{ $totalItemsCount }}</span>
+                    <span class="badge bg-success">Total Qty: {{ $totalQuantityCount }} Pcs</span> {{-- <-- Badge Total Qty Keseluruhan --}}
                     <span class="badge bg-secondary">{{ count($assetBreakdown) }} Jenis Barang</span>
                 </div>
 
@@ -29,7 +30,8 @@
                     @forelse($assetBreakdown as $item)
                     <div class="bg-white border rounded px-2.5 py-1 shadow-sm small">
                         <span class="fw-semibold text-dark">{{ $item->name }}</span>:
-                        <span class="badge bg-success-subtle text-success border fw-bold">{{ $item->total }} Pcs</span>
+                        <span class="badge bg-light text-dark border">{{ $item->total }} Baris</span>
+                        <span class="badge bg-success-subtle text-success border fw-bold">{{ $item->total_qty ?? 0 }} Pcs</span> {{-- <-- Qty per Jenis Barang --}}
                     </div>
                     @empty
                     <span class="text-muted small">Belum ada data aset untuk ditampilkan.</span>
@@ -46,7 +48,6 @@
             <x-buttons.create href="{{ route('asset.create') }}" wire:navigate />
             @endcan
 
-            <!-- Menggunakan Variabel Blade Biasa (Bukan $this->) -->
             <x-buttons.pdf href="{{ route('asset.export_pdf', ['subsidiary_id' => $subsidiary_id, 'search' => $search]) }}" />
             <x-buttons.excel href="{{ route('asset.export_excel', ['subsidiary_id' => $subsidiary_id, 'search' => $search]) }}" />
         </div>
@@ -79,6 +80,7 @@
                     <th>Plant</th>
                     <th>Kode</th>
                     <th>Nama</th>
+                    <th>Qty</th> {{-- <-- Tambahkan Kolom Qty di Tabel jika diperlukan --}}
                     <th>Kondisi</th>
                     <th>Lokasi</th>
                     <th>Editor</th>
@@ -100,6 +102,7 @@
                         @endcan
                     </td>
                     <td>{{ $asset->name }}</td>
+                    <td class="text-center fw-bold">{{ $asset->quantity ?? 0 }}</td> {{-- <-- Data Qty per baris --}}
                     <td class="text-center">
                         <span class="badge bg-secondary-subtle text-secondary border">
                             {{ $asset->condition ?? '-' }}
@@ -111,7 +114,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center py-4 text-muted">
+                    <td colspan="9" class="text-center py-4 text-muted">
                         <i class="bi bi-inbox fs-3 d-block mb-1"></i>
                         Tidak ada data aset ditemukan..
                     </td>

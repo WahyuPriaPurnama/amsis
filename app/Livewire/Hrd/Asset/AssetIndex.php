@@ -47,22 +47,25 @@ class AssetIndex extends Component
                 });
             });
 
+        // Hitung total baris item dan total keseluruhan Qty
         $totalItemsCount = (clone $query)->count();
+        $totalQuantityCount = (clone $query)->sum('quantity'); // <-- Ubah 'qty' sesuai nama kolom di database Anda
 
-        // Mengelompokkan dan menghitung jumlah aset berdasarkan nama barangnya secara spesifik
+        // Mengelompokkan dan menghitung jumlah aset serta total qty berdasarkan nama barang
         $assetBreakdown = (clone $query)
-            ->select('name', \DB::raw('count(*) as total'))
+            ->select('name', \DB::raw('count(*) as total'), \DB::raw('sum(quantity) as total_qty')) // <-- Tambahkan sum(quantity)
             ->groupBy('name')
-            ->orderBy('total', 'desc')
+            ->orderBy('total_qty', 'desc')
             ->get();
 
         $assets = (clone $query)->latest()->paginate(10);
 
         return view('livewire.hrd.asset.asset-index', [
-            'assets'           => $assets,
-            'allSubsidiaries'  => Subsidiary::orderBy('name', 'asc')->get(),
-            'totalItemsCount'  => $totalItemsCount,
-            'assetBreakdown'   => $assetBreakdown, // Kirim data rincian ke view
+            'assets'             => $assets,
+            'allSubsidiaries'    => Subsidiary::orderBy('name', 'asc')->get(),
+            'totalItemsCount'    => $totalItemsCount,
+            'totalQuantityCount' => $totalQuantityCount, // <-- Kirim ke view
+            'assetBreakdown'     => $assetBreakdown,
         ]);
     }
 }
