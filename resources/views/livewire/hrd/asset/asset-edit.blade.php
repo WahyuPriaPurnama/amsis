@@ -2,7 +2,7 @@
     <div class="container-fluid mt-3">
         @component('components.card')
         @slot('header')
-        Edit Aset
+        Edit Aset - {{ $asset->name }}
         @endslot
 
         <form wire:submit.prevent="update">
@@ -105,90 +105,84 @@
                 </div>
             </div>
 
-            
-            {{-- Baris 5: File Uploads dengan Handler Universal (Kompresi Gambar & Pengecekan Ukuran File 2MB) --}}
+            {{-- Baris 4: File Uploads dengan Handler Universal & Kompresi Gambar --}}
             <div class="row g-3 mb-3" x-data="{
-    isProcessing: false,
-    processingType: '',
-    handleFile(event, wireProperty) {
-        const file = event.target.files[0];
-        if (!file) return;
+                isProcessing: false,
+                processingType: '',
+                handleFile(event, wireProperty) {
+                    const file = event.target.files[0];
+                    if (!file) return;
 
-        this.isProcessing = true;
-        this.processingType = wireProperty;
+                    this.isProcessing = true;
+                    this.processingType = wireProperty;
 
-        // Jika file berupa gambar, kompres dulu baru cek ukurannya
-        if (file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const maxWidth = 1200; // Batas lebar maksimal
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = new Image();
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                let width = img.width;
+                                let height = img.height;
+                                const maxWidth = 1200;
 
-                    if (width > maxWidth) {
-                        height = Math.round((height * maxWidth) / width);
-                        width = maxWidth;
-                    }
+                                if (width > maxWidth) {
+                                    height = Math.round((height * maxWidth) / width);
+                                    width = maxWidth;
+                                }
 
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
+                                canvas.width = width;
+                                canvas.height = height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, width, height);
 
-                    // Kompres ke format JPEG dengan kualitas 0.8 (80%)
-                    canvas.toBlob((blob) => {
-                        const compressedFile = new File([blob], file.name, {
-                            type: 'image/jpeg',
-                            lastModified: Date.now(),
-                        });
+                                canvas.toBlob((blob) => {
+                                    const compressedFile = new File([blob], file.name, {
+                                        type: 'image/jpeg',
+                                        lastModified: Date.now(),
+                                    });
 
-                        // VALIDASI UKURAN SETELAH DIKOMPRESI (Maksimal 2MB)
+                                    const maxSize = 2 * 1024 * 1024;
+                                    if (compressedFile.size > maxSize) {
+                                        alert('Ukuran foto masih terlalu besar setelah dikompresi. Silakan gunakan resolusi yang lebih rendah.');
+                                        event.target.value = '';
+                                        this.isProcessing = false;
+                                        this.processingType = '';
+                                        return;
+                                    }
+
+                                    @this.upload(wireProperty, compressedFile, () => {
+                                        this.isProcessing = false;
+                                        this.processingType = '';
+                                    }, () => {
+                                        this.isProcessing = false;
+                                        this.processingType = '';
+                                    });
+                                }, 'image/jpeg', 0.8);
+                            };
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
                         const maxSize = 2 * 1024 * 1024;
-                        if (compressedFile.size > maxSize) {
-                            alert('Ukuran foto masih terlalu besar setelah dikompresi. Silakan gunakan resolusi yang lebih rendah.');
+                        if (file.size > maxSize) {
+                            alert('Ukuran file terlalu besar! Maksimal 2MB.');
                             event.target.value = '';
                             this.isProcessing = false;
                             this.processingType = '';
                             return;
                         }
 
-                        // Kirim file hasil kompresi yang sudah aman ke Livewire
-                        @this.upload(wireProperty, compressedFile, () => {
+                        @this.upload(wireProperty, file, () => {
                             this.isProcessing = false;
                             this.processingType = '';
                         }, () => {
                             this.isProcessing = false;
                             this.processingType = '';
                         });
-                    }, 'image/jpeg', 0.8);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // Untuk file non-gambar (seperti PDF), tetap cek ukurannya di awal karena tidak bisa dikompres
-            const maxSize = 2 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert('Ukuran file terlalu besar! Maksimal 2MB.');
-                event.target.value = '';
-                this.isProcessing = false;
-                this.processingType = '';
-                return;
-            }
-
-            @this.upload(wireProperty, file, () => {
-                this.isProcessing = false;
-                this.processingType = '';
-            }, () => {
-                this.isProcessing = false;
-                this.processingType = '';
-            });
-        }
-    }
-}">
+                    }
+                }
+            }">
                 {{-- Tanda Terima --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Tanda Terima</label>
@@ -202,7 +196,7 @@
 
                     @if ($asset->delivery_receipt)
                     <small class="d-block mt-1 text-muted">
-                        File saat ini: <a href="{{ route('asset.delivery_receipt', $asset->id) }}" target="_blank">Lihat Berkas</a>
+                        File saat ini: <a href="{{ asset('storage/assets/delivery_receipt/' . $asset->delivery_receipt) }}" target="_blank">Lihat Berkas</a>
                     </small>
                     @endif
                 </div>
@@ -220,12 +214,12 @@
 
                     @if ($asset->manual_book)
                     <small class="d-block mt-1 text-muted">
-                        File saat ini: <a href="{{ route('asset.manual_book', $asset->id) }}" target="_blank">Lihat Berkas</a>
+                        File saat ini: <a href="{{ asset('storage/assets/manual_book/' . $asset->manual_book) }}" target="_blank">Lihat Berkas</a>
                     </small>
                     @endif
                 </div>
 
-                {{-- Foto Aset (Ganti 'photo' menjadi 'new_photo') --}}
+                {{-- Foto Aset --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Foto Aset</label>
                     <input type="file" @change="handleFile($event, 'new_photo')" class="form-control @error('new_photo') is-invalid @enderror" accept="image/*" capture="environment" :disabled="isProcessing">
@@ -238,7 +232,7 @@
 
                     @if ($asset->photo)
                     <small class="d-block mt-1 text-muted">
-                        File saat ini: <a href="{{ route('asset.photo', $asset->id) }}" target="_blank">Lihat Berkas</a>
+                        File saat ini: <a href="{{ asset('storage/assets/photo/' . $asset->photo) }}" target="_blank">Lihat Berkas</a>
                     </small>
                     @endif
                 </div>
@@ -256,7 +250,7 @@
 
                     @if ($asset->attachment)
                     <small class="d-block mt-1 text-muted">
-                        File saat ini: <a href="{{ route('asset.attachment', $asset->id) }}" target="_blank">Lihat Berkas</a>
+                        File saat ini: <a href="{{ asset('storage/assets/attachment/' . $asset->attachment) }}" target="_blank">Lihat Berkas</a>
                     </small>
                     @endif
                 </div>

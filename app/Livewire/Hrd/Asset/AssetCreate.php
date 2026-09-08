@@ -87,13 +87,19 @@ class AssetCreate extends Component
         $validatedData['usage_date']    = $this->usage_date ?: null;
         $validatedData['purchase_date'] = $this->purchase_date ?: null;
 
-        // Proses simpan berkas unggahan secara dinamis
-        foreach (['delivery_receipt', 'manual_book', 'photo', 'attachment'] as $field) {
-            if ($this->$field) {
-                $path = $this->$field->store('public/assets/' . $field);
-                $validatedData[$field] = basename($path);
-            }
-        }
+       foreach (['delivery_receipt', 'manual_book', 'photo', 'attachment'] as $field) {
+    // Sesuaikan nama properti form jika di edit menggunakan 'new_' (contoh: new_photo)
+    $property = method_exists($this, 'update') ? 'new_' . $field : $field; 
+
+    if ($this->$property ?? $this->$field) {
+        $fileObj = $this->$property ?? $this->$field;
+
+        // Simpan ke disk public dengan path bersih: assets/photo/namafile.jpg
+        $path = $fileObj->store('assets/' . $field, 'public');
+        
+        $validatedData[$field] = $path; // Hasilnya: "assets/photo/xxxx.jpg"
+    }
+}
 
         // Generate QR Code otomatis
         $validatedData['qr_code'] = $this->code;

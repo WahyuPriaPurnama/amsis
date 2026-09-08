@@ -48,8 +48,14 @@
             <x-buttons.create href="{{ route('asset.create') }}" wire:navigate />
             @endcan
 
-            <x-buttons.pdf href="{{ route('asset.export_pdf', ['subsidiary_id' => $subsidiary_id, 'search' => $search]) }}" />
-            <x-buttons.excel href="{{ route('asset.export_excel', ['subsidiary_id' => $subsidiary_id, 'search' => $search]) }}" />
+            <!-- Tombol Ekspor PDF & Excel di asset-index.blade.php -->
+            <button type="button" wire:click="exportPdf" class="btn btn-danger btn-sm">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+            </button>
+
+            <button type="button" wire:click="exportExcel" class="btn btn-success btn-sm">
+                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+            </button>
         </div>
 
         <!-- Form Filter & Pencarian Reaktif -->
@@ -80,9 +86,9 @@
                     <th>Plant</th>
                     <th>Kode</th>
                     <th>Nama</th>
-                    <th>Qty</th> {{-- <-- Tambahkan Kolom Qty di Tabel jika diperlukan --}}
+                    <th>Qty</th>
                     <th>Kondisi</th>
-                    <th>Lokasi</th> 
+                    <th>Lokasi</th>
                     <th>Tgl Input</th>
                 </tr>
             </thead>

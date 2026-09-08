@@ -6,12 +6,10 @@ use App\Models\HRD\Asset;
 use App\Models\HRD\Subsidiary;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
 #[Layout('layouts.app')]
-#[Title('Edit Aset')]
 class AssetEdit extends Component
 {
     use WithFileUploads;
@@ -36,6 +34,12 @@ class AssetEdit extends Component
     public $total_value;
     public $useful_life;
     public $description;
+
+    // Properti Berkas Lama dari Database
+    public $delivery_receipt;
+    public $manual_book;
+    public $photo;
+    public $attachment;
 
     // Properti Upload Berkas Baru
     public $new_delivery_receipt;
@@ -63,6 +67,11 @@ class AssetEdit extends Component
         $this->total_value = $asset->total_value;
         $this->useful_life = $asset->useful_life;
         $this->description = $asset->description;
+
+        $this->delivery_receipt = $asset->delivery_receipt;
+        $this->manual_book      = $asset->manual_book;
+        $this->photo            = $asset->photo;
+        $this->attachment       = $asset->attachment;
     }
 
     protected function rules()
@@ -101,7 +110,7 @@ class AssetEdit extends Component
         $validatedData['usage_date']    = $this->usage_date ?: null;
         $validatedData['purchase_date'] = $this->purchase_date ?: null;
 
-        // Pemetaan nama kolom DB => nama properti Livewire sementara
+        // Pemetaan nama kolom database => nama properti file baru di Livewire
         $fileMapping = [
             'delivery_receipt' => 'new_delivery_receipt',
             'manual_book'      => 'new_manual_book',
@@ -110,21 +119,35 @@ class AssetEdit extends Component
         ];
 
         foreach ($fileMapping as $dbColumn => $property) {
+            // Jika ada file baru yang di-upload untuk properti ini
             if ($this->$property) {
                 // Hapus berkas lama di storage jika ada
-                if ($this->asset->$dbColumn) {
-                    Storage::delete('public/assets/' . $dbColumn . '/' . $this->asset->$dbColumn);
+                if ($this->asset->$dbColumn && Storage::disk('public')->exists($this->asset->$dbColumn)) {
+                    Storage::disk('public')->delete($this->asset->$dbColumn);
                 }
 
-                // Simpan berkas baru & masukkan ke nama kolom DB yang benar
-                $path = $this->$property->store('public/assets/' . $dbColumn);
-                $validatedData[$dbColumn] = basename($path);
+                // Simpan berkas baru ke disk 'public' dengan path bersih
+                $path = $this->$property->store('assets/' . $dbColumn, 'public');
+
+                // Masukkan path baru ke array validatedData untuk disimpan ke database
+                $validatedData[$dbColumn] = $path;
+            } else {
+                // Jika tidak ada file baru yang di-upload, jangan ubah kolom file di database
+                unset($validatedData[$dbColumn]);
             }
 
-            // KUNCI PERBAIKAN: Hapus properti sementara dari array $validatedData
-            // agar Eloquent tidak mencoba menyimpannya sebagai kolom DB
+            // Hapus properti sementara (new_...) dari array validatedData 
+            // agar Eloquent tidak mencoba menyimpannya ke kolom database
             unset($validatedData[$property]);
         }
+
+        // Hapus juga properti file lama dari array validatedData jika ikut tervalidasi
+        unset(
+            $validatedData['delivery_receipt'],
+            $validatedData['manual_book'],
+            $validatedData['photo'],
+            $validatedData['attachment']
+        );
 
         // Simpan perubahan ke database
         $this->asset->update($validatedData);
@@ -138,6 +161,6 @@ class AssetEdit extends Component
     {
         return view('livewire.hrd.asset.asset-edit', [
             'subsidiaries' => Subsidiary::orderBy('name', 'asc')->get(),
-        ]);
+        ])->title('Edit Aset - ' . ($this->asset->name ?? ''));
     }
 }
