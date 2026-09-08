@@ -6,6 +6,11 @@
         <div class="card-body p-4">
 
             <div class="text-center mb-4">
+                @if($asset->photo)
+                <div class="mt-4 text-center">
+                    <img src="{{ asset('storage/assets/photo/' . $asset->photo) }}" alt="Foto Aset" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
+                </div>
+                @endif
                 <h4 class="fw-bold">{{ $asset->name }}</h4>
                 <span class="badge bg-secondary fs-6 font-monospace">{{ $asset->code }}</span>
             </div>
@@ -49,12 +54,7 @@
                 </table>
             </div>
 
-            @if($asset->photo)
-            <div class="mt-4 text-center">
-                <h6>Foto Aset:</h6>
-                <img src="{{ asset('storage/assets/photo/' . $asset->photo) }}" alt="Foto Aset" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
-            </div>
-            @endif
+
 
             <div class="mt-4">
                 <h6>Deskripsi:</h6>
@@ -68,17 +68,17 @@
                 </a>
 
                 @auth
-                    {{-- Jika sudah login dan memiliki izin edit --}}
-                    @can('asset.edit')
-                    <a href="{{ route('asset.edit', $asset->id) }}" class="btn btn-warning btn-sm text-dark fw-semibold" wire:navigate>
-                        <i class="bi bi-pencil-square me-1"></i> Edit Aset Ini
-                    </a>
-                    @endcan
+                {{-- Jika sudah login dan memiliki izin edit --}}
+                @can('asset.edit')
+                <a href="{{ route('asset.edit', $asset->id) }}" class="btn btn-warning btn-sm text-dark fw-semibold" wire:navigate>
+                    <i class="bi bi-pencil-square me-1"></i> Edit Aset Ini
+                </a>
+                @endcan
                 @else
-                    {{-- Jika belum login, arahkan ke login dengan membawa URL tujuan saat ini (intended) --}}
-                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Login untuk Edit Aset
-                    </a>
+                {{-- Jika belum login, arahkan ke login dengan membawa URL tujuan saat ini (intended) --}}
+                <a href="{{ route('login') }}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Login untuk Edit Aset
+                </a>
                 @endauth
             </div>
 
