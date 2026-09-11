@@ -16,7 +16,7 @@
 
     <p>Silakan melakukan penyesuaian atau perbaikan dokumen sesuai catatan di atas, lalu lakukan pendaftaran kembali.</p>
 
-    <p>Salam,<br><strong>Tim Procurement AMSIS</strong></p>
+    <p>Salam,<br><strong>Tim Procurement AMS Group</strong></p>
 </body>
 
 </html>

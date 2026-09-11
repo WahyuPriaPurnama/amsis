@@ -16,9 +16,8 @@
         <li><strong>Password Sementara:</strong> <code style="background: #f1f1f1; padding: 2px 6px; font-weight: bold;">{{ $plainPassword }}</code></li>
     </ul>
 
-    <p>Silakan gunakan kredensial di atas untuk login ke Portal Vendor dan mengakses Purchase Order (PO).</p>
 
-    <p>Salam,<br><strong>Tim Procurement AMSIS</strong></p>
+    <p>Salam,<br><strong>Tim Procurement AMS Group</strong></p>
 </body>
 
 </html>
