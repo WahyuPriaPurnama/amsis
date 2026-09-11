@@ -1,12 +1,15 @@
 <?php
+
 namespace App\Livewire\Purchasing\Vendor;
 
 use Livewire\Component;
 use App\Models\Purchasing\Vendor;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
-// Jika menggunakan mail, import class Mail dan Mailable Anda di sini
+use App\Mail\VendorApprovedMail;
+use App\Mail\VendorRejectedMail;
 
 class VendorReview extends Component
 {
@@ -38,33 +41,33 @@ class VendorReview extends Component
         $this->rejection_reason = '';
     }
 
-    // Aksi Menyetujui Vendor (YA)
-    public function approveVendor($vendorId)
+    public function approveVendor()
     {
-        $vendor = Vendor::findOrFail($vendorId);
+        if (!$this->selectedVendor) {
+            return;
+        }
 
-        // 1. Buat akun user baru untuk vendor berdasarkan email PIC
+        $vendor = Vendor::findOrFail($this->selectedVendor->id);
+
+        $plainPassword = 'v-' . rand(1000, 9999); 
+
         $user = User::create([
             'name' => $vendor->pic_name,
             'email' => $vendor->pic_email,
-            'password' => Hash::make(Str::random(12)), // Password sementara
-            // Tambahkan role vendor jika menggunakan Spatie Permission, misal: $user->assignRole('vendor');
+            'password' => Hash::make($plainPassword),
         ]);
 
-        // 2. Update status vendor menjadi approved dan kaitkan user_id-nya
         $vendor->update([
             'user_id' => $user->id,
             'status' => 'approved',
         ]);
 
-        // 3. TODO: Kirim Email Aktivasi & Set Password ke $vendor->pic_email
-        // Mail::to($vendor->pic_email)->send(new VendorApprovedMail($vendor, $user));
+        Mail::to($vendor->pic_email)->send(new VendorApprovedMail($vendor, $user, $plainPassword));
 
         session()->flash('message', "Vendor {$vendor->company_name} berhasil disetujui dan akun telah dibuat.");
         $this->closeModal();
     }
 
-    // Aksi Menolak Vendor (TIDAK)
     public function rejectVendor()
     {
         $this->validate([
@@ -78,8 +81,8 @@ class VendorReview extends Component
             'rejection_reason' => $this->rejection_reason,
         ]);
 
-        // TODO: Kirim Email Penolakan + Alasan Perbaikan Berkas ke $vendor->pic_email
-        // Mail::to($vendor->pic_email)->send(new VendorRejectedMail($vendor));
+
+        Mail::to($vendor->pic_email)->send(new VendorRejectedMail($vendor));
 
         session()->flash('message', "Vendor {$vendor->company_name} ditolak.");
         $this->closeModal();
