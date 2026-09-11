@@ -1,5 +1,5 @@
 <?php
-namespace App\Livewire\Vendor;
+namespace App\Livewire\Purchasing\Vendor;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
