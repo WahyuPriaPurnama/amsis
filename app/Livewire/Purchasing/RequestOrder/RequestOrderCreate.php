@@ -5,6 +5,7 @@ namespace App\Livewire\Purchasing\RequestOrder;
 use App\Models\HRD\Subsidiary;
 use App\Models\Purchasing\RequestOrder;
 use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -68,16 +69,12 @@ class RequestOrderCreate extends Component
             return;
         }
 
-        // Ambil data subsidiary untuk mendapatkan kode/nama plant
-        $subsidiary = Subsidiary::find($this->subsidiary_id);
-        $subCode = $subsidiary ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $subsidiary->name), 0, 3)) : 'SUB';
-
-        // Format Prefix dengan kode subsidiary: SUB/YYYYMM/ (Contoh: JKT/202609/)
         $yearMonth = Carbon::parse($this->request_date)->format('Ym');
-        $prefix = "{$subCode}/{$yearMonth}/";
+        $prefix = "{$yearMonth}/";
 
-        // Cari nomor urut terakhir berdasarkan prefix plant tersebut
-        $lastOrder = RequestOrder::where('request_number', 'like', $prefix . '%')
+        // Cari nomor urut terakhir KHUSUS untuk Subsidiary (Plant) yang dipilih
+        $lastOrder = RequestOrder::where('subsidiary_id', $this->subsidiary_id)
+            ->where('request_number', 'like', $prefix . '%')
             ->orderByRaw('CAST(SUBSTRING_INDEX(request_number, "/", -1) AS UNSIGNED) DESC')
             ->first();
 
@@ -91,7 +88,7 @@ class RequestOrderCreate extends Component
 
         $this->request_number = $prefix . $nextNum;
     }
-    
+
     public function addItem()
     {
         $this->items[] = [
@@ -113,18 +110,28 @@ class RequestOrderCreate extends Component
     protected function rules()
     {
         return [
-            'subsidiary_id'        => 'required|exists:subsidiaries,id',
-            'division'             => 'required|string|max:255',
-            'request_date'         => 'required|date',
-            'request_number'       => 'required|string|max:100|unique:request_orders,request_number',
-            'purpose'              => 'nullable|string',
-            'attachment'           => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'subsidiary_id'      => 'required|exists:subsidiaries,id',
+            'division'           => 'required|string|max:255',
+            'request_date'       => 'required|date',
 
-            'items'                => 'required|array|min:1',
-            'items.*.item_name'    => 'required|string|max:255',
-            'items.*.quantity'     => 'required|numeric|min:1',
-            'items.*.unit'         => 'required|string|max:50',
-            'items.*.remark'       => 'nullable|string|max:255',
+            // Validasi unique dikhususkan per subsidiary_id agar format 202609/001 bisa dipakai masing-masing plant
+            'request_number'     => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('request_orders', 'request_number')->where(function ($query) {
+                    return $query->where('subsidiary_id', $this->subsidiary_id);
+                }),
+            ],
+
+            'purpose'            => 'nullable|string',
+            'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+
+            'items'              => 'required|array|min:1',
+            'items.*.item_name'  => 'required|string|max:255',
+            'items.*.quantity'   => 'required|numeric|min:1',
+            'items.*.unit'       => 'required|string|max:50',
+            'items.*.remark'     => 'nullable|string|max:255',
         ];
     }
 
