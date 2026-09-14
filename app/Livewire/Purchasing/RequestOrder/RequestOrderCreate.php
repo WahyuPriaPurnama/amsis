@@ -63,36 +63,35 @@ class RequestOrderCreate extends Component
 
     public function generateRequestNumber()
     {
-        // Validasi: Harus memilih Plant dan Tanggal
         if (!$this->request_date || !$this->subsidiary_id) {
             $this->request_number = '';
             return;
         }
 
-        // Format Prefix: YYYYMM/ (Contoh: 202608/)
-        $yearMonth = Carbon::parse($this->request_date)->format('Ym');
-        $prefix = "{$yearMonth}/";
+        // Ambil data subsidiary untuk mendapatkan kode/nama plant
+        $subsidiary = Subsidiary::find($this->subsidiary_id);
+        $subCode = $subsidiary ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $subsidiary->name), 0, 3)) : 'SUB';
 
-        // Cari nomor urut terakhir KHUSUS untuk Subsidiary (Plant) dan Bulan/Tahun yang dipilih
-        $lastOrder = RequestOrder::where('subsidiary_id', $this->subsidiary_id)
-            ->where('request_number', 'like', $prefix . '%')
+        // Format Prefix dengan kode subsidiary: SUB/YYYYMM/ (Contoh: JKT/202609/)
+        $yearMonth = Carbon::parse($this->request_date)->format('Ym');
+        $prefix = "{$subCode}/{$yearMonth}/";
+
+        // Cari nomor urut terakhir berdasarkan prefix plant tersebut
+        $lastOrder = RequestOrder::where('request_number', 'like', $prefix . '%')
             ->orderByRaw('CAST(SUBSTRING_INDEX(request_number, "/", -1) AS UNSIGNED) DESC')
             ->first();
 
         if ($lastOrder) {
-            // Ambil angka paling belakang dan buat 3 digit (contoh: dari 202608/001 -> didapat angka 1 + 1 = 002)
             $parts = explode('/', $lastOrder->request_number);
             $lastNum = (int) end($parts);
             $nextNum = sprintf('%03d', $lastNum + 1);
         } else {
-            // Reset ke 001 jika plant/bulan/tahun tersebut belum memiliki transaksi
             $nextNum = '001';
         }
 
-        // Gabungkan prefix dan nomor urut (Hasil: 202608/001)
         $this->request_number = $prefix . $nextNum;
     }
-
+    
     public function addItem()
     {
         $this->items[] = [
