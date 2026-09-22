@@ -4,6 +4,7 @@ namespace App\Livewire\Hrd\Asset;
 
 use App\Models\HRD\Asset;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -16,15 +17,31 @@ class AssetShow extends Component
     {
         $user = auth()->user();
 
-        // Batasi akses: hanya super-admin/holding-admin atau asset milik subsidiary user
+        // 1. Cek Permission: User wajib memiliki permission 'asset.view'
+        if (!$user->can('asset.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat data aset.');
+        }
+
+        // 2. Batasi akses Subsidiary:
+        // Jika bukan super-admin/holding-admin, hanya boleh akses asset milik subsidiary-nya sendiri
         if (
             !$user->hasRole(['super-admin', 'holding-admin']) &&
             $user->subsidiary_id !== $asset->subsidiary_id
         ) {
-            abort(403, 'Anda tidak memiliki izin untuk melihat Asset ini.');
+            abort(403, 'Anda tidak memiliki akses ke data aset subsidiary ini.');
         }
 
         $this->asset = $asset->load(['subsidiary', 'user']);
+    }
+
+    /**
+     * Helper privat untuk menentukan path lokasi file di storage
+     */
+    private function getStoragePath(string $field, string $fileName): string
+    {
+        return ($field === 'photo')
+            ? 'assets/photo/' . $fileName
+            : 'assets/' . $field . '/' . $fileName;
     }
 
     /**
@@ -32,6 +49,11 @@ class AssetShow extends Component
      */
     public function downloadFile($field)
     {
+        // Pastikan user juga punya izin view untuk download file
+        if (!auth()->user()->can('asset.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengunduh berkas ini.');
+        }
+
         $allowedFields = ['photo', 'attachment', 'delivery_receipt', 'manual_book'];
 
         if (!in_array($field, $allowedFields)) {
@@ -44,7 +66,8 @@ class AssetShow extends Component
             session()->flash('error', 'File tidak ditemukan.');
             return;
         }
-        $filePath = ($field === 'photo') ? 'assets/photo/' . $fileName : 'assets/' . $field . '/' . $fileName;
+
+        $filePath = $this->getStoragePath($field, $fileName);
 
         if (!Storage::disk('public')->exists($filePath)) {
             session()->flash('error', 'File tidak ditemukan di storage.');
@@ -52,19 +75,31 @@ class AssetShow extends Component
         }
 
         $extension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        $cleanAssetName = \Str::slug($this->asset->name);
+        $cleanAssetName = Str::slug($this->asset->name);
         $customName = $cleanAssetName . '-' . $field . '.' . $extension;
 
         return Storage::disk('public')->download($filePath, $customName);
     }
+
     public function deleteAsset()
     {
+        // Proteksi Otorisasi aksi hapus
+        if (!auth()->user()->can('asset.delete')) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus Asset ini.');
+        }
+
         try {
             $fileFields = ['attachment', 'photo', 'delivery_receipt', 'manual_book'];
+
             foreach ($fileFields as $field) {
-                if ($this->asset->$field && Storage::disk('public')->exists($this->asset->$field)) {
-                    Storage::disk('public')->delete($this->asset->$field);
+                $fileName = $this->asset->$field;
+
+                if ($fileName) {
+                    $filePath = $this->getStoragePath($field, $fileName);
+
+                    if (Storage::disk('public')->exists($filePath)) {
+                        Storage::disk('public')->delete($filePath);
+                    }
                 }
             }
 

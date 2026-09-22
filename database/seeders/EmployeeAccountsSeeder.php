@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\User;
-use App\Models\Employee;
+use App\Models\HRD\Employee;
 
 class EmployeeAccountsSeeder extends Seeder
 {
