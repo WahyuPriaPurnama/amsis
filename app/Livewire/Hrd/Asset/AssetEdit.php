@@ -5,6 +5,7 @@ namespace App\Livewire\Hrd\Asset;
 use App\Models\HRD\Asset;
 use App\Models\HRD\Subsidiary;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -16,7 +17,7 @@ class AssetEdit extends Component
 
     public Asset $asset;
 
-    // Properti Form Input (Urutan Sama Dengan Create)
+    // Properti Form Input
     public $subsidiary_id;
     public $code;
     public $name;
@@ -49,24 +50,29 @@ class AssetEdit extends Component
 
     public function mount(Asset $asset)
     {
+        // Pengecekan Permission murni 'asset.edit'
+        if (!auth()->user()->can('asset.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data aset ini.');
+        }
+
         $this->asset = $asset;
         $this->subsidiary_id = $asset->subsidiary_id;
-        $this->code = $asset->code;
-        $this->name = $asset->name;
-        $this->location = $asset->location;
-        $this->quantity = $asset->quantity;
-        $this->unit = $asset->unit;
-        $this->condition = $asset->condition;
-        $this->owner = $asset->owner;
-        $this->category = $asset->category;
-        $this->accounting_code = $asset->accounting_code;
-        $this->usage_date = $asset->usage_date;
-        $this->purchase_date = $asset->purchase_date;
-        $this->purchase_value = $asset->purchase_value;
+        $this->code          = $asset->code;
+        $this->name          = $asset->name;
+        $this->location      = $asset->location;
+        $this->quantity      = $asset->quantity;
+        $this->unit          = $asset->unit;
+        $this->condition     = $asset->condition;
+        $this->owner         = $asset->owner;
+        $this->category      = $asset->category;
+        $this->accounting_code   = $asset->accounting_code;
+        $this->usage_date        = $asset->usage_date;
+        $this->purchase_date     = $asset->purchase_date;
+        $this->purchase_value    = $asset->purchase_value;
         $this->depreciation_value = $asset->depreciation_value;
-        $this->total_value = $asset->total_value;
-        $this->useful_life = $asset->useful_life;
-        $this->description = $asset->description;
+        $this->total_value       = $asset->total_value;
+        $this->useful_life       = $asset->useful_life;
+        $this->description       = $asset->description;
 
         $this->delivery_receipt = $asset->delivery_receipt;
         $this->manual_book      = $asset->manual_book;
@@ -77,40 +83,57 @@ class AssetEdit extends Component
     protected function rules()
     {
         return [
-            'subsidiary_id'        => 'required|exists:subsidiaries,id',
-            'code'                 => 'required|string|max:100|unique:assets,code,' . $this->asset->id,
-            'name'                 => 'required|string|max:255',
-            'location'             => 'required|string|max:255',
-            'quantity'             => 'required|integer|min:1',
-            'unit'                 => 'required|string|max:50',
-            'condition'            => 'required|string',
-            'owner'                => 'required|string',
-            'category'             => 'required|string',
-            'accounting_code'      => 'nullable|string|max:100',
-            'usage_date'           => 'nullable|date',
-            'purchase_date'        => 'nullable|date',
-            'purchase_value'       => 'nullable|numeric|min:0',
-            'depreciation_value'   => 'nullable|numeric|min:0',
-            'total_value'          => 'nullable|numeric|min:0',
-            'useful_life'          => 'nullable|integer|min:0',
-            'description'          => 'nullable|string',
+            'subsidiary_id' => 'required|exists:subsidiaries,id',
+            'code' => [
+                'required',
+                'string',
+                'max:100',
+                // Kode unik berdasarkan subsidiary_id & mengabaikan aset yang sedang diedit
+                Rule::unique('assets', 'code')
+                    ->ignore($this->asset->id)
+                    ->where(function ($query) {
+                        return $query->where('subsidiary_id', $this->subsidiary_id);
+                    }),
+            ],
+            'name'               => 'required|string|max:255',
+            'location'           => 'required|string|max:255',
+            'quantity'           => 'required|integer|min:1',
+            'unit'               => 'required|string|max:50',
+            'condition'          => 'required|string',
+            'owner'              => 'required|string',
+            'category'           => 'required|string',
+            'accounting_code'    => 'nullable|string|max:100',
+            'usage_date'         => 'nullable|date',
+            'purchase_date'      => 'nullable|date',
+            'purchase_value'     => 'nullable|numeric|min:0',
+            'depreciation_value' => 'nullable|numeric|min:0',
+            'total_value'        => 'nullable|numeric|min:0',
+            'useful_life'        => 'nullable|integer|min:0',
+            'description'        => 'nullable|string',
 
-            'new_delivery_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
-            'new_manual_book'      => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
-            'new_photo'            => 'nullable|image|max:2048',
-            'new_attachment'       => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'new_delivery_receipt' => 'nullable|mimes:jpg,jpeg,png,pdf|max:10240',
+            'new_manual_book'      => 'nullable|mimes:jpg,jpeg,png,pdf|max:10240',
+            'new_photo'            => 'nullable|image|max:10240',
+            'new_attachment'       => 'nullable|mimes:jpg,jpeg,png,pdf|max:10240',
         ];
+    }
+
+    private function getStorageFolder(string $field): string
+    {
+        return ($field === 'photo') ? 'assets/photo' : 'assets/' . $field;
     }
 
     public function update()
     {
+        if (!auth()->user()->can('asset.edit')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit data aset.');
+        }
+
         $validatedData = $this->validate();
 
-        // Konversi string kosong ('') pada tanggal menjadi null agar tidak error 1292
         $validatedData['usage_date']    = $this->usage_date ?: null;
         $validatedData['purchase_date'] = $this->purchase_date ?: null;
 
-        // Pemetaan nama kolom database => nama properti file baru di Livewire
         $fileMapping = [
             'delivery_receipt' => 'new_delivery_receipt',
             'manual_book'      => 'new_manual_book',
@@ -119,37 +142,34 @@ class AssetEdit extends Component
         ];
 
         foreach ($fileMapping as $dbColumn => $property) {
-            // Jika ada file baru yang di-upload untuk properti ini
             if ($this->$property) {
-                // Hapus berkas lama di storage jika ada
-                if ($this->asset->$dbColumn && Storage::disk('public')->exists($this->asset->$dbColumn)) {
-                    Storage::disk('public')->delete($this->asset->$dbColumn);
+                $folder = $this->getStorageFolder($dbColumn);
+
+                // 1. Hapus berkas lama jika ada di storage
+                if ($this->asset->$dbColumn) {
+                    $oldFilePath = $folder . '/' . $this->asset->$dbColumn;
+                    if (Storage::disk('public')->exists($oldFilePath)) {
+                        Storage::disk('public')->delete($oldFilePath);
+                    }
                 }
 
-                // Simpan berkas baru ke disk 'public' dengan path bersih
-                $path = $this->$property->store('assets/' . $dbColumn, 'public');
-
-                // Masukkan path baru ke array validatedData untuk disimpan ke database
-                $validatedData[$dbColumn] = $path;
+                // 2. Simpan file baru & simpan HANYA nama filenya (hashName) ke DB
+                $this->$property->store($folder, 'public');
+                $validatedData[$dbColumn] = $this->$property->hashName();
             } else {
-                // Jika tidak ada file baru yang di-upload, jangan ubah kolom file di database
                 unset($validatedData[$dbColumn]);
             }
 
-            // Hapus properti sementara (new_...) dari array validatedData 
-            // agar Eloquent tidak mencoba menyimpannya ke kolom database
             unset($validatedData[$property]);
         }
 
-        // Hapus juga properti file lama dari array validatedData jika ikut tervalidasi
         unset(
-            $validatedData['delivery_receipt'],
-            $validatedData['manual_book'],
-            $validatedData['photo'],
-            $validatedData['attachment']
+            $validatedData['new_delivery_receipt'],
+            $validatedData['new_manual_book'],
+            $validatedData['new_photo'],
+            $validatedData['new_attachment']
         );
 
-        // Simpan perubahan ke database
         $this->asset->update($validatedData);
 
         session()->flash('success', 'Data aset berhasil diperbarui.');

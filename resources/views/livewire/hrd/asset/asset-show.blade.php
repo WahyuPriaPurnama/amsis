@@ -8,7 +8,12 @@
             <div class="text-center mb-4">
                 @if($asset->photo)
                 <div class="mb-2">
-                    <img src="{{ asset('storage/assets/photo/' . $asset->photo) }}" alt="Foto Aset" class="img-thumbnail rounded shadow-sm" style="max-height: 150px; object-fit: cover;">
+                    @if ($asset->photo)
+                    <img src="{{ asset('storage/assets/photo/' . $asset->photo) }}"
+                        alt="{{ $asset->name }}"
+                        class="img-thumbnail"
+                        style="max-height: 150px; object-fit: cover;">
+                    @endif
                 </div>
                 <button wire:click="downloadFile('photo')" class="btn btn-sm btn-primary">
                     <i class="bi bi-download me-1"></i> Unduh / Lihat Berkas

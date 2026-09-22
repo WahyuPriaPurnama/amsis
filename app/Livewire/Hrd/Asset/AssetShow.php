@@ -15,20 +15,9 @@ class AssetShow extends Component
 
     public function mount(Asset $asset)
     {
-        $user = auth()->user();
-
-        // 1. Cek Permission: User wajib memiliki permission 'asset.view'
-        if (!$user->can('asset.view')) {
-            abort(403, 'Anda tidak memiliki izin untuk melihat data aset.');
-        }
-
-        // 2. Batasi akses Subsidiary:
-        // Jika bukan super-admin/holding-admin, hanya boleh akses asset milik subsidiary-nya sendiri
-        if (
-            !$user->hasRole(['super-admin', 'holding-admin']) &&
-            $user->subsidiary_id !== $asset->subsidiary_id
-        ) {
-            abort(403, 'Anda tidak memiliki akses ke data aset subsidiary ini.');
+        // Otorisasi berbasis permission 'asset.view'
+        if (!auth()->user()->can('asset.view')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat data aset ini.');
         }
 
         $this->asset = $asset->load(['subsidiary', 'user']);
@@ -36,6 +25,7 @@ class AssetShow extends Component
 
     /**
      * Helper privat untuk menentukan path lokasi file di storage
+     * Menggabungkan folder kategori dengan nama file dari database
      */
     private function getStoragePath(string $field, string $fileName): string
     {
@@ -49,7 +39,7 @@ class AssetShow extends Component
      */
     public function downloadFile($field)
     {
-        // Pastikan user juga punya izin view untuk download file
+        // Otorisasi unduh berkas mengikuti permission 'asset.view'
         if (!auth()->user()->can('asset.view')) {
             abort(403, 'Anda tidak memiliki izin untuk mengunduh berkas ini.');
         }
@@ -67,6 +57,7 @@ class AssetShow extends Component
             return;
         }
 
+        // Menyusun path lengkap folder + nama file
         $filePath = $this->getStoragePath($field, $fileName);
 
         if (!Storage::disk('public')->exists($filePath)) {
@@ -83,7 +74,7 @@ class AssetShow extends Component
 
     public function deleteAsset()
     {
-        // Proteksi Otorisasi aksi hapus
+        // Otorisasi hapus berbasis permission 'asset.delete'
         if (!auth()->user()->can('asset.delete')) {
             abort(403, 'Anda tidak memiliki izin untuk menghapus Asset ini.');
         }
@@ -95,6 +86,7 @@ class AssetShow extends Component
                 $fileName = $this->asset->$field;
 
                 if ($fileName) {
+                    // Menyusun path lengkap folder + nama file untuk dihapus
                     $filePath = $this->getStoragePath($field, $fileName);
 
                     if (Storage::disk('public')->exists($filePath)) {

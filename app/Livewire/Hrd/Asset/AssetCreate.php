@@ -41,6 +41,14 @@ class AssetCreate extends Component
     public $photo;
     public $attachment;
 
+    public function mount()
+    {
+        // Pengecekan Permission murni 'asset.create'
+        if (!auth()->user()->can('asset.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah data aset.');
+        }
+    }
+
     protected function rules()
     {
         return [
@@ -70,43 +78,55 @@ class AssetCreate extends Component
             'useful_life'        => 'nullable|integer|min:0',
             'description'        => 'nullable|string',
 
-            'delivery_receipt'   => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
-            'manual_book'        => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
-            'photo'              => 'nullable|image|max:2048',
-            'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+            'delivery_receipt'   => 'nullable|mimes:jpg,jpeg,png,pdf|max:10240',
+            'manual_book'        => 'nullable|mimes:jpg,jpeg,png,pdf|max:10240',
+            'photo'              => 'nullable|image|max:10240',
+            'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:10240',
         ];
+    }
+
+    private function getStorageFolder(string $field): string
+    {
+        return ($field === 'photo') ? 'assets/photo' : 'assets/' . $field;
     }
 
     public function save()
     {
+        if (!auth()->user()->can('asset.create')) {
+            abort(403, 'Anda tidak memiliki izin untuk menambah data aset.');
+        }
+
         $validatedData = $this->validate();
 
         $validatedData['user_id'] = auth()->id();
 
-        // Konversi string kosong ('') pada tanggal menjadi null agar aman di database
+        // Konversi string kosong ('') pada tanggal menjadi null
         $validatedData['usage_date']    = $this->usage_date ?: null;
         $validatedData['purchase_date'] = $this->purchase_date ?: null;
 
-       foreach (['delivery_receipt', 'manual_book', 'photo', 'attachment'] as $field) {
-    // Sesuaikan nama properti form jika di edit menggunakan 'new_' (contoh: new_photo)
-    $property = method_exists($this, 'update') ? 'new_' . $field : $field; 
+        // Simpan berkas dan simpan HANYA nama filenya (hashName) ke DB
+        $fileFields = ['delivery_receipt', 'manual_book', 'photo', 'attachment'];
 
-    if ($this->$property ?? $this->$field) {
-        $fileObj = $this->$property ?? $this->$field;
+        foreach ($fileFields as $field) {
+            if ($this->$field) {
+                $folder = $this->getStorageFolder($field);
 
-        // Simpan ke disk public dengan path bersih: assets/photo/namafile.jpg
-        $path = $fileObj->store('assets/' . $field, 'public');
-        
-        $validatedData[$field] = $path; // Hasilnya: "assets/photo/xxxx.jpg"
-    }
-}
+                // Upload berkas ke storage
+                $this->$field->store($folder, 'public');
+
+                // Ambil hanya nama file (misal: "xHUYEj7hyanCS2pCnfqCKOBj6WnL5i5xqg33CTxg.jpg")
+                $validatedData[$field] = $this->$field->hashName();
+            } else {
+                $validatedData[$field] = null;
+            }
+        }
 
         // Generate QR Code otomatis
         $validatedData['qr_code'] = $this->code;
 
         Asset::create($validatedData);
 
-        session()->flash('success', 'Data aset beserta QR Code berhasil ditambahkan.');
+        session()->flash('success', 'Data aset berhasil ditambahkan.');
 
         return $this->redirectRoute('asset.index', navigate: true);
     }

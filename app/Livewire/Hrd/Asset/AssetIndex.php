@@ -28,6 +28,14 @@ class AssetIndex extends Component
     #[Url(history: true)]
     public $subsidiary_id = '';
 
+    public function mount()
+    {
+        // Permission Check
+        if (!auth()->user()->can('asset.list')) {
+            abort(403, 'Anda tidak memiliki izin untuk melihat daftar aset.');
+        }
+    }
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -38,24 +46,25 @@ class AssetIndex extends Component
         $this->resetPage();
     }
 
-    // Tambahkan di dalam class AssetIndex.php
     public function exportPdf()
     {
-        $user = auth()->user();
-        $subsidiaryId = $this->subsidiary_id ?: $user->subsidiary_id;
-
-        if ($user->hasRole(['super-admin', 'holding-admin'])) {
-            if ($this->subsidiary_id) {
-                $assets = Asset::with(['subsidiary', 'user'])->where('subsidiary_id', $this->subsidiary_id)->latest()->get();
-                $subsidiary = Subsidiary::find($this->subsidiary_id);
-            } else {
-                $assets = Asset::with(['subsidiary', 'user'])->latest()->get();
-                $subsidiary = null;
-            }
-        } else {
-            $assets = Asset::with(['subsidiary', 'user'])->where('subsidiary_id', $subsidiaryId)->latest()->get();
-            $subsidiary = Subsidiary::find($subsidiaryId);
+        if (!auth()->user()->can('asset.list')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengekspor data aset.');
         }
+
+        $query = Asset::with(['subsidiary', 'user'])
+            ->when($this->subsidiary_id, function ($q) {
+                $q->where('subsidiary_id', $this->subsidiary_id);
+            })
+            ->when($this->search, function ($q) {
+                $q->where(function ($subQ) {
+                    $subQ->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('code', 'like', '%' . $this->search . '%');
+                });
+            });
+
+        $assets = $query->latest()->get();
+        $subsidiary = $this->subsidiary_id ? Subsidiary::find($this->subsidiary_id) : null;
 
         $pdf = Pdf::loadView('livewire.hrd.asset.export-pdf', compact('assets', 'subsidiary'));
         return response()->streamDownload(fn() => print($pdf->output()), 'asset_list.pdf');
@@ -63,6 +72,10 @@ class AssetIndex extends Component
 
     public function exportExcel()
     {
+        if (!auth()->user()->can('asset.list')) {
+            abort(403, 'Anda tidak memiliki izin untuk mengekspor data aset.');
+        }
+
         return Excel::download(new AssetsExport($this->subsidiary_id, $this->search), 'asset_list.xlsx');
     }
 
@@ -81,11 +94,11 @@ class AssetIndex extends Component
 
         // Hitung total baris item dan total keseluruhan Qty
         $totalItemsCount = (clone $query)->count();
-        $totalQuantityCount = (clone $query)->sum('quantity'); // <-- Ubah 'qty' sesuai nama kolom di database Anda
+        $totalQuantityCount = (clone $query)->sum('quantity');
 
         // Mengelompokkan dan menghitung jumlah aset serta total qty berdasarkan nama barang
         $assetBreakdown = (clone $query)
-            ->select('name', DB::raw('count(*) as total'), DB::raw('sum(quantity) as total_qty')) // <-- Tambahkan sum(quantity)
+            ->select('name', DB::raw('count(*) as total'), DB::raw('sum(quantity) as total_qty'))
             ->groupBy('name')
             ->orderBy('total_qty', 'desc')
             ->get();
@@ -96,7 +109,7 @@ class AssetIndex extends Component
             'assets'             => $assets,
             'allSubsidiaries'    => Subsidiary::orderBy('name', 'asc')->get(),
             'totalItemsCount'    => $totalItemsCount,
-            'totalQuantityCount' => $totalQuantityCount, // <-- Kirim ke view
+            'totalQuantityCount' => $totalQuantityCount,
             'assetBreakdown'     => $assetBreakdown,
         ]);
     }
