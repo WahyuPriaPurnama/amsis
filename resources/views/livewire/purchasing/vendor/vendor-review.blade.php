@@ -19,9 +19,6 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Perusahaan</th>
-                                <th>NIB / NPWP</th>
-                                <th>Nama PIC</th>
-                                <th>Kontak PIC</th>
                                 <th>Tanggal Daftar</th>
                                 <th>Aksi</th>
                             </tr>
@@ -34,9 +31,6 @@
                                     <strong>{{ $vendor->company_name }}</strong><br>
                                     <small class="text-muted">{{ $vendor->address }}</small>
                                 </td>
-                                <td>NIB: {{ $vendor->nib }}<br>NPWP: {{ $vendor->npwp }}</td>
-                                <td>{{ $vendor->pic_name }}</td>
-                                <td>{{ $vendor->pic_email }}<br>{{ $vendor->pic_phone }}</td>
                                 <td>{{ $vendor->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <button type="button" wire:click="openReviewModal({{ $vendor->id }})" class="btn btn-sm btn-primary">

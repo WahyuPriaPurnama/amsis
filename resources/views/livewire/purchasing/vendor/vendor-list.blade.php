@@ -11,9 +11,6 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Perusahaan</th>
-                                <th>NIB / NPWP</th>
-                                <th>PIC & Kontak</th>
-                                <th>Akun User Email</th>
                                 <th>Tanggal Disetujui</th>
                                 <th>Aksi</th>
                             </tr>
@@ -23,9 +20,6 @@
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td><strong>{{ $vendor->company_name }}</strong><br><small class="text-muted">{{ $vendor->address }}</small></td>
-                                <td>NIB: {{ $vendor->nib }}<br>NPWP: {{ $vendor->npwp }}</td>
-                                <td>{{ $vendor->pic_name }}<br>{{ $vendor->pic_phone }}</td>
-                                <td>{{ $vendor->pic_email }}</td>
                                 <td>{{ $vendor->updated_at->format('d/m/Y H:i') }}</td>
                                 <td>
                                     <button wire:click="showDetail({{ $vendor->id }})" class="btn btn-sm btn-info text-white">
