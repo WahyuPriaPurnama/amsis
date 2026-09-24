@@ -64,7 +64,7 @@
                         </li>
                         @endcanany
 
-                        @canany(['request-order.list', 'request-payment.list', 'master-supplier.list', 'receipts.list'])
+                        @canany(['request-order.list', 'request-payment.list', 'master-supplier.list', 'receipts.list', 'vendor.review', 'vendor.list','request-order.list','request-payment.list'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Pembelian</a>
                             @include('purchasing.partials.purchasing-menu')
