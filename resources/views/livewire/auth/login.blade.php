@@ -1,5 +1,5 @@
-{{-- Wrapper Background: Mengisi area kosong di antara Header dan Footer secara penuh --}}
-<div class="flex-grow-1 w-100 position-relative d-flex align-items-center py-5 overflow-hidden"
+{{-- Wrapper Background: Mengisi penuh sisa area antara Header dan Footer tanpa gap --}}
+<div class="flex-grow-1 w-100 position-relative d-flex align-items-center py-4 py-md-0 overflow-hidden"
     style="background: url('https://images.unsplash.com/photo-1602154663343-89fe0bf541ab?auto=format&fit=crop&w=1920&q=80') no-repeat center center / cover;">
 
     {{-- Overlay Gradasi Hitam --}}

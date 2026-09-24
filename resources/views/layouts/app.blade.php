@@ -136,8 +136,8 @@
         </nav>
     </div>
 
-    <!-- Main Content: Diberi padding vertical (py-3 di mobile, py-md-4 di desktop) -->
-    <main class="flex-grow-1 py-3 py-md-4">
+    <!-- Main Content: Hilangkan padding jika belum login (guest/login page) -->
+    <main class="flex-grow-1 d-flex flex-column {{ Auth::check() ? 'py-3 py-md-4' : 'p-0 m-0' }}">
         @hasSection('content')
         @yield('content')
         @else
