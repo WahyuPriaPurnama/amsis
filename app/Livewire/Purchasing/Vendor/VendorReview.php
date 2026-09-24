@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\VendorApprovedMail;
 use App\Mail\VendorRejectedMail;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class VendorReview extends Component
 {
@@ -17,11 +18,11 @@ class VendorReview extends Component
     public $selectedVendor = null;
     public $rejection_reason;
     public $isModalOpen = false;
-    public $actionType = ''; // 'approve' atau 'reject'
-
+    public $actionType = ''; 
+    use AuthorizesRequests;
     public function render()
     {
-        // Ambil data vendor yang statusnya masih pending
+  
         $this->vendors = Vendor::where('status', 'pending')->latest()->get();
         return view('livewire.purchasing.vendor.vendor-review');
     }
@@ -49,7 +50,7 @@ class VendorReview extends Component
 
         $vendor = Vendor::findOrFail($this->selectedVendor->id);
 
-        $plainPassword = 'v-' . rand(1000, 9999); 
+        $plainPassword = 'v-' . rand(1000, 9999);
 
         $user = User::create([
             'name' => $vendor->pic_name,

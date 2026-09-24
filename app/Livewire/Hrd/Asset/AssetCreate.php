@@ -43,7 +43,7 @@ class AssetCreate extends Component
 
     public function mount()
     {
-        // Pengecekan Permission murni 'asset.create'
+       
         if (!auth()->user()->can('asset.create')) {
             abort(403, 'Anda tidak memiliki izin untuk menambah data aset.');
         }

@@ -4,7 +4,6 @@ namespace App\Livewire\Purchasing\Vendor;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Purchasing\Vendor;
-use Illuminate\Support\Facades\Storage;
 
 class VendorRegister extends Component
 {
@@ -12,16 +11,12 @@ class VendorRegister extends Component
 
     public $currentStep = 1;
     
-    // Step 1: Profil & Legalitas
     public $company_name, $address, $nib, $npwp;
     
-    // Step 2: Kualitas & Sertifikasi
     public $has_halal = false, $has_haccp = false, $skp_number;
-    
-    // Step 3: Rekening & Kontak PIC
+
     public $bank_name, $bank_account_number, $bank_account_holder, $pic_name, $pic_email, $pic_phone;
     
-    // Step 4: Dokumen (File Uploads)
     public $nib_file, $npwp_file, $certificate_file;
 
     public function render()
@@ -29,20 +24,19 @@ class VendorRegister extends Component
         return view('livewire.purchasing.vendor.vendor-register');
     }
 
-    // Pindah ke step berikutnya dengan validasi per step
     public function increaseStep()
     {
         $this->validateCurrentStep();
         $this->currentStep++;
     }
 
-    // Kembali ke step sebelumnya
+
     public function decreaseStep()
     {
         $this->currentStep--;
     }
 
-    // Validasi dinamis berdasarkan step yang sedang aktif
+
     protected function validateCurrentStep()
     {
         if ($this->currentStep == 1) {
@@ -70,7 +64,7 @@ class VendorRegister extends Component
         }
     }
 
-    // Proses Submit Final
+
     public function submit()
     {
         $this->validate([
@@ -79,12 +73,12 @@ class VendorRegister extends Component
             'certificate_file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
         ]);
 
-        // Simpan file ke storage (folder public/vendor-documents)
+
         $nibPath = $this->nib_file->store('vendor-documents', 'public');
         $npwpPath = $this->npwp_file->store('vendor-documents', 'public');
         $certPath = $this->certificate_file ? $this->certificate_file->store('vendor-documents', 'public') : null;
 
-        // Simpan data ke database
+
         Vendor::create([
             'company_name' => $this->company_name,
             'address' => $this->address,
@@ -105,9 +99,6 @@ class VendorRegister extends Component
             'status' => 'pending',
         ]);
 
-        // TODO: Trigger Kirim Email Konfirmasi (Pending Review) ke vendor
-
-        // Redirect atau tampilkan pesan sukses
         return redirect()->route('vendor.success')->with('message', 'Registrasi berhasil! Berkas Anda sedang direview oleh admin.');
     }
 }

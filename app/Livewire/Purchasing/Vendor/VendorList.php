@@ -3,6 +3,7 @@
 namespace App\Livewire\Purchasing\Vendor;
 
 use App\Models\Purchasing\Vendor;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Component;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -11,8 +12,10 @@ use Livewire\Attributes\Title;
 #[Title('Daftar Vendor Disetujui')]
 class VendorList extends Component
 {
+    use AuthorizesRequests;
     public function render()
     {
+
         $vendors = Vendor::where('status', 'approved')->latest()->get();
         return view('livewire.purchasing.vendor.vendor-list', compact('vendors'));
     }

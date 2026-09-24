@@ -53,7 +53,7 @@ class RequestOrderEdit extends Component
 
     public function mount(RequestOrder $requestOrder)
     {
-        // Load data relasi subsidiary & items
+        
         $this->order = $requestOrder->load(['subsidiary', 'items']);
 
         // Populate Header Data

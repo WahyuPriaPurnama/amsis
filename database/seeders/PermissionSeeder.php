@@ -79,6 +79,20 @@ class PermissionSeeder extends Seeder
         ];
 
 
+        $VendorPermissions = [
+            'vendor.list',
+            'vendor.view',
+            'vendor.create',
+            'vendor.edit',
+            'vendor.delete',
+            'vendor.approve',
+            'vendor.reject',
+            'vendor.review',
+            'vendor.update-contract',
+
+        ];
+
+
         $allPermissions = array_merge(
             $SubsidiaryPermissions,
             $UserPermissions,
@@ -87,6 +101,7 @@ class PermissionSeeder extends Seeder
             $AssetPermissions,
             $RequestOrderPermissions,
             $RequestPaymentPermissions,
+            $VendorPermissions
         );
         foreach ($allPermissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
