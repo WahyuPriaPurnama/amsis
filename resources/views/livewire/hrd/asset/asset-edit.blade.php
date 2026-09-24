@@ -222,7 +222,7 @@
                 {{-- Foto Aset --}}
                 <div class="col-12 col-md-3">
                     <label class="form-label">Foto Aset</label>
-                    <input type="file" @change="handleFile($event, 'new_photo')" class="form-control @error('new_photo') is-invalid @enderror" accept="image/*" capture="environment" :disabled="isProcessing">
+                    <input type="file" @change="handleFile($event, 'new_photo')" class="form-control @error('new_photo') is-invalid @enderror" accept="image/*" :disabled="isProcessing">
 
                     <div x-show="isProcessing && processingType === 'new_photo'" style="display: none;" class="form-text text-primary mt-1 small">
                         <span class="spinner-border spinner-border-sm me-1"></span> Mengompresi foto...

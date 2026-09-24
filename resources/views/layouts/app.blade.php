@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-100">
 
 <head>
     <meta charset="utf-8">
@@ -15,10 +15,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
     <div id="app">
+        {{-- Navbar Header --}}
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm sticky-top">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/') }}" id="{{ Auth::guest() ? 'amsis-logo' : '' }}" wire:navigate>
@@ -32,7 +42,6 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto">
-
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 E-Slip
@@ -50,16 +59,14 @@
                         @auth
                         @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-                                data-bs-toggle="dropdown">HRD</a>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">HRD</a>
                             @include('hrd.partials.hrd-menu')
                         </li>
                         @endcanany
 
                         @canany(['request-order.list', 'request-payment.list', 'master-supplier.list', 'receipts.list'])
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-                                data-bs-toggle="dropdown">Pembelian</a>
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Pembelian</a>
                             @include('purchasing.partials.purchasing-menu')
                         </li>
                         @endcanany
@@ -84,8 +91,7 @@
                                     };
                                     @endphp
                                     <li class="nav-item dropdown">
-                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
-                                            data-bs-toggle="dropdown">
+                                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                             <span class="text-muted me-1">{{ $greeting }},</span>
                                             <strong>{{ Auth::user()->name }}</strong>
                                         </a>
@@ -114,7 +120,6 @@
                                             <div class="dropdown-divider"></div>
                                             @endif
 
-                                            <!-- Tombol Logout SPA -->
                                             <a class="dropdown-item text-danger fw-bold" href="#" onclick="event.preventDefault(); handleLogout();">
                                                 <i class="bi bi-box-arrow-right me-2"></i> Logout
                                             </a>
@@ -131,8 +136,8 @@
         </nav>
     </div>
 
-    <!-- Main Content SPA Support -->
-    <main class="py-4">
+    <!-- Main Content: Diberi padding vertical (py-3 di mobile, py-md-4 di desktop) -->
+    <main class="flex-grow-1 py-3 py-md-4">
         @hasSection('content')
         @yield('content')
         @else
@@ -140,7 +145,8 @@
         @endif
     </main>
 
-    <footer class="bg-dark py-4 text-white mt-auto">
+    {{-- Footer --}}
+    <footer class="bg-dark py-3 text-white mt-auto">
         <div class="container text-center">
             AMS Information System | © {{ date('Y') }} All rights reserved.
         </div>
@@ -155,7 +161,6 @@
             const form = document.getElementById('logout-form');
             const formData = new FormData(form);
 
-            // Kirim request logout via Fetch API secara background
             fetch(form.action, {
                 method: 'POST',
                 body: formData,
@@ -164,7 +169,6 @@
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             }).then(() => {
-                // Setelah logout backend berhasil, lakukan navigasi SPA ke halaman login
                 if (window.Livewire) {
                     Livewire.navigate('/login');
                 } else {
@@ -174,7 +178,6 @@
         }
 
         document.addEventListener('livewire:navigated', function() {
-            // Re-inisialisasi DataTables & Event Listener setiap kali navigasi SPA selesai
             const tableElement = $('#table');
             if (tableElement.length && !$.fn.DataTable.isDataTable('#table')) {
                 tableElement.DataTable();

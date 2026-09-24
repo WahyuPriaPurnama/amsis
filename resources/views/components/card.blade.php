@@ -10,9 +10,9 @@
 </div>
 @endif
 
-<div class="card shadow border-0">
-    <div class="card-header bg-white py-3 border-bottom">
-        <h6 class="mb-0 fw-bold text-dark"> {{ $header }}
+<div class="card shadow border">
+    <div class="card-header py-3">
+        <h6 class="mb-0 fw-bold"> {{ $header }}
         </h6>
     </div>
     <div class="card-body">
