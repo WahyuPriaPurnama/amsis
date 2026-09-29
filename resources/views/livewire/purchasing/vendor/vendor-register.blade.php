@@ -1,138 +1,177 @@
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h4 class="mb-0">Form Registrasi Calon Vendor</h4>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h4 class="mb-0 fs-5 fw-bold">Form Registrasi Calon Vendor</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
 
-                    <!-- Indikator Step -->
-                    <div class="row text-center mb-4 fs-6 fw-bold">
-                        <div class="col text-{{ $currentStep == 1 ? 'primary' : 'muted' }}">1. Profil & Legalitas</div>
-                        <div class="col text-{{ $currentStep == 2 ? 'primary' : 'muted' }}">2. Kualitas</div>
-                        <div class="col text-{{ $currentStep == 3 ? 'primary' : 'muted' }}">3. Rekening & PIC</div>
-                        <div class="col text-{{ $currentStep == 4 ? 'primary' : 'muted' }}">4. Upload Dokumen</div>
+                    <!-- Progress / Step Indicator -->
+                    <div class="row text-center mb-4 g-2">
+                        <div class="col">
+                            <div class="p-2 rounded {{ $currentStep == 1 ? 'bg-primary text-white fw-bold' : 'bg-light text-muted' }}">
+                                1. Profil & Legalitas
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="p-2 rounded {{ $currentStep == 2 ? 'bg-primary text-white fw-bold' : 'bg-light text-muted' }}">
+                                2. Kualitas
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="p-2 rounded {{ $currentStep == 3 ? 'bg-primary text-white fw-bold' : 'bg-light text-muted' }}">
+                                3. Rekening & PIC
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="p-2 rounded {{ $currentStep == 4 ? 'bg-primary text-white fw-bold' : 'bg-light text-muted' }}">
+                                4. Upload Dokumen
+                            </div>
+                        </div>
                     </div>
 
                     <form wire:submit.prevent="submit">
-                        <!-- STEP 1 -->
-                        @if ($currentStep == 1)
+                        <!-- STEP 1: Profil & Legalitas -->
+                        @if ($currentStep === 1)
                         <div class="mb-3">
-                            <label class="form-label">Nama Perusahaan</label>
-                            <input type="text" wire:model="company_name" class="form-control @error('company_name') is-invalid @enderror">
+                            <label class="form-label fw-semibold">Nama Perusahaan <span class="text-danger">*</span></label>
+                            <input type="text" wire:model.blur="company_name" class="form-control @error('company_name') is-invalid @enderror" placeholder="PT. Example Jaya">
                             @error('company_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Alamat Perusahaan</label>
-                            <textarea wire:model="address" class="form-control @error('address') is-invalid @enderror" rows="3"></textarea>
+                            <label class="form-label fw-semibold">Alamat Perusahaan <span class="text-danger">*</span></label>
+                            <textarea wire:model.blur="address" class="form-control @error('address') is-invalid @enderror" rows="3" placeholder="Alamat lengkap kantor pusat..."></textarea>
                             @error('address') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">NIB</label>
-                            <input type="text" wire:model="nib" class="form-control @error('nib') is-invalid @enderror">
-                            @error('nib') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">NPWP</label>
-                            <input type="text" wire:model="npwp" class="form-control @error('npwp') is-invalid @enderror">
-                            @error('npwp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">NIB (Nomor Induk Berusaha) <span class="text-danger">*</span></label>
+                                <input type="text" wire:model.blur="nib" class="form-control @error('nib') is-invalid @enderror">
+                                @error('nib') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">NPWP Perusahaan <span class="text-danger">*</span></label>
+                                <input type="text" wire:model.blur="npwp" class="form-control @error('npwp') is-invalid @enderror">
+                                @error('npwp') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
                         @endif
 
-                        <!-- STEP 2 -->
-                        @if ($currentStep == 2)
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" wire:model="has_halal" class="form-check-input" id="has_halal">
-                            <label class="form-check-label" for="has_halal">Memiliki Sertifikasi Halal</label>
+                        <!-- STEP 2: Kualitas & Sertifikasi -->
+                        @if ($currentStep === 2)
+                        <div class="card bg-light border-0 p-3 mb-3">
+                            <div class="form-check form-switch mb-3">
+                                <input type="checkbox" wire:model="has_halal" class="form-check-input" id="has_halal" role="switch">
+                                <label class="form-check-label fw-semibold" for="has_halal">Memiliki Sertifikasi Halal</label>
+                            </div>
+
+                            <div class="form-check form-switch mb-1">
+                                <input type="checkbox" wire:model="has_haccp" class="form-check-input" id="has_haccp" role="switch">
+                                <label class="form-check-label fw-semibold" for="has_haccp">Memiliki Sertifikasi HACCP</label>
+                            </div>
                         </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" wire:model="has_haccp" class="form-check-input" id="has_haccp">
-                            <label class="form-check-label" for="has_haccp">Memiliki Sertifikasi HACCP</label>
-                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Nomor SKP (Opsional)</label>
-                            <input type="text" wire:model="skp_number" class="form-control">
+                            <label class="form-label fw-semibold">Nomor SKP (Sertifikat Kelayakan Pengolahan) <span class="text-muted fw-normal">(Opsional)</span></label>
+                            <input type="text" wire:model.blur="skp_number" class="form-control @error('skp_number') is-invalid @enderror" placeholder="Isi jika ada">
+                            @error('skp_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         @endif
 
-                        <!-- STEP 3 -->
-                        @if ($currentStep == 3)
-                        <div class="mb-3">
-                            <label class="form-label">Nama Bank</label>
-                            <input type="text" wire:model="bank_name" class="form-control @error('bank_name') is-invalid @enderror">
-                            @error('bank_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <!-- STEP 3: Rekening & Informasi PIC -->
+                        @if ($currentStep === 3)
+                        <h6 class="fw-bold text-secondary mb-3">Informasi Bank</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Nama Bank <span class="text-danger">*</span></label>
+                                <input type="text" wire:model.blur="bank_name" class="form-control @error('bank_name') is-invalid @enderror" placeholder="BCA / Mandiri / BRI">
+                                @error('bank_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Nomor Rekening <span class="text-danger">*</span></label>
+                                <input type="text" wire:model.blur="bank_account_number" class="form-control @error('bank_account_number') is-invalid @enderror">
+                                @error('bank_account_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Pemilik Rekening <span class="text-danger">*</span></label>
+                                <input type="text" wire:model.blur="bank_account_holder" class="form-control @error('bank_account_holder') is-invalid @enderror">
+                                @error('bank_account_holder') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
+
+                        <hr class="my-3">
+
+                        <h6 class="fw-bold text-secondary mb-3">Informasi Person in Charge (PIC)</h6>
                         <div class="mb-3">
-                            <label class="form-label">Nomor Rekening</label>
-                            <input type="text" wire:model="bank_account_number" class="form-control @error('bank_account_number') is-invalid @enderror">
-                            @error('bank_account_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nama Pemilik Rekening</label>
-                            <input type="text" wire:model="bank_account_holder" class="form-control @error('bank_account_holder') is-invalid @enderror">
-                            @error('bank_account_holder') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nama PIC</label>
-                            <input type="text" wire:model="pic_name" class="form-control @error('pic_name') is-invalid @enderror">
+                            <label class="form-label fw-semibold">Nama PIC <span class="text-danger">*</span></label>
+                            <input type="text" wire:model.blur="pic_name" class="form-control @error('pic_name') is-invalid @enderror">
                             @error('pic_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email PIC</label>
-                            <input type="email" wire:model="pic_email" class="form-control @error('pic_email') is-invalid @enderror">
-                            @error('pic_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">No. HP / WhatsApp PIC</label>
-                            <input type="text" wire:model="pic_phone" class="form-control @error('pic_phone') is-invalid @enderror">
-                            @error('pic_phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Email PIC <span class="text-danger">*</span></label>
+                                <input type="email" wire:model.blur="pic_email" class="form-control @error('pic_email') is-invalid @enderror" placeholder="pic@perusahaan.com">
+                                @error('pic_email') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">No. HP / WhatsApp <span class="text-danger">*</span></label>
+                                <input type="text" wire:model.blur="pic_phone" class="form-control @error('pic_phone') is-invalid @enderror" placeholder="08123456789">
+                                @error('pic_phone') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
                         </div>
                         @endif
 
-                        <!-- STEP 4 -->
-                        @if ($currentStep == 4)
+                        <!-- STEP 4: Unggah Dokumen -->
+                        @if ($currentStep === 4)
                         <div class="mb-3">
-                            <label class="form-label">Upload File NIB (PDF/JPG)</label>
+                            <label class="form-label fw-semibold">Upload File NIB (PDF/JPG) <span class="text-danger">*</span></label>
                             <input type="file" wire:model="nib_file" class="form-control @error('nib_file') is-invalid @enderror">
-
-                            <!-- Indikator loading saat file sedang di-upload Livewire -->
-                            <div wire:loading wire:target="nib_file" class="text-info small mt-1">Sedang mengunggah NIB...</div>
-
+                            <div wire:loading wire:target="nib_file" class="text-info small mt-1">⏳ Sedang mengunggah file NIB...</div>
                             @error('nib_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Upload File NPWP (PDF/JPG)</label>
+                            <label class="form-label fw-semibold">Upload File NPWP (PDF/JPG) <span class="text-danger">*</span></label>
                             <input type="file" wire:model="npwp_file" class="form-control @error('npwp_file') is-invalid @enderror">
-
-                            <div wire:loading wire:target="npwp_file" class="text-info small mt-1">Sedang mengunggah NPWP...</div>
-
+                            <div wire:loading wire:target="npwp_file" class="text-info small mt-1">⏳ Sedang mengunggah file NPWP...</div>
                             @error('npwp_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Upload Sertifikat Pendukung (Opsional)</label>
+                            <label class="form-label fw-semibold">Upload Sertifikat Pendukung <span class="text-muted fw-normal">(Opsional)</span></label>
                             <input type="file" wire:model="certificate_file" class="form-control @error('certificate_file') is-invalid @enderror">
-
-                            <div wire:loading wire:target="certificate_file" class="text-info small mt-1">Sedang mengunggah sertifikat...</div>
-
+                            <div wire:loading wire:target="certificate_file" class="text-info small mt-1">⏳ Sedang mengunggah sertifikat...</div>
                             @error('certificate_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         @endif
 
-                        <!-- Tombol Navigasi -->
-                        <div class="d-flex justify-content-between mt-4">
+                        <!-- Navigasi Tombol -->
+                        <div class="d-flex justify-content-between mt-4 pt-3 border-top">
                             @if ($currentStep > 1)
-                            <button type="button" wire:click="decreaseStep" class="btn btn-secondary">Sebelumnya</button>
+                            <button type="button" wire:click="decreaseStep" class="btn btn-outline-secondary px-4">
+                                ← Sebelumnya
+                            </button>
                             @else
                             <div></div>
                             @endif
 
                             @if ($currentStep < 4)
-                                <button type="button" wire:click="increaseStep" class="btn btn-primary">Selanjutnya</button>
+                                <button type="button" wire:click="increaseStep" class="btn btn-primary px-4">
+                                Selanjutnya →
+                                </button>
                                 @else
-                                <button type="submit" class="btn btn-success">Submit Pendaftaran</button>
+                                <button type="submit" class="btn btn-success px-4" wire:loading.attr="disabled">
+                                    <span wire:loading.remove wire:target="submit">Submit Pendaftaran</span>
+                                    <span wire:loading wire:target="submit">Memproses...</span>
+                                </button>
                                 @endif
                         </div>
                     </form>

@@ -19,6 +19,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Perusahaan</th>
+                                <th>PIC</th>
                                 <th>Tanggal Daftar</th>
                                 <th>Aksi</th>
                             </tr>
@@ -26,10 +27,14 @@
                         <tbody>
                             @forelse ($vendors as $index => $vendor)
                             <tr wire:key="vendor-{{ $vendor->id }}">
-                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $vendors->firstItem() + $index }}</td>
                                 <td>
                                     <strong>{{ $vendor->company_name }}</strong><br>
                                     <small class="text-muted">{{ $vendor->address }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{$vendor->pic_email}}</strong>
+                                    <small class="text-muted d-block">{{$vendor->pic_phone}}</small>
                                 </td>
                                 <td>{{ $vendor->created_at->format('d/m/Y H:i') }}</td>
                                 <td>
@@ -45,6 +50,9 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+                <div class="mt-3">
+                    {{ $vendors->links() }}
                 </div>
             </div>
         </x-card>
@@ -84,16 +92,16 @@
                     <ul class="list-group mb-3">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             File NIB
-                            <a href="{{ Storage::url($selectedVendor->nib_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                            <a href="{{ Storage::url('vendor-documents/' . $selectedVendor->nib_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             File NPWP
-                            <a href="{{ Storage::url($selectedVendor->npwp_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                            <a href="{{ Storage::url('vendor-documents/' . $selectedVendor->npwp_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
                         </li>
                         @if($selectedVendor->certificate_file)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Sertifikat Pendukung
-                            <a href="{{ Storage::url($selectedVendor->certificate_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                            <a href="{{ Storage::url('vendor-documents/' . $selectedVendor->certificate_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
                         </li>
                         @endif
                     </ul>

@@ -1,16 +1,49 @@
 <div>
     <div class="container-fluid mt-3">
+        <!-- Alert Message Flash -->
+        @if (session()->has('message'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('message') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        @endif
+
         <x-card>
             <x-slot:header>
-                Daftar Vendor Disetujui
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Daftar Vendor Disetujui</h5>
+                </div>
             </x-slot:header>
+
             <div class="card-body">
+                <!-- Filter & Search Bar -->
+                <div class="row mb-3 g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" placeholder="Cari nama vendor, PIC, atau nomor kontrak..." wire:model.live.debounce.300ms="search">
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center justify-content-md-end">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="filterExpiring" wire:model.live="filterExpiringSoon">
+                            <label class="form-check-label fw-bold text-warning" for="filterExpiring">
+                                ⚠️ Kontrak Habis (≤ 30 Hari)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabel Vendor -->
                 <div class="table-responsive">
                     <table class="table table-hover display align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>No</th>
                                 <th>Nama Perusahaan</th>
+                                <th>No. Kontrak</th>
+                                <th>Masa Kontrak</th>
+                                <th>Status Kontrak</th>
                                 <th>Tanggal Disetujui</th>
                                 <th>Aksi</th>
                             </tr>
@@ -18,26 +51,67 @@
                         <tbody>
                             @forelse ($vendors as $index => $vendor)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td><strong>{{ $vendor->company_name }}</strong><br><small class="text-muted">{{ $vendor->address }}</small></td>
+                                <td>{{ $vendors->firstItem() + $index }}</td>
+                                <td>
+                                    <strong>{{ $vendor->company_name }}</strong><br>
+                                    <small class="text-muted">{{ Str::limit($vendor->address, 40) }}</small>
+                                </td>
+                                <td>
+                                    @if($vendor->contract_number)
+                                    <span class="badge bg-light text-dark border">{{ $vendor->contract_number }}</span>
+                                    @else
+                                    <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($vendor->contract_start_date && $vendor->contract_end_date)
+                                    <small>{{ $vendor->contract_start_date->format('d/m/Y') }} - {{ $vendor->contract_end_date->format('d/m/Y') }}</small>
+                                    @else
+                                    <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($vendor->contract_end_date)
+                                    @if($vendor->days_remaining < 0)
+                                        <span class="badge bg-danger">Habis ({{ abs($vendor->days_remaining) }} Hari Lalu)</span>
+                                        @elseif($vendor->days_remaining <= 30)
+                                            <span class="badge bg-warning text-dark">Habis {{ $vendor->days_remaining }} Hari Lagi!</span>
+                                            @else
+                                            <span class="badge bg-success">Aktif</span>
+                                            @endif
+                                            @else
+                                            <span class="badge bg-secondary">Belum Ada Kontrak</span>
+                                            @endif
+                                </td>
                                 <td>{{ $vendor->updated_at->format('d/m/Y H:i') }}</td>
                                 <td>
-                                    <button wire:click="showDetail({{ $vendor->id }})" class="btn btn-sm btn-info text-white">
-                                        <i class="bi bi-eye"></i> Detail
-                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button wire:click="showDetail({{ $vendor->id }})" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                                            <i class="bi bi-eye"></i> Detail
+                                        </button>
+                                        <button wire:click="openContractModal({{ $vendor->id }})" class="btn btn-sm btn-primary" title="Kelola Kontrak">
+                                            <i class="bi bi-file-earmark-text"></i> Kontrak
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">Belum ada vendor yang disetujui.</td>
+                                <td colspan="7" class="text-center text-muted py-4">Belum ada vendor yang disetujui.</td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Link Pagination -->
+                <div class="mt-3">
+                    {{ $vendors->links() }}
+                </div>
             </div>
         </x-card>
-        <!-- Tambahkan Modal Detail di bagian bawah file view -->
+
+        <!-- ================= MODAL DETAIL VENDOR ================= -->
         @if($isDetailModalOpen && $detailVendor)
         <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
             <div class="modal-dialog modal-lg">
@@ -68,19 +142,33 @@
                         <hr>
 
                         <h6 class="fw-bold mb-3">Dokumen Terlampir:</h6>
-                        <ul class="list-group">
+                        <ul class="list-group mb-3">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 File NIB
-                                <a href="{{ Storage::url($detailVendor->nib_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                                @if($detailVendor->nib_file)
+                                <a href="{{ Storage::url('vendor-documents/' . $detailVendor->nib_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                                @else
+                                <span class="text-muted small">Tidak ada</span>
+                                @endif
                             </li>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 File NPWP
-                                <a href="{{ Storage::url($detailVendor->npwp_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                                @if($detailVendor->npwp_file)
+                                <a href="{{ Storage::url('vendor-documents/' . $detailVendor->npwp_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                                @else
+                                <span class="text-muted small">Tidak ada</span>
+                                @endif
                             </li>
                             @if($detailVendor->certificate_file)
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 Sertifikat Pendukung
-                                <a href="{{ Storage::url($detailVendor->certificate_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                                <a href="{{ Storage::url('vendor-documents/' . $detailVendor->certificate_file) }}" target="_blank" class="btn btn-sm btn-outline-secondary">Lihat Dokumen</a>
+                            </li>
+                            @endif
+                            @if($detailVendor->contract_file)
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
+                                <strong>Berkas Perjanjian Kontrak</strong>
+                                <a href="{{ Storage::url('vendor-contracts/' . $detailVendor->contract_file) }}" target="_blank" class="btn btn-sm btn-primary">Lihat Kontrak</a>
                             </li>
                             @endif
                         </ul>
@@ -92,5 +180,62 @@
             </div>
         </div>
         @endif
+
+        <!-- ================= MODAL KELOLA KONTRAK (ADMIN) ================= -->
+        @if($isContractModalOpen && $selectedVendorForContract)
+        <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title">Kelola Kontrak: {{ $selectedVendorForContract->company_name }}</h5>
+                        <button type="button" wire:click="closeContractModal" class="btn-close btn-close-white"></button>
+                    </div>
+                    <form wire:submit.prevent="saveContract">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nomor Kontrak Kerja Sama <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control @error('contract_number') is-invalid @enderror" wire:model="contract_number" placeholder="Contoh: KTR/AMS/2026/001">
+                                @error('contract_number') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Tanggal Mulai <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('contract_start_date') is-invalid @enderror" wire:model="contract_start_date">
+                                    @error('contract_start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Tanggal Selesai <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control @error('contract_end_date') is-invalid @enderror" wire:model="contract_end_date">
+                                    @error('contract_end_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Unggah File Kontrak (PDF/JPG)</label>
+                                <input type="file" class="form-control @error('contract_file') is-invalid @enderror" wire:model="contract_file">
+                                <div wire:loading wire:target="contract_file" class="text-info small mt-1">⏳ Sedang mengunggah berkas kontrak...</div>
+                                @error('contract_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                                @if($selectedVendorForContract->contract_file)
+                                <div class="mt-2 small text-muted">
+                                    Berkas saat ini:
+                                    <a href="{{ Storage::url('vendor-contracts/' . $selectedVendorForContract->contract_file) }}" target="_blank">
+                                        {{ $selectedVendorForContract->contract_file }}
+                                    </a>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" wire:click="closeContractModal" class="btn btn-secondary">Batal</button>
+                            <button type="submit" class="btn btn-success" wire:loading.attr="disabled">Simpan Kontrak</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
+
     </div>
 </div>
