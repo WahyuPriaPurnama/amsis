@@ -18,40 +18,40 @@ return new class extends Migration
                 ->constrained('users')
                 ->nullOnDelete();
 
-   
+
             $table->string('company_name');
             $table->text('address');
             $table->string('nib')->unique();
             $table->string('npwp')->unique();
 
-     
+
             $table->boolean('has_halal')->default(false);
             $table->boolean('has_haccp')->default(false);
             $table->string('skp_number')->nullable();
 
-   
+
             $table->string('bank_name');
             $table->string('bank_account_number');
             $table->string('bank_account_holder');
 
-    
+
             $table->string('pic_name');
             $table->string('pic_email')->unique();
             $table->string('pic_phone');
 
-        
+
             $table->string('nib_file')->nullable();
             $table->string('npwp_file')->nullable();
             $table->string('certificate_file')->nullable();
 
-       
+
             $table->string('contract_number')->nullable();
             $table->date('contract_start_date')->nullable();
             $table->date('contract_end_date')->nullable();
             $table->string('contract_file')->nullable();
 
-            
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+
+            $table->enum('status', ['pending', 'approved', 'rejected', 'inactive'])->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->timestamps();
         });

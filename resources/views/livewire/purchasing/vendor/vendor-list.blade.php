@@ -11,23 +11,35 @@
         <x-card>
             <x-slot:header>
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Daftar Vendor Disetujui</h5>
+                    <h5 class="mb-0">Daftar Vendor</h5>
                 </div>
             </x-slot:header>
 
             <div class="card-body">
-                <!-- Filter & Search Bar -->
-                <div class="row mb-3 g-3">
-                    <div class="col-md-6">
+                <!-- Filter & Search Bar (Refactored Grid) -->
+                <div class="row mb-3 g-3 align-items-center">
+                    <!-- Kolom Pencarian -->
+                    <div class="col-md-5">
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
                             <input type="text" class="form-control" placeholder="Cari nama vendor, PIC, atau nomor kontrak..." wire:model.live.debounce.300ms="search">
                         </div>
                     </div>
-                    <div class="col-md-6 d-flex align-items-center justify-content-md-end">
-                        <div class="form-check form-switch">
+
+                    <!-- Dropdown Filter Status Vendor -->
+                    <div class="col-md-3">
+                        <select class="form-select" wire:model.live="statusFilter">
+                            <option value="all">Semua Status Vendor</option>
+                            <option value="approved">Aktif Sahaja</option>
+                            <option value="inactive">Non-Aktif Sahaja</option>
+                        </select>
+                    </div>
+
+                    <!-- Toggle Filter Kontrak Habis (<= 30 Hari) -->
+                    <div class="col-md-4 d-flex justify-content-md-end align-items-center">
+                        <div class="form-check form-switch m-0">
                             <input class="form-check-input" type="checkbox" id="filterExpiring" wire:model.live="filterExpiringSoon">
-                            <label class="form-check-label fw-bold text-warning" for="filterExpiring">
+                            <label class="form-check-label fw-bold text-warning ms-1" for="filterExpiring">
                                 ⚠️ Kontrak Habis (≤ 30 Hari)
                             </label>
                         </div>
@@ -44,7 +56,7 @@
                                 <th>No. Kontrak</th>
                                 <th>Masa Kontrak</th>
                                 <th>Status Kontrak</th>
-                                <th>Tanggal Disetujui</th>
+                                <th>Status Vendor</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -71,6 +83,7 @@
                                     @endif
                                 </td>
                                 <td>
+                                    {{-- Status Kontrak Murni Berdasarkan Tanggal Kontrak --}}
                                     @if($vendor->contract_end_date)
                                     @if($vendor->days_remaining < 0)
                                         <span class="badge bg-danger">Habis ({{ abs($vendor->days_remaining) }} Hari Lalu)</span>
@@ -83,7 +96,14 @@
                                             <span class="badge bg-secondary">Belum Ada Kontrak</span>
                                             @endif
                                 </td>
-                                <td>{{ $vendor->updated_at->format('d/m/Y H:i') }}</td>
+                                <td>
+                                    {{-- Status Entitas Vendor --}}
+                                    @if($vendor->status === 'approved')
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Aktif</span>
+                                    @elseif($vendor->status === 'inactive')
+                                    <span class="badge bg-secondary"><i class="bi bi-dash-circle me-1"></i>Non-Aktif</span>
+                                    @endif
+                                </td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button wire:click="showDetail({{ $vendor->id }})" class="btn btn-sm btn-info text-white" title="Lihat Detail">
@@ -92,12 +112,28 @@
                                         <button wire:click="openContractModal({{ $vendor->id }})" class="btn btn-sm btn-primary" title="Kelola Kontrak">
                                             <i class="bi bi-file-earmark-text"></i> Kontrak
                                         </button>
+
+                                        @if($vendor->status === 'approved')
+                                        <button wire:click="toggleStatus({{ $vendor->id }})"
+                                            wire:confirm="Apakah Anda yakin ingin MENONAKTIFKAN vendor {{ $vendor->company_name }}?"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Non-Aktifkan Vendor">
+                                            <i class="bi bi-power"></i>
+                                        </button>
+                                        @else
+                                        <button wire:click="toggleStatus({{ $vendor->id }})"
+                                            wire:confirm="Aktifkan kembali vendor {{ $vendor->company_name }}?"
+                                            class="btn btn-sm btn-outline-success"
+                                            title="Aktifkan Vendor">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Belum ada vendor yang disetujui.</td>
+                                <td colspan="7" class="text-center text-muted py-4">Belum ada data vendor.</td>
                             </tr>
                             @endforelse
                         </tbody>

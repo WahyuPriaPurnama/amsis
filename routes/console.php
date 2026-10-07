@@ -23,3 +23,5 @@ Artisan::command('inspire', function () {
 Schedule::call(function () {
     DB::table('counters')->where('created_at', '<', now()->subDays(7))->delete();
 })->hourly();
+
+Schedule::command('vendor:notify-expiring-contracts')->dailyAt('08:00');

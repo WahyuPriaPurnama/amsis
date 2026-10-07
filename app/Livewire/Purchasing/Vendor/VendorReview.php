@@ -21,12 +21,12 @@ class VendorReview extends Component
 
     public ?Vendor $selectedVendor = null;
     public string $rejection_reason = '';
-    public string $actionType = ''; // Tambahkan ini untuk mengontrol form penolakan
+    public string $actionType = ''; 
     public bool $isModalOpen = false;
 
     public function render()
     {
-        // UBAH 'pendingVendors' MENJADI 'vendors' DI SINI
+      
         return view('livewire.purchasing.vendor.vendor-review', [
             'vendors' => Vendor::where('status', 'pending')->latest()->paginate(10),
         ]);

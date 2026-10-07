@@ -18,15 +18,15 @@ class VendorList extends Component
 
     protected string $paginationTheme = 'bootstrap';
 
-    // Filter & Search Properties
+    public string $statusFilter = 'all';
     public string $search = '';
     public bool $filterExpiringSoon = false;
 
-    // Modal States
+
     public ?Vendor $detailVendor = null;
     public bool $isDetailModalOpen = false;
 
-    // Form Kontrak Admin
+
     public ?Vendor $selectedVendorForContract = null;
     public bool $isContractModalOpen = false;
     public string $contract_number = '';
@@ -34,7 +34,6 @@ class VendorList extends Component
     public string $contract_end_date = '';
     public $contract_file;
 
-    // Reset halaman saat mengetik kata kunci pencarian / memfilter
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -47,10 +46,18 @@ class VendorList extends Component
 
     public function render()
     {
-        // Ambil query dasar vendor yang berstatus approved
-        $query = Vendor::approved();
+        $query = Vendor::query();
 
-        // Terapkan pencarian jika ada input kata kunci
+        // Filter berdasarkan status dropdown/tab
+        if ($this->statusFilter === 'approved') {
+            $query->where('status', 'approved');
+        } elseif ($this->statusFilter === 'inactive') {
+            $query->where('status', 'inactive');
+        } else {
+            // 'all': Tampilkan yang approved dan inactive
+            $query->whereIn('status', ['approved', 'inactive']);
+        }
+
         if ($this->search !== '') {
             $query->where(function ($q) {
                 $q->where('company_name', 'like', '%' . $this->search . '%')
@@ -63,15 +70,10 @@ class VendorList extends Component
             $query->expiringSoon(30);
         }
 
-        // PASTIKAN VARIABEL 'vendors' DIKIRIM LANGSUNG DI SINI:
         return view('livewire.purchasing.vendor.vendor-list', [
             'vendors' => $query->latest()->paginate(10),
         ]);
     }
-
-    /* -------------------------------------------------------------------------- */
-    /*                              MODAL FUNCTIONS                               */
-    /* -------------------------------------------------------------------------- */
 
     public function showDetail(int $vendorId): void
     {
@@ -132,5 +134,24 @@ class VendorList extends Component
 
         session()->flash('message', 'Perjanjian kontrak vendor berhasil disimpan!');
         $this->closeContractModal();
+    }
+    public function toggleStatus(int $vendorId): void
+    {
+        $vendor = Vendor::findOrFail($vendorId);
+
+        // Switch status antara 'approved' dan 'inactive'
+        $newStatus = $vendor->status === 'approved' ? 'inactive' : 'approved';
+
+        $vendor->update([
+            'status' => $newStatus
+        ]);
+
+        $statusText = $newStatus === 'inactive' ? 'dinonaktifkan' : 'diaktifkan kembali';
+        session()->flash('message', "Vendor {$vendor->company_name} berhasil {$statusText}.");
+    }
+
+    public function updatedStatusFilter(): void
+    {
+        $this->resetPage();
     }
 }

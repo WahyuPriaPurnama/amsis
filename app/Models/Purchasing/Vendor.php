@@ -128,4 +128,9 @@ class Vendor extends Model
     {
         return $query->where('status', 'approved');
     }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'inactive');
+    }
 }
