@@ -30,8 +30,9 @@
                     <div class="col-md-3">
                         <select class="form-select" wire:model.live="statusFilter">
                             <option value="all">Semua Status Vendor</option>
-                            <option value="approved">Aktif Sahaja</option>
-                            <option value="inactive">Non-Aktif Sahaja</option>
+                            <option value="approved">Aktif</option>
+                            <option value="inactive">Non-Aktif</option>
+                            <option value="blacklisted">Blacklist</option>
                         </select>
                     </div>
 
@@ -83,8 +84,12 @@
                                     @endif
                                 </td>
                                 <td>
-                                    {{-- Status Kontrak Murni Berdasarkan Tanggal Kontrak --}}
-                                    @if($vendor->contract_end_date)
+                                    {{-- Status Kontrak (Otomatis Terblokir jika Blacklist) --}}
+                                    @if($vendor->status === 'blacklisted')
+                                    <span class="badge bg-dark text-white border border-danger">
+                                        <i class="bi bi-slash-circle me-1"></i> Terblokir / Batal
+                                    </span>
+                                    @elseif($vendor->contract_end_date)
                                     @if($vendor->days_remaining < 0)
                                         <span class="badge bg-danger">Habis ({{ abs($vendor->days_remaining) }} Hari Lalu)</span>
                                         @elseif($vendor->days_remaining <= 30)
@@ -102,6 +107,8 @@
                                     <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Aktif</span>
                                     @elseif($vendor->status === 'inactive')
                                     <span class="badge bg-secondary"><i class="bi bi-dash-circle me-1"></i>Non-Aktif</span>
+                                    @elseif($vendor->status === 'blacklisted')
+                                    <span class="badge bg-dark text-white"><i class="bi bi-x-circle me-1"></i>Blacklist</span>
                                     @endif
                                 </td>
                                 <td>
@@ -113,21 +120,43 @@
                                             <i class="bi bi-file-earmark-text"></i> Kontrak
                                         </button>
 
-                                        @if($vendor->status === 'approved')
-                                        <button wire:click="toggleStatus({{ $vendor->id }})"
-                                            wire:confirm="Apakah Anda yakin ingin MENONAKTIFKAN vendor {{ $vendor->company_name }}?"
-                                            class="btn btn-sm btn-outline-danger"
-                                            title="Non-Aktifkan Vendor">
-                                            <i class="bi bi-power"></i>
-                                        </button>
-                                        @else
-                                        <button wire:click="toggleStatus({{ $vendor->id }})"
-                                            wire:confirm="Aktifkan kembali vendor {{ $vendor->company_name }}?"
-                                            class="btn btn-sm btn-outline-success"
-                                            title="Aktifkan Vendor">
-                                            <i class="bi bi-check-circle"></i>
-                                        </button>
-                                        @endif
+                                        <!-- Dropdown Menu Ubah Status Vendor -->
+                                        <div class="btn-group" role="group">
+                                            <button id="btnGroupDropStatus{{ $vendor->id }}" type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                Status
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="btnGroupDropStatus{{ $vendor->id }}">
+                                                @if($vendor->status !== 'approved')
+                                                <li>
+                                                    <a class="dropdown-item text-success small" href="#"
+                                                        wire:click.prevent="setVendorStatus({{ $vendor->id }}, 'approved')"
+                                                        wire:confirm="Aktifkan vendor {{ $vendor->company_name }}?">
+                                                        <i class="bi bi-check-circle me-1"></i> Set Aktif
+                                                    </a>
+                                                </li>
+                                                @endif
+
+                                                @if($vendor->status !== 'inactive')
+                                                <li>
+                                                    <a class="dropdown-item text-warning small" href="#"
+                                                        wire:click.prevent="setVendorStatus({{ $vendor->id }}, 'inactive')"
+                                                        wire:confirm="Non-aktifkan vendor {{ $vendor->company_name }}?">
+                                                        <i class="bi bi-pause-circle me-1"></i> Set Non-Aktif
+                                                    </a>
+                                                </li>
+                                                @endif
+
+                                                @if($vendor->status !== 'blacklisted')
+                                                <li>
+                                                    <a class="dropdown-item text-danger small" href="#"
+                                                        wire:click.prevent="setVendorStatus({{ $vendor->id }}, 'blacklisted')"
+                                                        wire:confirm="⚠️ YAKIN ingin memasukkan vendor {{ $vendor->company_name }} ke daftar BLACKLIST?">
+                                                        <i class="bi bi-slash-circle me-1"></i> Set Blacklist
+                                                    </a>
+                                                </li>
+                                                @endif
+                                            </ul>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

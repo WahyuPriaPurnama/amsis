@@ -133,4 +133,8 @@ class Vendor extends Model
     {
         return $query->where('status', 'inactive');
     }
+    public function scopeBlacklisted(Builder $query): Builder
+    {
+        return $query->where('status', 'blacklisted');
+    }
 }

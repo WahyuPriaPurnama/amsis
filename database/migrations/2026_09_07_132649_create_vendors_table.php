@@ -51,7 +51,7 @@ return new class extends Migration
             $table->string('contract_file')->nullable();
 
 
-            $table->enum('status', ['pending', 'approved', 'rejected', 'inactive'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'inactive','blacklisted'])->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->timestamps();
         });

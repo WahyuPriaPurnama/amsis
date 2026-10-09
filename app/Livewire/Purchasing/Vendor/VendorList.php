@@ -11,22 +11,23 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
-#[Title('Daftar Vendor Disetujui')]
+#[Title('Daftar Vendor')]
 class VendorList extends Component
 {
     use AuthorizesRequests, WithPagination, WithFileUploads;
 
     protected string $paginationTheme = 'bootstrap';
 
-    public string $statusFilter = 'all';
+    // Filter & Search Properties
+    public string $statusFilter = 'all'; // Opsi: 'all', 'approved', 'inactive', 'blacklisted'
     public string $search = '';
     public bool $filterExpiringSoon = false;
 
-
+    // Modal States
     public ?Vendor $detailVendor = null;
     public bool $isDetailModalOpen = false;
 
-
+    // Form Kontrak Admin
     public ?Vendor $selectedVendorForContract = null;
     public bool $isContractModalOpen = false;
     public string $contract_number = '';
@@ -34,7 +35,13 @@ class VendorList extends Component
     public string $contract_end_date = '';
     public $contract_file;
 
+    // Reset pagination saat filter/search berubah
     public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedStatusFilter(): void
     {
         $this->resetPage();
     }
@@ -48,16 +55,15 @@ class VendorList extends Component
     {
         $query = Vendor::query();
 
-        // Filter berdasarkan status dropdown/tab
-        if ($this->statusFilter === 'approved') {
-            $query->where('status', 'approved');
-        } elseif ($this->statusFilter === 'inactive') {
-            $query->where('status', 'inactive');
+        // 1. Filter berdasarkan Dropdown Status Vendor
+        if ($this->statusFilter !== 'all') {
+            $query->where('status', $this->statusFilter);
         } else {
-            // 'all': Tampilkan yang approved dan inactive
-            $query->whereIn('status', ['approved', 'inactive']);
+            // Tampilkan vendor yang sudah diproses (Approved, Inactive, dan Blacklisted)
+            $query->whereIn('status', ['approved', 'inactive', 'blacklisted']);
         }
 
+        // 2. Pencarian Nama Vendor, PIC, atau No Kontrak
         if ($this->search !== '') {
             $query->where(function ($q) {
                 $q->where('company_name', 'like', '%' . $this->search . '%')
@@ -66,6 +72,7 @@ class VendorList extends Component
             });
         }
 
+        // 3. Filter Kontrak Habis (<= 30 Hari)
         if ($this->filterExpiringSoon) {
             $query->expiringSoon(30);
         }
@@ -74,6 +81,35 @@ class VendorList extends Component
             'vendors' => $query->latest()->paginate(10),
         ]);
     }
+
+    /* -------------------------------------------------------------------------- */
+    /*                              STATUS ACTIONS                                */
+    /* -------------------------------------------------------------------------- */
+
+    /**
+     * Mengubah status vendor secara dinamis ('approved', 'inactive', 'blacklisted').
+     */
+    public function setVendorStatus(int $vendorId, string $newStatus): void
+    {
+        if (!in_array($newStatus, ['approved', 'inactive', 'blacklisted'])) {
+            return;
+        }
+
+        $vendor = Vendor::findOrFail($vendorId);
+        $vendor->update(['status' => $newStatus]);
+
+        $statusLabel = [
+            'approved'    => 'diaktifkan kembali',
+            'inactive'    => 'dinonaktifkan',
+            'blacklisted' => 'dimasukkan ke daftar BLACKLIST',
+        ][$newStatus];
+
+        session()->flash('message', "Vendor {$vendor->company_name} berhasil {$statusLabel}.");
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                              MODAL FUNCTIONS                               */
+    /* -------------------------------------------------------------------------- */
 
     public function showDetail(int $vendorId): void
     {
@@ -134,24 +170,5 @@ class VendorList extends Component
 
         session()->flash('message', 'Perjanjian kontrak vendor berhasil disimpan!');
         $this->closeContractModal();
-    }
-    public function toggleStatus(int $vendorId): void
-    {
-        $vendor = Vendor::findOrFail($vendorId);
-
-        // Switch status antara 'approved' dan 'inactive'
-        $newStatus = $vendor->status === 'approved' ? 'inactive' : 'approved';
-
-        $vendor->update([
-            'status' => $newStatus
-        ]);
-
-        $statusText = $newStatus === 'inactive' ? 'dinonaktifkan' : 'diaktifkan kembali';
-        session()->flash('message', "Vendor {$vendor->company_name} berhasil {$statusText}.");
-    }
-
-    public function updatedStatusFilter(): void
-    {
-        $this->resetPage();
     }
 }
