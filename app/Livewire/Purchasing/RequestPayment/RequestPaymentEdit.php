@@ -5,6 +5,7 @@ namespace App\Livewire\Purchasing\RequestPayment;
 use App\Models\Purchasing\RequestPayment;
 use App\Models\HRD\Subsidiary;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
@@ -35,10 +36,22 @@ class RequestPaymentEdit extends Component
     protected function rules()
     {
         return [
-            'subsidiary_id' => 'required|exists:subsidiaries,id',
+            'subsidiary_id' => [
+                'required',
+                'exists:subsidiaries,id',
+                function ($attribute, $value, $fail) {
+                    $user = Auth::user();
+                    // Validasi hak akses subsidiary user (jika bukan super-admin)
+                    if (!$user->hasRole('super-admin')) {
+                        $allowedIds = $user->subsidiaries()->pluck('subsidiaries.id')->toArray();
+                        if (!in_array($value, $allowedIds)) {
+                            $fail('Anda tidak memiliki hak akses untuk memilih Subsidiary / Plant ini.');
+                        }
+                    }
+                },
+            ],
             'division' => 'required|string|max:255',
             'date' => 'required|date',
-            // Validasi unique dicek berdasarkan gabungan subsidiary_id dan payment_number, kecuali untuk ID ini sendiri
             'payment_number' => [
                 'required',
                 'string',
@@ -59,7 +72,7 @@ class RequestPaymentEdit extends Component
 
     private function generatePaymentNumber()
     {
-        if (!$this->subsidiary_id || !$this->date) {
+        if (empty($this->subsidiary_id) || empty($this->date)) {
             return;
         }
 
@@ -72,14 +85,23 @@ class RequestPaymentEdit extends Component
         $dateObj = Carbon::parse($this->date);
         $yearMonth = $dateObj->format('Ym');
 
-        // Hitung jumlah record berdasarkan subsidiary yang dipilih pada bulan & tahun tersebut
-        $count = RequestPayment::where('subsidiary_id', $this->subsidiary_id)
-            ->where('id', '!=', $this->payment->id)
+        // Melanjutkan urutan penomoran terakhir dari Plant/Subsidiary yang dipilih
+        $lastPayment = RequestPayment::where('subsidiary_id', $this->subsidiary_id)
             ->whereYear('date', $dateObj->year)
             ->whereMonth('date', $dateObj->month)
-            ->count() + 1;
+            ->where('id', '!=', $this->payment->id)
+            ->orderBy('id', 'desc')
+            ->first();
 
-        $this->payment_number = "{$yearMonth}/" . str_pad($count, 3, '0', STR_PAD_LEFT);
+        if ($lastPayment && $lastPayment->payment_number) {
+            $parts = explode('/', $lastPayment->payment_number);
+            $lastNumber = isset($parts[1]) ? (int) $parts[1] : 0;
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $this->payment_number = "{$yearMonth}/" . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
     public function mount(RequestPayment $requestPayment)
@@ -170,17 +192,14 @@ class RequestPaymentEdit extends Component
                 'grand_total' => $this->grandTotal,
             ]);
 
-            // Sinkronisasi items (update yang lama, tambah yang baru, hapus yang dibuang)
+            // Sinkronisasi items
             $existingItemIds = collect($this->items)->pluck('id')->filter()->toArray();
-
-            // Hapus item yang dihapus dari UI
             $this->payment->items()->whereNotIn('id', $existingItemIds)->delete();
 
             foreach ($this->items as $itemData) {
                 $amount = (float)$itemData['quantity'] * (float)$itemData['unit_price'];
 
                 if (!empty($itemData['id'])) {
-                    // Update existing
                     $this->payment->items()->where('id', $itemData['id'])->update([
                         'item_name' => $itemData['item_name'],
                         'quantity' => $itemData['quantity'],
@@ -190,7 +209,6 @@ class RequestPaymentEdit extends Component
                         'due_date' => $itemData['due_date'] ?: null,
                     ]);
                 } else {
-                    // Create new item
                     $this->payment->items()->create([
                         'item_name' => $itemData['item_name'],
                         'quantity' => $itemData['quantity'],
@@ -214,8 +232,15 @@ class RequestPaymentEdit extends Component
 
     public function render()
     {
+        $user = Auth::user();
+
+        // Mengambil daftar subsidiary sesuai hak akses user login
+        $subsidiaries = $user->hasRole('super-admin')
+            ? Subsidiary::all()
+            : $user->subsidiaries;
+
         return view('purchasing.request-payment.request-payment-edit', [
-            'subsidiaries' => Subsidiary::all(),
+            'subsidiaries' => $subsidiaries,
         ]);
     }
 }

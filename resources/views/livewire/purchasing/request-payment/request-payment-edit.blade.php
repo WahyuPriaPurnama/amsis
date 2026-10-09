@@ -12,10 +12,14 @@
         {{-- SECTION 1: INFORMASI UMUM --}}
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <label class="form-label fw-bold small">Plant / Subsidiary</label>
-                <input type="text" readonly value="{{ $payment->subsidiary->name ?? '-' }}" class="form-control bg-light fw-bold">
-                <input type="hidden" wire:model="subsidiary_id">
-                <small class="text-muted" style="font-size: 0.75rem;">Plant tidak dapat diubah setelah dokumen terbuat.</small>
+                <label for="subsidiary_id" class="form-label fw-bold small">Plant / Subsidiary <span class="text-danger">*</span></label>
+                <select id="subsidiary_id" wire:model.live="subsidiary_id" class="form-select @error('subsidiary_id') is-invalid @enderror">
+                    <option value="">-- Pilih Plant --</option>
+                    @foreach ($subsidiaries as $sub)
+                    <option value="{{ $sub->id }}">{{ $sub->name }}</option>
+                    @endforeach
+                </select>
+                @error('subsidiary_id') <small class="text-danger d-block">{{ $message }}</small> @enderror
             </div>
 
             <div class="col-md-3">
