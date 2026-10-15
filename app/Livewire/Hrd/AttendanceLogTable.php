@@ -4,7 +4,7 @@ namespace App\Livewire\Hrd;
 
 use App\Models\HRD\AttendanceLog;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log; // Import Facade Log
+use Illuminate\Support\Facades\Log; 
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,12 +12,11 @@ class AttendanceLogTable extends Component
 {
     use WithPagination;
 
-    // Tema Paginasi Bootstrap
+  
     protected string $paginationTheme = 'bootstrap';
 
     public $search = '';
 
-    // Reset halaman ke 1 saat pencarian diubah
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -26,7 +25,7 @@ class AttendanceLogTable extends Component
     public function syncFromFingerspot()
     {
         try {
-            // Panggil API get_attlog Fingerspot
+  
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer K0WFK7TV51AD7934',
                 'Content-Type'  => 'application/json',
@@ -41,7 +40,7 @@ class AttendanceLogTable extends Component
                 $responseData = $response->json();
                 $logs = $responseData['data'] ?? [];
 
-                // Loop dan simpan ke database
+        
                 if (is_array($logs)) {
                     foreach ($logs as $log) {
                         if (isset($log['pin']) && isset($log['scan_date'])) {

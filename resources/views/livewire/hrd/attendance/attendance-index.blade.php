@@ -15,16 +15,8 @@
                     <i class="spinner-border spinner-border-sm me-1"></i> Menyinkronkan...
                 </span>
             </button>
-            <button type="button" wire:click="exportPdf" class="btn btn-danger btn-sm">
-                <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
-            </button>
-
-            <button type="button" wire:click="exportExcel" class="btn btn-success btn-sm">
-                <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
-            </button>
         </div>
 
-        <!-- Input Search Dibatasi Lebarnya -->
         <div class="input-group input-group-sm style-search" style="max-width: 280px;">
             <input type="text" class="form-control" wire:model.live="search" placeholder="Cari PIN Karyawan..." />
             <span class="input-group-text bg-white">
