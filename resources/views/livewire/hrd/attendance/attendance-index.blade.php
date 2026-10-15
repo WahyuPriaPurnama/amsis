@@ -6,7 +6,7 @@
 
     <div class="button-action mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
      
-        <div class="d-flex align-items-center gap-2 flex-wrap">
+        <!-- <div class="d-flex align-items-center gap-2 flex-wrap">
             <button type="button" wire:click="syncFromFingerspot" wire:loading.attr="disabled" class="btn btn-primary btn-sm">
                 <span wire:loading.remove wire:target="syncFromFingerspot">
                     <i class="bi bi-cloud-arrow-down me-1"></i> Tarik Data Fingerspot
