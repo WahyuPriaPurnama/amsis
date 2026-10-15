@@ -8,10 +8,8 @@
     <title>{{ $title ?? config('app.name', 'AMSIS') }}</title>
     <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
 
-    <!-- Vite Assets (CSS & JS utama) -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
-    <!-- FontAwesome & DataTables Styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
@@ -57,14 +55,13 @@
                         </li>
 
                         @auth
-                        @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list'])
+                        @canany(['employee.list', 'subsidiary.list', 'vehicle.list', 'asset.list', 'attendance.list'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">HRD</a>
-                            @include('hrd.partials.hrd-menu')
+                                @include('hrd.partials.hrd-menu')
                         </li>
                         @endcanany
-
-                        @canany(['request-order.list', 'request-payment.list', 'master-supplier.list', 'receipts.list', 'vendor.review', 'vendor.list','request-order.list','request-payment.list'])
+                        @canany(['request-order.list', 'request-payment.list', 'master-supplier.list', 'receipts.list', 'vendor.review', 'vendor.list'])
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Pembelian</a>
                             @include('purchasing.partials.purchasing-menu')
@@ -136,7 +133,7 @@
         </nav>
     </div>
 
-    <!-- Main Content: Hilangkan padding jika belum login (guest/login page) -->
+    <!-- Main Content -->
     <main class="flex-grow-1 d-flex flex-column {{ Auth::check() ? 'py-3 py-md-4' : 'p-0 m-0' }}">
         @hasSection('content')
         @yield('content')

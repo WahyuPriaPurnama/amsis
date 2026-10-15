@@ -1,11 +1,8 @@
 <div class="container-fluid mt-3">
-
     @component('components.card')
     @slot('header')
     LIST ASSET
     @endslot
-
-    {{-- Kotak Ringkasan Statistik dengan Tombol Collapse --}}
     <div class="card border-0 shadow-sm bg-light mb-4">
         <div class="card-body py-3">
             <div class="d-flex justify-content-between align-items-center">
@@ -18,13 +15,10 @@
                     <span class="badge bg-secondary">{{ count($assetBreakdown) }} Jenis Barang</span>
                 </div>
 
-                {{-- Tombol Pemicu Collapse --}}
                 <button class="btn btn-outline-secondary btn-sm px-3 py-1 shadow-sm d-inline-flex align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAssetDetail" aria-expanded="false" aria-controls="collapseAssetDetail">
                     <i class="bi bi-chevron-down me-1"></i> Rincian Detail
                 </button>
             </div>
-
-            {{-- Area yang bisa disembunyikan/ditampilkan --}}
             <div class="collapse mt-3 pt-3 border-top" id="collapseAssetDetail">
                 <div class="d-flex flex-wrap gap-2">
                     @forelse($assetBreakdown as $item)
@@ -42,13 +36,12 @@
     </div>
 
     <div class="button-action mb-3 d-flex flex-wrap justify-content-between gap-2 align-items-center">
-        <!-- Tombol Aksi Tambah & Ekspor -->
+
         <div class="d-flex align-items-center gap-2 flex-wrap">
             @can('asset.create')
             <x-buttons.create href="{{ route('asset.create') }}" wire:navigate />
             @endcan
 
-            <!-- Tombol Ekspor PDF & Excel di asset-index.blade.php -->
             <button type="button" wire:click="exportPdf" class="btn btn-danger btn-sm">
                 <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
             </button>
@@ -58,7 +51,7 @@
             </button>
         </div>
 
-        <!-- Form Filter & Pencarian Reaktif -->
+
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <select wire:model.live="subsidiary_id" class="form-select" style="min-width: 180px;">
                 <option value="">-- Semua Plant --</option>
@@ -77,7 +70,6 @@
         </div>
     </div>
 
-    <!-- Tabel Data Aset -->
     <div class="table-responsive">
         <table class="table table-hover display align-middle" style="width: 100%;">
             <thead class="table-dark">
@@ -128,7 +120,6 @@
         </table>
     </div>
 
-    <!-- Paginasi Livewire -->
     <div class="mt-3">
         {{ $assets->links() }}
     </div>

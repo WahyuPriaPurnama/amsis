@@ -2,7 +2,6 @@
 
 
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,5 +20,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('/counter', [App\Http\Controllers\Api\CounterController::class, 'store']);
 Route::get('/counter', [App\Http\Controllers\Api\CounterController::class, 'index']);
 Route::get('/counter/{range}', [App\Http\Controllers\Api\CounterController::class, 'indexhourly']);
+
+
+
+
+Route::post('/fingerspot/webhook', [App\Http\Controllers\HRD\FingerspotWebhookController::class, 'handle']);
 
 

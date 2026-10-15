@@ -30,7 +30,6 @@ class AssetIndex extends Component
 
     public function mount()
     {
-        // Permission Check
         if (!auth()->user()->can('asset.list')) {
             abort(403, 'Anda tidak memiliki izin untuk melihat daftar aset.');
         }

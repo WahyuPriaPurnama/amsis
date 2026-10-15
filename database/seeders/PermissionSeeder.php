@@ -92,6 +92,14 @@ class PermissionSeeder extends Seeder
 
         ];
 
+        $attendancePermissions = [
+            'attendance.list',
+            'attendance.view',
+            'attendance.create',
+            'attendance.edit',
+            'attendance.delete',
+        ];
+
 
         $allPermissions = array_merge(
             $SubsidiaryPermissions,
@@ -101,7 +109,8 @@ class PermissionSeeder extends Seeder
             $AssetPermissions,
             $RequestOrderPermissions,
             $RequestPaymentPermissions,
-            $VendorPermissions
+            $VendorPermissions,
+            $attendancePermissions
         );
         foreach ($allPermissions as $permission) {
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);

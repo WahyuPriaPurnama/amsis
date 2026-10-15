@@ -30,4 +30,11 @@
         </a>
     </li>
     @endcan
+    @can('attendance.list')
+    <li>
+        <a class="dropdown-item @yield('menuAttendance')" href="{{ route('attendance.index') }}" wire:navigate>
+            <i class="bi bi-clock-history me-1"></i> Log Absensi
+        </a>
+    </li>
+    @endcan
 </ul>
