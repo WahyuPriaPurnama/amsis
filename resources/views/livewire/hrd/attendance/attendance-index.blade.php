@@ -5,7 +5,7 @@
     @endslot
 
     <div class="button-action mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
-        <!-- Tombol Aksi Tambah & Ekspor -->
+     
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <button type="button" wire:click="syncFromFingerspot" wire:loading.attr="disabled" class="btn btn-primary btn-sm">
                 <span wire:loading.remove wire:target="syncFromFingerspot">
@@ -15,7 +15,7 @@
                     <i class="spinner-border spinner-border-sm me-1"></i> Menyinkronkan...
                 </span>
             </button>
-        </div>
+        </div> -->
 
         <div class="input-group input-group-sm style-search" style="max-width: 280px;">
             <input type="text" class="form-control" wire:model.live="search" placeholder="Cari PIN Karyawan..." />
