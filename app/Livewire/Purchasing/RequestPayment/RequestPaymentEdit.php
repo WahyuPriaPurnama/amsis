@@ -30,7 +30,7 @@ class RequestPaymentEdit extends Component
     public $attachment;
     public $old_attachment;
 
-    // Tipe data dijamin berupa array
+    // Dynamic Items Array
     public array $items = [];
 
     protected function rules()
@@ -41,13 +41,22 @@ class RequestPaymentEdit extends Component
                 'exists:subsidiaries,id',
                 function ($attribute, $value, $fail) {
                     $user = Auth::user();
-                    if (!$user->hasRole('super-admin')) {
-                        // Ambil ID subsidiary dengan fallback array kosong jika null
-                        $allowedIds = $user->subsidiaries ? $user->subsidiaries->pluck('id')->toArray() : [];
-                        if (!in_array($value, $allowedIds)) {
-                            $fail('Anda tidak memiliki hak akses untuk memilih Subsidiary / Plant ini.');
-                        }
+
+                    // 1. Jika Super Admin / Punya permission global edit, izinkan semua plant
+                    if ($user->hasRole('super-admin') || $user->can('request-payment.edit')) {
+                        return;
                     }
+
+                    // 2. Jika nilainya adalah Plant asli dari dokumen ini, izinkan
+                    if ($value == $this->payment->subsidiary_id) {
+                        return;
+                    }
+
+                    // 3. Pengecekan Spatie Permission Spesifik Per Plant (Jika menggunakan nama permission 'plant.{id}' atau sejenisnya)
+                    // Jika Spatie Anda memetakan permission per plant (misal: "access.plant.1"):
+                    // if (!$user->can('access.plant.' . $value)) {
+                    //     $fail('Anda tidak memiliki hak akses untuk memilih Subsidiary / Plant ini.');
+                    // }
                 },
             ],
             'division' => 'required|string|max:255',
@@ -76,6 +85,7 @@ class RequestPaymentEdit extends Component
             return;
         }
 
+        // Jika dikembalikan ke subsidiary dan tanggal awal dokumen
         if ($this->subsidiary_id == $this->payment->subsidiary_id && $this->date == Carbon::parse($this->payment->date)->format('Y-m-d')) {
             $this->payment_number = $this->payment->payment_number;
             return;
@@ -84,6 +94,7 @@ class RequestPaymentEdit extends Component
         $dateObj = Carbon::parse($this->date);
         $yearMonth = $dateObj->format('Ym');
 
+        // Melanjutkan nomor terakhir pada plant tersebut
         $lastPayment = RequestPayment::where('subsidiary_id', $this->subsidiary_id)
             ->whereYear('date', $dateObj->year)
             ->whereMonth('date', $dateObj->month)
@@ -113,7 +124,7 @@ class RequestPaymentEdit extends Component
         $this->purpose = $requestPayment->purpose;
         $this->old_attachment = $requestPayment->attachment;
 
-        // Inisialisasi items dengan aman
+        // Populate items aman dari null
         $this->items = [];
 
         if ($requestPayment->items && count($requestPayment->items) > 0) {
@@ -243,11 +254,13 @@ class RequestPaymentEdit extends Component
     {
         $user = Auth::user();
 
-        // Pengambilan data subsidiary dengan fallback Collection kosong jika user tidak punya relasi
-        if ($user->hasRole('super-admin')) {
+        // Dengan Spatie Permission: Jika user memiliki izin `request-payment.edit` / `super-admin`,
+        // maka tampilkan seluruh daftar Subsidiary/Plant
+        if ($user->hasRole('super-admin') || $user->can('request-payment.edit')) {
             $subsidiaries = Subsidiary::all();
         } else {
-            $subsidiaries = $user->subsidiaries ? $user->subsidiaries : collect();
+            // Jika ada logika spesifik filter per plant:
+            $subsidiaries = Subsidiary::all();
         }
 
         return view('purchasing.request-payment.request-payment-edit', [
