@@ -142,5 +142,5 @@ Route::middleware('auth')->group(function () {
         Route::get('/attachment/{id}', [RequestPaymentController::class, 'attachment'])->name('attachment');
     });
 
-   Route::get('/attendance-log', App\Livewire\Hrd\AttendanceLogTable::class)->name('attendance.index');
+   Route::get('/attendance-log', App\Livewire\Hrd\Attendance\AttendanceLogTable::class)->name('attendance.index');
 });

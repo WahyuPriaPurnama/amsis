@@ -18,8 +18,15 @@ return new class extends Migration
             $table->dateTime('scan_date');
             $table->string('verify')->nullable();
             $table->string('status_scan')->nullable();
-            $table->string('photo_url')->nullable();
+            $table->text('photo_url')->nullable(); 
+            $table->foreignId('subsidiary_id')
+                ->nullable()
+                ->constrained('subsidiaries')
+                ->nullOnDelete();
+
             $table->timestamps();
+
+           
             $table->unique(['pin', 'scan_date']);
         });
     }
