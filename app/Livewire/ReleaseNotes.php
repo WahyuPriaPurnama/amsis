@@ -16,7 +16,7 @@ class ReleaseNotes extends Component
     {
       
         $this->notes = [
-            ['text'=>'absensi untuk plant BOFI 2 Jember dapat ditarik melalui sistem', 'updated_at'=>'2026-10-28 14:37:00'],
+            ['text'=>'integrasi sistem absensi untuk plant BOFI 2 Jember', 'updated_at'=>'2026-10-28 14:37:00'],
         ];
 
    
