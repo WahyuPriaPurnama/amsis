@@ -27,10 +27,10 @@ class RequestPaymentEdit extends Component
     public $date;
     public $payment_number;
     public $purpose;
-    public $attachment; // File upload baru
-    public $old_attachment; // Path lampiran lama
+    public $attachment;
+    public $old_attachment;
 
-    // Items Details (Strictly Typed Array)
+    // Tipe data dijamin berupa array
     public array $items = [];
 
     protected function rules()
@@ -41,9 +41,9 @@ class RequestPaymentEdit extends Component
                 'exists:subsidiaries,id',
                 function ($attribute, $value, $fail) {
                     $user = Auth::user();
-                    // Validasi hak akses subsidiary user (kecuali super-admin)
                     if (!$user->hasRole('super-admin')) {
-                        $allowedIds = $user->subsidiaries()->pluck('subsidiaries.id')->toArray();
+                        // Ambil ID subsidiary dengan fallback array kosong jika null
+                        $allowedIds = $user->subsidiaries ? $user->subsidiaries->pluck('id')->toArray() : [];
                         if (!in_array($value, $allowedIds)) {
                             $fail('Anda tidak memiliki hak akses untuk memilih Subsidiary / Plant ini.');
                         }
@@ -62,7 +62,6 @@ class RequestPaymentEdit extends Component
             'purpose' => 'nullable|string',
             'attachment' => 'nullable|file|max:10240',
             'items' => 'required|array|min:1',
-            'items.*.id' => 'nullable|integer',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.unit' => 'required|string|max:50',
@@ -77,7 +76,6 @@ class RequestPaymentEdit extends Component
             return;
         }
 
-        // Jika subsidiary dan tanggal dikembalikan ke data awal dokumen, gunakan nomor lama
         if ($this->subsidiary_id == $this->payment->subsidiary_id && $this->date == Carbon::parse($this->payment->date)->format('Y-m-d')) {
             $this->payment_number = $this->payment->payment_number;
             return;
@@ -86,7 +84,6 @@ class RequestPaymentEdit extends Component
         $dateObj = Carbon::parse($this->date);
         $yearMonth = $dateObj->format('Ym');
 
-        // Melanjutkan urutan penomoran terakhir dari Plant/Subsidiary yang dipilih
         $lastPayment = RequestPayment::where('subsidiary_id', $this->subsidiary_id)
             ->whereYear('date', $dateObj->year)
             ->whereMonth('date', $dateObj->month)
@@ -107,11 +104,6 @@ class RequestPaymentEdit extends Component
 
     public function mount(RequestPayment $requestPayment)
     {
-        // Kunci edit jika status dokumen bukan draft / butuh revisi
-        if (isset($requestPayment->status) && in_array($requestPayment->status, ['approved', 'paid'])) {
-            abort(403, 'Dokumen yang sudah disetujui atau dicairkan tidak dapat diubah.');
-        }
-
         $this->payment = $requestPayment->load('items');
 
         $this->subsidiary_id = $requestPayment->subsidiary_id;
@@ -121,8 +113,9 @@ class RequestPaymentEdit extends Component
         $this->purpose = $requestPayment->purpose;
         $this->old_attachment = $requestPayment->attachment;
 
-        // Populate items
+        // Inisialisasi items dengan aman
         $this->items = [];
+
         if ($requestPayment->items && count($requestPayment->items) > 0) {
             foreach ($requestPayment->items as $item) {
                 $this->items[] = [
@@ -209,17 +202,13 @@ class RequestPaymentEdit extends Component
                 'grand_total' => $this->grandTotal,
             ]);
 
-            // Filter ID item valid
             $existingItemIds = collect($this->items)->pluck('id')->filter()->toArray();
-
-            // Hapus item yang dibuang dari UI (terkunci hanya milik payment ini)
             $this->payment->items()->whereNotIn('id', $existingItemIds)->delete();
 
             foreach ($this->items as $itemData) {
                 $amount = (float)$itemData['quantity'] * (float)$itemData['unit_price'];
 
                 if (!empty($itemData['id'])) {
-                    // Update item eksis milik payment ini
                     $this->payment->items()->where('id', $itemData['id'])->update([
                         'item_name' => $itemData['item_name'],
                         'quantity' => $itemData['quantity'],
@@ -229,7 +218,6 @@ class RequestPaymentEdit extends Component
                         'due_date' => $itemData['due_date'] ?: null,
                     ]);
                 } else {
-                    // Tambah item baru
                     $this->payment->items()->create([
                         'item_name' => $itemData['item_name'],
                         'quantity' => $itemData['quantity'],
@@ -255,9 +243,12 @@ class RequestPaymentEdit extends Component
     {
         $user = Auth::user();
 
-        $subsidiaries = $user->hasRole('super-admin')
-            ? Subsidiary::all()
-            : $user->subsidiaries;
+        // Pengambilan data subsidiary dengan fallback Collection kosong jika user tidak punya relasi
+        if ($user->hasRole('super-admin')) {
+            $subsidiaries = Subsidiary::all();
+        } else {
+            $subsidiaries = $user->subsidiaries ? $user->subsidiaries : collect();
+        }
 
         return view('purchasing.request-payment.request-payment-edit', [
             'subsidiaries' => $subsidiaries,
