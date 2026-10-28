@@ -12,8 +12,11 @@ use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AttendanceLogExport;
 
+
 class AttendanceLogTable extends Component
 {
+    public $startDate;
+    public $endDate;
     use WithPagination;
 
     protected string $paginationTheme = 'bootstrap';
@@ -37,12 +40,34 @@ class AttendanceLogTable extends Component
     {
         $this->resetPage();
     }
+    public function updatedStartDate(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedEndDate(): void
+    {
+        $this->resetPage();
+    }
+
     public function exportExcel()
     {
-        $fileName = 'Data_Absensi_' . Carbon::now()->format('Y-m-d_His') . '.xlsx';
+        $fileName = 'Data_Absensi_';
 
-        return Excel::download(new AttendanceLogExport($this->search), $fileName);
+        if ($this->startDate && $this->endDate) {
+            $fileName .= $this->startDate . '_sd_' . $this->endDate;
+        } else {
+            $fileName .= Carbon::now()->format('Y-m-d_His');
+        }
+
+        $fileName .= '.xlsx';
+
+        return Excel::download(
+            new AttendanceLogExport($this->search, $this->startDate, $this->endDate),
+            $fileName
+        );
     }
+
     public function syncFromFingerspot()
     {
         try {
@@ -171,12 +196,18 @@ class AttendanceLogTable extends Component
 
     public function render()
     {
-        $logs = AttendanceLog::with('attendanceEmployee')
+        $logs = AttendanceLog::with(['attendanceEmployee', 'subsidiary'])
             ->when($this->search, function ($query) {
                 $query->where('pin', 'like', '%' . $this->search . '%')
                     ->orWhereHas('attendanceEmployee', function ($q) {
                         $q->where('name_in_machine', 'like', '%' . $this->search . '%');
                     });
+            })
+            ->when($this->startDate, function ($query) {
+                $query->whereDate('scan_date', '>=', $this->startDate);
+            })
+            ->when($this->endDate, function ($query) {
+                $query->whereDate('scan_date', '<=', $this->endDate);
             })
             ->latest('scan_date')
             ->paginate(10);

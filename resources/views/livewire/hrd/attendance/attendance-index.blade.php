@@ -17,6 +17,13 @@
                 </span>
             </button>
 
+            {{-- Filter Range Tanggal --}}
+            <div class="d-flex align-items-center gap-1">
+                <input type="date" class="form-control form-control-sm" wire:model.live="startDate" title="Tanggal Mulai" style="width: 135px;" />
+                <span class="small text-muted">s/d</span>
+                <input type="date" class="form-control form-control-sm" wire:model.live="endDate" title="Tanggal Selesai" style="width: 135px;" />
+            </div>
+
             {{-- Tombol Export Excel --}}
             <button type="button" wire:click="exportExcel" wire:loading.attr="disabled" class="btn btn-success btn-sm">
                 <span wire:loading.remove wire:target="exportExcel">
