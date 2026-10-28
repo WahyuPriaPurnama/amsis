@@ -63,8 +63,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($items as $index => $item)
-                    <tr>
+                    @forelse ($items ?? [] as $index => $item)
+                    <tr wire:key="item-row-{{ $index }}">
                         <td>
                             <input type="text" class="form-control form-control-sm @error('items.'.$index.'.item_name') is-invalid @enderror" placeholder="Nama Item" wire:model="items.{{ $index }}.item_name">
                             @error('items.'.$index.'.item_name') <small class="text-danger d-block">{{ $message }}</small> @enderror
@@ -91,14 +91,18 @@
                             <input type="date" class="form-control form-control-sm" wire:model="items.{{ $index }}.due_date">
                         </td>
                         <td class="text-center">
-                            @if (count($items) > 1)
+                            @if (count($items ?? []) > 1)
                             <button type="button" class="btn btn-outline-danger btn-sm border-0" wire:click="removeItem({{ $index }})" title="Hapus">
                                 <i class="bi bi-trash-fill"></i>
                             </button>
                             @endif
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-3">Tidak ada item pembayaran.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
