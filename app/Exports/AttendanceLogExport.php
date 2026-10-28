@@ -47,15 +47,15 @@ class AttendanceLogExport implements FromQuery, WithHeadings, WithMapping, Shoul
     public function headings(): array
     {
         return [
-            'ID Log',
+            // 'ID Log',
             'PIN Karyawan',
             'Nama Karyawan',
             'Subsidiary / Plant',
-            'Cloud ID Mesin',
+            // 'Cloud ID Mesin',
             'Waktu Scan',
             'Metode Verifikasi',
-            'Status Scan',
-            'URL Foto',
+            // 'Status Scan',
+            // 'URL Foto',
         ];
     }
 
@@ -68,15 +68,15 @@ class AttendanceLogExport implements FromQuery, WithHeadings, WithMapping, Shoul
         };
 
         return [
-            $log->id,
+            // $log->id,
             $log->pin,
             $log->attendanceEmployee->display_name ?? 'Karyawan Baru',
             $log->subsidiary->name ?? '-',
-            $log->cloud_id ?? '-',
+            // $log->cloud_id ?? '-',
             Carbon::parse($log->scan_date)->format('d-m-Y H:i:s'),
             $verifyText,
-            $log->status_scan ?? '-',
-            $log->photo_url ?? '-',
+            // $log->status_scan ?? '-',
+            // $log->photo_url ?? '-',
         ];
     }
 }
