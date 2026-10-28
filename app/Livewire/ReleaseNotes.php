@@ -16,8 +16,7 @@ class ReleaseNotes extends Component
     {
       
         $this->notes = [
-            ['text'=>'sistem qr code untuk asset, scan qr code untuk menampilkan detail asset', 'updated_at'=>'2026-09-02 10:00:00'],
-            ['text'=>'penambahan fitur ringkasan statistik asset, menampilkan jumlah asset berdasarkan nama barangnya', 'updated_at'=>'2026-09-02 11:00:00'],
+            ['text'=>'absensi untuk plant BOFI 2 Jember dapat ditarik melalui sistem', 'updated_at'=>'2026-10-28 14:37:00'],
         ];
 
    
