@@ -4,6 +4,10 @@ namespace App\Livewire\Hrd\Employee;
 
 use App\Models\HRD\Employee;
 use App\Models\HRD\Subsidiary;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -143,11 +147,50 @@ class EmployeeCreate extends Component
             }
         }
 
-        Employee::create($validatedData);
+        try {
+            DB::beginTransaction();
 
-        session()->flash('success', 'Data karyawan berhasil ditambahkan.');
+            // 1. Simpan Data Employee
+            $employee = Employee::create($validatedData);
 
-        return redirect()->route('employees.index');
+            // 2. Format username/email otomatis
+            $fullname = Str::slug($employee->nama, '.');
+            $username = strtolower($fullname);
+            $userEmail = $username;
+
+            $counter = 1;
+            while (User::where('email', $userEmail)->exists()) {
+                $userEmail = "{$username}{$counter}";
+                $counter++;
+            }
+
+            // 3. Buat User baru yang terhubung ke Employee
+            $user = User::updateOrCreate(
+                ['employee_id' => $employee->id],
+                [
+                    'name'          => $employee->nama,
+                    'email'         => $userEmail,
+                    'password'      => Hash::make('Karyawan_2025'),
+                    'employee_id'   => $employee->id,
+                    'subsidiary_id' => $employee->subsidiary_id,
+                ]
+            );
+
+            // 4. Assign Role (jika menggunakan Spatie Permission)
+            if (method_exists($user, 'hasRole') && !$user->hasRole('employee')) {
+                $user->assignRole('employee');
+            }
+
+            DB::commit();
+
+            session()->flash('success', "Data karyawan {$employee->nama} dan akun user berhasil ditambahkan.");
+
+            return redirect()->route('employees.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            session()->flash('error', 'Gagal menyimpan data: ' . $e->getMessage());
+        }
     }
 
     public function render()
