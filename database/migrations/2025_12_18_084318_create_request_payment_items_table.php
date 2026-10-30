@@ -17,11 +17,15 @@ return new class extends Migration
                 ->constrained('request_payments')
                 ->onDelete('cascade');
             $table->string('item_name');
-            $table->integer('quantity');
+            $table->decimal('quantity', 10, 2);
             $table->string('unit');
             $table->decimal('unit_price', 15, 2);
             $table->decimal('amount', 15, 2)->default(0);
             $table->date('due_date')->nullable();
+
+            // Kolom Lampiran Per Item
+            $table->string('attachment')->nullable();
+
             $table->timestamps();
         });
     }

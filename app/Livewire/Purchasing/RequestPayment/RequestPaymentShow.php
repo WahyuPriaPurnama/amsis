@@ -36,24 +36,26 @@ class RequestPaymentShow extends Component
 
         DB::beginTransaction();
         try {
+            // 1. Hapus lampiran utama (Header Attachment)
             if ($this->payment->attachment && Storage::disk('public')->exists($this->payment->attachment)) {
                 Storage::disk('public')->delete($this->payment->attachment);
             }
 
+            // 2. Hapus lampiran fisik pada tiap-tiap item (Item Attachments)
             foreach ($this->payment->items as $item) {
-                if (isset($item->attachment) && $item->attachment && Storage::disk('public')->exists($item->attachment)) {
+                if (!empty($item->attachment) && Storage::disk('public')->exists($item->attachment)) {
                     Storage::disk('public')->delete($item->attachment);
                 }
             }
 
+            // 3. Hapus relasi record item dan record payment
             $this->payment->items()->delete();
             $this->payment->delete();
 
             DB::commit();
 
             session()->flash('success', 'Request Payment berhasil dihapus!');
-            
-            // Menggunakan pengalihan resmi Livewire 3
+
             return $this->redirectRoute('request-payment.index', navigate: true);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -72,7 +74,7 @@ class RequestPaymentShow extends Component
         $this->payment->update([
             'status'                 => 'approved_by_manager',
             'approved_by_manager_at' => now(),
-            'approved_by_manager' => auth()->id(),
+            'approved_by_manager'    => auth()->id(),
         ]);
 
         session()->flash('success', 'Request Payment berhasil disetujui Direktur.');
@@ -90,7 +92,7 @@ class RequestPaymentShow extends Component
         $this->payment->update([
             'status'             => 'approved_by_bod',
             'approved_by_bod_at' => now(),
-            'approved_by_bod' => auth()->id(),
+            'approved_by_bod'    => auth()->id(),
         ]);
 
         session()->flash('success', 'Request Payment berhasil disetujui Direktur Operasional.');
@@ -103,13 +105,13 @@ class RequestPaymentShow extends Component
             $this->payment->update([
                 'status'             => 'approved_by_manager',
                 'approved_by_bod_at' => null,
-                'approved_by_bod' => null,
+                'approved_by_bod'    => null,
             ]);
         } elseif ($this->payment->status === 'approved_by_manager') {
             $this->payment->update([
                 'status'                 => 'pending',
                 'approved_by_manager_at' => null,
-                'approved_by_manager' => null,
+                'approved_by_manager'    => null,
             ]);
         }
 

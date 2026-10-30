@@ -14,7 +14,7 @@ class RequestPaymentItem extends Model
         'unit_price',
         'amount',
         'due_date',
-
+        'attachment'
     ];
 
     public function requestPayment()

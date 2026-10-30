@@ -6,7 +6,7 @@ use App\Models\HRD\Subsidiary;
 use App\Models\Purchasing\RequestPayment;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule; // <-- Import Rule
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -27,7 +27,7 @@ class RequestPaymentCreate extends Component
 
     // Form Additional Properties
     public ?string $purpose = null;
-    public $attachment;
+    public $attachment; // Header Attachment
 
     // Dynamic Items Array
     public array $items = [];
@@ -38,6 +38,7 @@ class RequestPaymentCreate extends Component
             'subsidiary_id' => 'required|exists:subsidiaries,id',
             'division'      => 'required|string|max:255',
             'date'          => 'required|date',
+
             // VALIDASI UNIK DIKHUSUSKAN PER SUBSIDIARY_ID
             'payment_number' => [
                 'required',
@@ -50,12 +51,14 @@ class RequestPaymentCreate extends Component
             'purpose'       => 'nullable|string',
             'attachment'    => 'nullable|file|mimes:pdf,jpg,jpeg,png,zip|max:5120',
 
-            'items'              => 'required|array|min:1',
-            'items.*.item_name'  => 'required|string|max:255',
-            'items.*.quantity'   => 'required|numeric|min:1',
-            'items.*.unit'       => 'required|string|max:50',
-            'items.*.unit_price' => 'required|numeric|min:1',
-            'items.*.due_date'   => 'nullable|date',
+            // VALIDASI ITEMS
+            'items'                 => 'required|array|min:1',
+            'items.*.item_name'     => 'required|string|max:255',
+            'items.*.quantity'      => 'required|numeric|min:0.01',
+            'items.*.unit'          => 'required|string|max:50',
+            'items.*.unit_price'    => 'required|numeric|min:0',
+            'items.*.due_date'      => 'nullable|date',
+            'items.*.attachment'    => 'nullable|file|mimes:pdf,jpg,jpeg,png,zip|max:5120', // Validasi file per item
         ];
     }
 
@@ -70,6 +73,7 @@ class RequestPaymentCreate extends Component
             'items.*.quantity'   => 'Qty',
             'items.*.unit'       => 'Satuan',
             'items.*.unit_price' => 'Harga Satuan',
+            'items.*.attachment' => 'Lampiran Item',
         ];
     }
 
@@ -93,6 +97,7 @@ class RequestPaymentCreate extends Component
             'unit'       => '',
             'unit_price' => 0,
             'due_date'   => '',
+            'attachment' => null, // Placeholder file attachment item
         ];
     }
 
@@ -157,6 +162,7 @@ class RequestPaymentCreate extends Component
         $validated = $this->validate();
 
         DB::transaction(function () use ($validated) {
+            // Upload attachment utama (Header)
             $attachmentPath = null;
             if ($this->attachment) {
                 $attachmentPath = $this->attachment->store('attachments/request-payments', 'public');
@@ -174,9 +180,16 @@ class RequestPaymentCreate extends Component
                 'requested_by'   => auth()->id(),
             ]);
 
+            // Loop Simpan Items
             foreach ($this->items as $item) {
                 $qty = (float) $item['quantity'];
                 $price = (float) $item['unit_price'];
+
+                // Upload attachment per item (jika ada)
+                $itemAttachmentPath = null;
+                if (isset($item['attachment']) && $item['attachment']) {
+                    $itemAttachmentPath = $item['attachment']->store('attachments/request-payments/items', 'public');
+                }
 
                 $payment->items()->create([
                     'item_name'  => $item['item_name'],
@@ -185,6 +198,7 @@ class RequestPaymentCreate extends Component
                     'unit_price' => $price,
                     'amount'     => $qty * $price,
                     'due_date'   => !empty($item['due_date']) ? $item['due_date'] : null,
+                    'attachment' => $itemAttachmentPath, // Menyimpan path lampiran item
                 ]);
             }
         });

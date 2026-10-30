@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Purchasing\RequestPayment;
 
-use App\Models\Purchasing\RequestPayment;
 use App\Models\HRD\Subsidiary;
+use App\Models\Purchasing\RequestPayment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -51,12 +51,6 @@ class RequestPaymentEdit extends Component
                     if ($value == $this->payment->subsidiary_id) {
                         return;
                     }
-
-                    // 3. Pengecekan Spatie Permission Spesifik Per Plant (Jika menggunakan nama permission 'plant.{id}' atau sejenisnya)
-                    // Jika Spatie Anda memetakan permission per plant (misal: "access.plant.1"):
-                    // if (!$user->can('access.plant.' . $value)) {
-                    //     $fail('Anda tidak memiliki hak akses untuk memilih Subsidiary / Plant ini.');
-                    // }
                 },
             ],
             'division' => 'required|string|max:255',
@@ -64,18 +58,37 @@ class RequestPaymentEdit extends Component
             'payment_number' => [
                 'required',
                 'string',
+                'max:255',
                 \Illuminate\Validation\Rule::unique('request_payments', 'payment_number')
                     ->where('subsidiary_id', $this->subsidiary_id)
                     ->ignore($this->payment->id),
             ],
             'purpose' => 'nullable|string',
-            'attachment' => 'nullable|file|max:10240',
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,zip|max:5120',
+
+            // Validasi Items
             'items' => 'required|array|min:1',
             'items.*.item_name' => 'required|string|max:255',
             'items.*.quantity' => 'required|numeric|min:0.01',
             'items.*.unit' => 'required|string|max:50',
             'items.*.unit_price' => 'required|numeric|min:0',
             'items.*.due_date' => 'nullable|date',
+            'items.*.attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,zip|max:5120', // File lampiran baru per item
+        ];
+    }
+
+    protected function validationAttributes(): array
+    {
+        return [
+            'subsidiary_id' => 'Plant',
+            'division' => 'Divisi',
+            'date' => 'Tanggal',
+            'payment_number' => 'Nomor Payment',
+            'items.*.item_name' => 'Nama Item',
+            'items.*.quantity' => 'Qty',
+            'items.*.unit' => 'Satuan',
+            'items.*.unit_price' => 'Harga Satuan',
+            'items.*.attachment' => 'Lampiran Item',
         ];
     }
 
@@ -124,7 +137,7 @@ class RequestPaymentEdit extends Component
         $this->purpose = $requestPayment->purpose;
         $this->old_attachment = $requestPayment->attachment;
 
-        // Populate items aman dari null
+        // Populate items beserta lampiran yang ada
         $this->items = [];
 
         if ($requestPayment->items && count($requestPayment->items) > 0) {
@@ -136,6 +149,8 @@ class RequestPaymentEdit extends Component
                     'unit' => $item->unit,
                     'unit_price' => $item->unit_price,
                     'due_date' => $item->due_date ? Carbon::parse($item->due_date)->format('Y-m-d') : '',
+                    'attachment' => null, // Tempat temporary upload file baru
+                    'old_attachment' => $item->attachment, // File lama per item
                 ];
             }
         } else {
@@ -166,12 +181,23 @@ class RequestPaymentEdit extends Component
             'unit' => '',
             'unit_price' => 0,
             'due_date' => '',
+            'attachment' => null,
+            'old_attachment' => null,
         ];
     }
 
     public function removeItem($index)
     {
         if (is_array($this->items) && count($this->items) > 1) {
+            // Hapus file fisik lampiran item jika item dihapus dari form
+            $itemToDelete = $this->items[$index] ?? null;
+            if ($itemToDelete && !empty($itemToDelete['id'])) {
+                $itemModel = $this->payment->items()->find($itemToDelete['id']);
+                if ($itemModel && $itemModel->attachment && Storage::disk('public')->exists($itemModel->attachment)) {
+                    Storage::disk('public')->delete($itemModel->attachment);
+                }
+            }
+
             unset($this->items[$index]);
             $this->items = array_values($this->items);
         }
@@ -194,13 +220,14 @@ class RequestPaymentEdit extends Component
 
         DB::beginTransaction();
         try {
+            // Processing Attachment Header
             $attachmentPath = $this->old_attachment;
 
             if ($this->attachment) {
                 if ($this->old_attachment && Storage::disk('public')->exists($this->old_attachment)) {
                     Storage::disk('public')->delete($this->old_attachment);
                 }
-                $attachmentPath = $this->attachment->store('request-payments', 'public');
+                $attachmentPath = $this->attachment->store('attachments/request-payments', 'public');
             }
 
             $this->payment->update([
@@ -213,22 +240,48 @@ class RequestPaymentEdit extends Component
                 'grand_total' => $this->grandTotal,
             ]);
 
+            // Hapus item fisik & DB yang dihilangkan oleh user
             $existingItemIds = collect($this->items)->pluck('id')->filter()->toArray();
-            $this->payment->items()->whereNotIn('id', $existingItemIds)->delete();
+            $deletedItems = $this->payment->items()->whereNotIn('id', $existingItemIds)->get();
 
+            foreach ($deletedItems as $deletedItem) {
+                if ($deletedItem->attachment && Storage::disk('public')->exists($deletedItem->attachment)) {
+                    Storage::disk('public')->delete($deletedItem->attachment);
+                }
+                $deletedItem->delete();
+            }
+
+            // Sync / Save Items
             foreach ($this->items as $itemData) {
                 $amount = (float)$itemData['quantity'] * (float)$itemData['unit_price'];
 
                 if (!empty($itemData['id'])) {
-                    $this->payment->items()->where('id', $itemData['id'])->update([
+                    $itemModel = $this->payment->items()->find($itemData['id']);
+                    $itemAttachmentPath = $itemData['old_attachment'] ?? null;
+
+                    // Jika ada upload file baru untuk item ini
+                    if (isset($itemData['attachment']) && $itemData['attachment']) {
+                        if ($itemAttachmentPath && Storage::disk('public')->exists($itemAttachmentPath)) {
+                            Storage::disk('public')->delete($itemAttachmentPath);
+                        }
+                        $itemAttachmentPath = $itemData['attachment']->store('attachments/request-payments/items', 'public');
+                    }
+
+                    $itemModel->update([
                         'item_name' => $itemData['item_name'],
                         'quantity' => $itemData['quantity'],
                         'unit' => $itemData['unit'],
                         'unit_price' => $itemData['unit_price'],
                         'amount' => $amount,
                         'due_date' => $itemData['due_date'] ?: null,
+                        'attachment' => $itemAttachmentPath,
                     ]);
                 } else {
+                    $itemAttachmentPath = null;
+                    if (isset($itemData['attachment']) && $itemData['attachment']) {
+                        $itemAttachmentPath = $itemData['attachment']->store('attachments/request-payments/items', 'public');
+                    }
+
                     $this->payment->items()->create([
                         'item_name' => $itemData['item_name'],
                         'quantity' => $itemData['quantity'],
@@ -236,6 +289,7 @@ class RequestPaymentEdit extends Component
                         'unit_price' => $itemData['unit_price'],
                         'amount' => $amount,
                         'due_date' => $itemData['due_date'] ?: null,
+                        'attachment' => $itemAttachmentPath,
                     ]);
                 }
             }
@@ -254,12 +308,9 @@ class RequestPaymentEdit extends Component
     {
         $user = Auth::user();
 
-        // Dengan Spatie Permission: Jika user memiliki izin `request-payment.edit` / `super-admin`,
-        // maka tampilkan seluruh daftar Subsidiary/Plant
         if ($user->hasRole('super-admin') || $user->can('request-payment.edit')) {
             $subsidiaries = Subsidiary::all();
         } else {
-            // Jika ada logika spesifik filter per plant:
             $subsidiaries = Subsidiary::all();
         }
 
