@@ -53,12 +53,13 @@
             <table class="table table-bordered align-middle">
                 <thead class="table-light text-center fw-bold small">
                     <tr>
-                        <th width="30%">Deskripsi <span class="text-danger">*</span></th>
-                        <th width="10%">QTY <span class="text-danger">*</span></th>
-                        <th width="10%">Satuan <span class="text-danger">*</span></th>
-                        <th width="18%">Harga Satuan <span class="text-danger">*</span></th>
-                        <th width="18%">Harga Total</th>
-                        <th width="14%">Due Date</th>
+                        <th width="24%">Deskripsi <span class="text-danger">*</span></th>
+                        <th width="8%">QTY <span class="text-danger">*</span></th>
+                        <th width="8%">Satuan <span class="text-danger">*</span></th>
+                        <th width="14%">Harga Satuan <span class="text-danger">*</span></th>
+                        <th width="14%">Harga Total</th>
+                        <th width="12%">Due Date</th>
+                        <th width="15%">Lampiran Item</th>
                         <th width="5%">Menu</th>
                     </tr>
                 </thead>
@@ -70,7 +71,7 @@
                             @error('items.'.$index.'.item_name') <small class="text-danger d-block">{{ $message }}</small> @enderror
                         </td>
                         <td>
-                            <input type="number" step="0.01" class="form-control form-control-sm text-center @error('items.'.$index.'.quantity') is-invalid @enderror" placeholder="Qty" wire:model.live="items.{{ $index }}.quantity">
+                            <input type="number" step="any" class="form-control form-control-sm text-center @error('items.'.$index.'.quantity') is-invalid @enderror" placeholder="Qty" wire:model.live="items.{{ $index }}.quantity">
                             @error('items.'.$index.'.quantity') <small class="text-danger d-block">{{ $message }}</small> @enderror
                         </td>
                         <td>
@@ -88,7 +89,25 @@
                             <input type="text" class="form-control form-control-sm text-end bg-light" value="Rp {{ number_format($rowAmount, 2, ',', '.') }}" readonly>
                         </td>
                         <td>
-                            <input type="date" class="form-control form-control-sm" wire:model="items.{{ $index }}.due_date">
+                            <input type="date" class="form-control form-control-sm @error('items.'.$index.'.due_date') is-invalid @enderror" wire:model="items.{{ $index }}.due_date">
+                            @error('items.'.$index.'.due_date') <small class="text-danger d-block">{{ $message }}</small> @enderror
+                        </td>
+                        <td>
+                            <input type="file" class="form-control form-control-sm @error('items.'.$index.'.attachment') is-invalid @enderror" wire:model="items.{{ $index }}.attachment">
+
+                            {{-- Tampilkan tautan file lama jika ada --}}
+                            @if (!empty($item['old_attachment']))
+                            <div class="mt-1">
+                                <a href="{{ Storage::url($item['old_attachment']) }}" target="_blank" class="text-primary small text-decoration-none">
+                                    <i class="bi bi-paperclip"></i> Lihat File
+                                </a>
+                            </div>
+                            @endif
+
+                            <div wire:loading wire:target="items.{{ $index }}.attachment" class="text-info small mt-1">
+                                <span class="spinner-border spinner-border-sm"></span>
+                            </div>
+                            @error('items.'.$index.'.attachment') <small class="text-danger d-block">{{ $message }}</small> @enderror
                         </td>
                         <td class="text-center">
                             @if (count($items ?? []) > 1)
@@ -100,7 +119,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-3">Tidak ada item pembayaran.</td>
+                        <td colspan="8" class="text-center text-muted py-3">Tidak ada item pembayaran.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -116,12 +135,12 @@
             </div>
 
             <div class="col-md-4">
-                <label for="attachment" class="form-label fw-bold small">Lampiran</label>
+                <label for="attachment" class="form-label fw-bold small">Lampiran Utama Header</label>
                 <input type="file" wire:model="attachment" id="attachment" class="form-control shadow-sm @error('attachment') is-invalid @enderror">
 
                 @if ($old_attachment)
                 <small class="form-text mt-1 d-block">
-                    File saat ini: <a href="{{ asset('storage/' . $old_attachment) }}" target="_blank">Lihat Lampiran</a>
+                    File saat ini: <a href="{{ Storage::url($old_attachment) }}" target="_blank">Lihat Lampiran Utama</a>
                 </small>
                 @endif
 
@@ -129,7 +148,7 @@
                     <span class="spinner-border spinner-border-sm me-1"></span> Mengunggah file...
                 </div>
 
-                <small class="form-text text-muted d-block">Biarkan kosong jika tidak ingin mengubah dokumen.</small>
+                <small class="form-text text-muted d-block">Biarkan kosong jika tidak ingin mengubah dokumen utama.</small>
                 @error('attachment') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
             </div>
         </div>

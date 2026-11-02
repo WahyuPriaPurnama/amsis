@@ -114,10 +114,11 @@
                         <th width="50">No.</th>
                         <th>Nama Barang / Deskripsi</th>
                         <th width="80">Qty</th>
-                        <th width="100">Satuan</th>
-                        <th width="150" class="text-end">Harga Satuan</th>
-                        <th width="170" class="text-end">Jumlah Harga</th>
-                        <th width="120" class="text-center">Due Date</th>
+                        <th width="90">Satuan</th>
+                        <th width="140" class="text-end">Harga Satuan</th>
+                        <th width="150" class="text-end">Jumlah Harga</th>
+                        <th width="110" class="text-center">Due Date</th>
+                        <th width="110" class="text-center">Lampiran</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -130,6 +131,15 @@
                         <td class="text-end">Rp {{ number_format($item->unit_price, 2, ',', '.') }}</td>
                         <td class="text-end fw-semibold">Rp {{ number_format($item->amount, 2, ',', '.') }}</td>
                         <td class="text-center">{{ $item->due_date ? \Carbon\Carbon::parse($item->due_date)->format('d/m/Y') : '-' }}</td>
+                        <td class="text-center">
+                            @if (!empty($item->attachment))
+                            <a href="{{ Storage::url($item->attachment) }}" target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2 shadow-sm" title="Lihat Lampiran Baris">
+                                <i class="bi bi-paperclip me-1"></i> Berkas
+                            </a>
+                            @else
+                            <span class="text-muted small">-</span>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -137,7 +147,7 @@
                     <tr>
                         <td colspan="5" class="text-end fw-bold">Grand Total:</td>
                         <td class="text-end fw-bold fs-6 text-primary">Rp {{ number_format($payment->grand_total, 2, ',', '.') }}</td>
-                        <td></td>
+                        <td colspan="2"></td>
                     </tr>
                 </tfoot>
             </table>
@@ -206,10 +216,10 @@
                 </button>
                 @endif
 
-                {{-- Button Lampiran --}}
+                {{-- Button Lampiran Header Utama --}}
                 @if ($payment->attachment)
                 <a href="{{ route('request-payment.attachment', $payment->id) }}" target="_blank" class="btn btn-outline-primary">
-                    <i class="bi bi-paperclip me-1"></i> Lampiran
+                    <i class="bi bi-paperclip me-1"></i> Lampiran Utama
                 </a>
                 @endif
 
