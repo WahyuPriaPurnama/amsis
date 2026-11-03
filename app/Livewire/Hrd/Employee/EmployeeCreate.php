@@ -88,7 +88,7 @@ class EmployeeCreate extends Component
             'departemen'    => 'nullable|string|max:100',
             'seksi'         => 'nullable|string|max:100',
             'posisi'        => 'required|string|max:100',
-            'tgl_masuk'     => 'nullable|date',
+            'tgl_masuk'     => 'required|date',
             'status_peg'    => 'required|in:PKWT,PKWTT,-',
             'awal_kontrak'  => 'required_if:status_peg,PKWT|nullable|date',
             'akhir_kontrak' => 'required_if:status_peg,PKWT|nullable|date|after_or_equal:awal_kontrak',
@@ -129,20 +129,20 @@ class EmployeeCreate extends Component
     {
         $validatedData = $this->validate();
 
-        // Mapping lokasi simpan berkas
+        // Penanganan penyimpanan berkas pada disk public
         $fileMap = [
-            'pp'       => 'public/foto_profil',
-            'ktp'      => 'public/ktp',
-            'kk'       => 'public/kk',
-            'npwp2'    => 'public/npwp',
-            'bpjs_kes' => 'public/bpjs_kes',
-            'bpjs_ket' => 'public/bpjs_ket',
-            'ttd'      => 'public/ttd',
+            'pp'       => 'foto_profil',
+            'ktp'      => 'ktp',
+            'kk'       => 'kk',
+            'npwp2'    => 'npwp',
+            'bpjs_kes' => 'bpjs_kes',
+            'bpjs_ket' => 'bpjs_ket',
+            'ttd'      => 'ttd',
         ];
 
         foreach ($fileMap as $field => $folder) {
             if ($this->$field) {
-                $storedPath = $this->$field->store($folder);
+                $storedPath = $this->$field->store($folder, 'public');
                 $validatedData[$field] = basename($storedPath);
             }
         }
@@ -150,10 +150,10 @@ class EmployeeCreate extends Component
         try {
             DB::beginTransaction();
 
-            // 1. Simpan Data Employee
+            // 1. Simpan Data Employee (id dibuat otomatis via UUID jika menggunakan HasUuids pada Model)
             $employee = Employee::create($validatedData);
 
-            // 2. Format username/email otomatis
+            // 2. Format email/username otomatis
             $fullname = Str::slug($employee->nama, '.');
             $username = strtolower($fullname);
             $userEmail = $username;
@@ -164,7 +164,7 @@ class EmployeeCreate extends Component
                 $counter++;
             }
 
-            // 3. Buat User baru yang terhubung ke Employee
+            // 3. Simpan / perbarui Akun User yang terhubung langsung via employee_id (UUID) & subsidiary_id (BIGINT)
             $user = User::updateOrCreate(
                 ['employee_id' => $employee->id],
                 [
@@ -176,8 +176,8 @@ class EmployeeCreate extends Component
                 ]
             );
 
-            // 4. Assign Role (jika menggunakan Spatie Permission)
-            if (method_exists($user, 'hasRole') && !$user->hasRole('employee')) {
+            // 4. Assign Role (Spatie Permission) jika terpasang
+            if (method_exists($user, 'assignRole') && !$user->hasRole('employee')) {
                 $user->assignRole('employee');
             }
 
