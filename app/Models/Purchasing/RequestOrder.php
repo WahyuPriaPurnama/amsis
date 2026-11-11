@@ -1,5 +1,5 @@
 <?php
-// app/Models/RequestOrder.php
+
 namespace App\Models\Purchasing;
 
 use App\Models\HRD\Subsidiary;
@@ -71,20 +71,33 @@ class RequestOrder extends Model
         return $this->belongsTo(User::class, 'approved_by_manager');
     }
 
+    /**
+     * Relasi ke BOD / Direksi
+     */
     public function bod()
     {
         return $this->belongsTo(User::class, 'approved_by_bod');
     }
 
+    /**
+     * Relasi ke Subsidiary / Plant
+     */
     public function subsidiary()
     {
         return $this->belongsTo(Subsidiary::class);
     }
 
+    /**
+     * Relasi alias ke user pengaju
+     */
     public function user()
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
+
+    /**
+     * Accessor untuk HTML Badge Status Request Order
+     */
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
@@ -92,7 +105,9 @@ class RequestOrder extends Model
             'approved_by_div_head' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan Plant Manager</span>',
             'approved_by_manager' => '<span class="badge bg-warning text-dark">Menunggu Persetujuan BOD</span>',
             'approved_by_bod' => '<span class="badge bg-success">Approved</span>',
-            default => '<span class="badge bg-secondary">' . $this->status . '</span>',
+            'partial' => '<span class="badge bg-info text-dark">Diterima Sebagian</span>',
+            'completed' => '<span class="badge bg-primary">Selesai (Barang Diterima)</span>',
+            default => '<span class="badge bg-secondary">' . strtoupper($this->status) . '</span>',
         };
     }
 }

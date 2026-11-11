@@ -7,9 +7,13 @@ use App\Models\Purchasing\RequestOrderItem;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
+#[Layout('layouts.app')]
+#[Title('Edit Request Order')]
 class RequestOrderEdit extends Component
 {
     use WithFileUploads;
@@ -38,7 +42,7 @@ class RequestOrderEdit extends Component
 
             'items'                 => 'required|array|min:1',
             'items.*.item_name'     => 'required|string|max:255',
-            'items.*.quantity'      => 'required|numeric|min:1',
+            'items.*.quantity'      => 'required|numeric|min:0.01',
             'items.*.unit'          => 'required|string|max:50',
             'items.*.remark'        => 'nullable|string|max:255',
         ];
@@ -48,12 +52,12 @@ class RequestOrderEdit extends Component
         'items.min'                  => 'Minimal harus terdapat 1 barang pada Request Order.',
         'items.*.item_name.required' => 'Nama barang tidak boleh kosong.',
         'items.*.quantity.required'  => 'Qty tidak boleh kosong.',
+        'items.*.quantity.min'       => 'Qty minimal harus 0.01.',
         'items.*.unit.required'      => 'Satuan wajib diisi.',
     ];
 
     public function mount(RequestOrder $requestOrder)
     {
-        
         $this->order = $requestOrder->load(['subsidiary', 'items']);
 
         // Populate Header Data
@@ -64,19 +68,28 @@ class RequestOrderEdit extends Component
         $this->old_attachment = $this->order->attachment;
 
         // Populate Items Data
-        foreach ($this->order->items as $item) {
-            $this->items[] = [
-                'id'        => $item->id,
-                'item_name' => $item->item_name,
-                'quantity'  => $item->quantity,
-                'unit'      => $item->unit,
-                'remark'    => $item->remark,
-            ];
+        $this->items = [];
+        if ($this->order->items && count($this->order->items) > 0) {
+            foreach ($this->order->items as $item) {
+                $this->items[] = [
+                    'id'        => $item->id,
+                    'item_name' => $item->item_name,
+                    'quantity'  => (float) $item->quantity,
+                    'unit'      => $item->unit,
+                    'remark'    => $item->remark ?? '',
+                ];
+            }
+        } else {
+            $this->addItem();
         }
     }
 
     public function addItem()
     {
+        if (!is_array($this->items)) {
+            $this->items = [];
+        }
+
         $this->items[] = [
             'id'        => null,
             'item_name' => '',
@@ -88,7 +101,7 @@ class RequestOrderEdit extends Component
 
     public function removeItem($index)
     {
-        if (count($this->items) > 1) {
+        if (is_array($this->items) && count($this->items) > 1) {
             unset($this->items[$index]);
             $this->items = array_values($this->items);
         }
@@ -100,16 +113,24 @@ class RequestOrderEdit extends Component
 
         DB::beginTransaction();
         try {
-            // Upload Lampiran Baru Jika Ada
+            // 1. Upload Lampiran Header Baru Jika Ada
             $attachmentPath = $this->old_attachment;
             if ($this->attachment) {
-                if ($this->old_attachment && Storage::disk('public')->exists($this->old_attachment)) {
-                    Storage::disk('public')->delete($this->old_attachment);
+                // Hapus berkas lama dari storage jika ada
+                if ($this->old_attachment) {
+                    $oldFilePath = str_contains($this->old_attachment, '/')
+                        ? $this->old_attachment
+                        : 'request-orders/attachments/' . $this->old_attachment;
+
+                    if (Storage::disk('public')->exists($oldFilePath)) {
+                        Storage::disk('public')->delete($oldFilePath);
+                    }
                 }
+
                 $attachmentPath = $this->attachment->store('request-orders/attachments', 'public');
             }
 
-            // Update Header tanpa mengubah Plant & Nomor RO
+            // 2. Update Data Header Dokumen
             $this->order->update([
                 'division'        => $this->division,
                 'request_date'    => $this->request_date,
@@ -119,30 +140,40 @@ class RequestOrderEdit extends Component
                 'last_revised_at' => now(),
             ]);
 
-            // Kumpulkan ID item yang tersisa
-            $existingIds = array_filter(array_column($this->items, 'id'));
+            // 3. Tangani Item Yang Dihapus dari Form oleh User
+            $existingIds = collect($this->items)->pluck('id')->filter()->toArray();
 
-            // Hapus item yang dihapus user dari form
-            RequestOrderItem::where('request_order_id', $this->order->id)
+            $deletedItems = RequestOrderItem::where('request_order_id', $this->order->id)
                 ->whereNotIn('id', $existingIds)
-                ->delete();
+                ->get();
 
-            // Update atau Tambah item baru
+            foreach ($deletedItems as $deletedItem) {
+                // Hapus file lampiran penerimaan item jika ada
+                if (!empty($deletedItem->receipt_attachment)) {
+                    $receiptPath = str_contains($deletedItem->receipt_attachment, '/')
+                        ? $deletedItem->receipt_attachment
+                        : 'request-orders/receipts/' . $deletedItem->receipt_attachment;
+
+                    if (Storage::disk('public')->exists($receiptPath)) {
+                        Storage::disk('public')->delete($receiptPath);
+                    }
+                }
+                $deletedItem->delete();
+            }
+
+            // 4. Update atau Tambah Item Baru
             foreach ($this->items as $itemData) {
+                $payload = [
+                    'item_name' => $itemData['item_name'],
+                    'quantity'  => (float) $itemData['quantity'],
+                    'unit'      => $itemData['unit'],
+                    'remark'    => $itemData['remark'] ?? null,
+                ];
+
                 if (!empty($itemData['id'])) {
-                    RequestOrderItem::where('id', $itemData['id'])->update([
-                        'item_name' => $itemData['item_name'],
-                        'quantity'  => $itemData['quantity'],
-                        'unit'      => $itemData['unit'],
-                        'remark'    => $itemData['remark'] ?? null,
-                    ]);
+                    RequestOrderItem::where('id', $itemData['id'])->update($payload);
                 } else {
-                    $this->order->items()->create([
-                        'item_name' => $itemData['item_name'],
-                        'quantity'  => $itemData['quantity'],
-                        'unit'      => $itemData['unit'],
-                        'remark'    => $itemData['remark'] ?? null,
-                    ]);
+                    $this->order->items()->create($payload);
                 }
             }
 

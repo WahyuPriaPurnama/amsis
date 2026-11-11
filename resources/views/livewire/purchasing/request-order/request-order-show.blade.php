@@ -169,13 +169,13 @@
                             @if ($canReceive)
                             <input type="file" wire:model="receiveItems.{{ $id }}.receipt_attachment" class="form-control form-control-sm">
                             @if (isset($receiveItems[$id]['old_attachment']) && $receiveItems[$id]['old_attachment'])
-                            <a href="{{ asset('storage/' . $receiveItems[$id]['old_attachment']) }}" target="_blank" class="btn btn-sm btn-outline-primary p-1 py-0 mt-1">
+                            <a href="{{ Storage::url($receiveItems[$id]['old_attachment']) }}" target="_blank" class="btn btn-sm btn-outline-primary p-1 py-0 mt-1">
                                 <i class="bi bi-file-earmark-image"></i> Lihat
                             </a>
                             @endif
                             @else
                             @if ($item->receipt_attachment)
-                            <a href="{{ asset('storage/' . $item->receipt_attachment) }}" target="_blank" class="btn btn-sm btn-outline-primary p-1 py-0">
+                            <a href="{{ Storage::url($item->receipt_attachment) }}" target="_blank" class="btn btn-sm btn-outline-primary p-1 py-0">
                                 <i class="bi bi-file-earmark-image"></i>
                             </a>
                             @else
@@ -201,8 +201,8 @@
                 <div class="p-3 border rounded h-100 shadow-sm">
                     <label class="fw-bold text-muted small d-block mb-2">Lampiran RO (Header):</label>
                     @if ($order->attachment)
-                    <a href="{{ asset('storage/' . $order->attachment) }}" target="_blank" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-paperclip me-2"></i>Lihat Lampiran
+                    <a href="{{ asset('storage/' . $order->attachment) }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="bi bi-paperclip me-1"></i> Lihat Lampiran
                     </a>
                     @else
                     <span class="text-muted small italic">Tidak ada lampiran</span>

@@ -3,7 +3,7 @@
         @component('components.card')
         @slot('header')
         <div class="d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-pencil-square me-2"></i>Revisi Request Order</span>
+            <span class="fw-bold"><i class="bi bi-pencil-square me-2"></i>Revisi Request Order</span>
             <span class="badge bg-secondary">{{ $order->request_number }}</span>
         </div>
         @endslot
@@ -29,7 +29,7 @@
                 </div>
             </div>
 
-            {{-- Info Umum --}}
+            {{-- Info Umum Header --}}
             <div class="row g-3 p-3 bg-light rounded border mb-4">
                 <h6 class="fw-bold mb-2 text-dark border-bottom pb-2"><i class="bi bi-card-heading me-1"></i> Informasi Umum</h6>
 
@@ -61,19 +61,24 @@
                 <div class="col-md-6">
                     <label class="form-label fw-bold small">Lampiran Header (PDF/Gambar)</label>
                     <input type="file" wire:model="attachment" class="form-control form-control-sm @error('attachment') is-invalid @enderror" accept=".pdf,.jpg,.jpeg,.png">
+
                     @if ($old_attachment)
                     <div class="form-text mt-1">
                         <small class="text-muted me-1">Lampiran saat ini:</small>
-                        <a href="{{ asset('storage/' . $old_attachment) }}" target="_blank" class="small text-decoration-none">
-                            <i class="bi bi-file-earmark-arrow-down"></i> Lihat Lampiran
+                        <a href="{{ Storage::url(str_contains($old_attachment, '/') ? $old_attachment : 'request-orders/attachments/' . $old_attachment) }}" target="_blank" class="small text-decoration-none fw-bold">
+                            <i class="bi bi-file-earmark-arrow-down me-1"></i>Lihat Lampiran Utama
                         </a>
                     </div>
                     @endif
+
+                    <div wire:loading wire:target="attachment" class="text-primary small mt-1">
+                        <span class="spinner-border spinner-border-sm me-1"></span> Mengunggah berkas...
+                    </div>
                     @error('attachment') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label fw-bold small">Catatan / Keperluan <span class="text-danger">*</span></label>
+                    <label class="form-label fw-bold small">Catatan / Keperluan</label>
                     <textarea wire:model="purpose" class="form-control form-control-sm @error('purpose') is-invalid @enderror" rows="2" placeholder="Tuliskan alasan atau catatan kebutuhan barang..."></textarea>
                     @error('purpose') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
                 </div>
@@ -100,15 +105,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($items as $index => $item)
-                        <tr wire:key="ro-item-{{ $index }}">
+                        @forelse ($items as $index => $item)
+                        <tr wire:key="ro-item-row-{{ $index }}">
                             <td class="text-center fw-bold">{{ $loop->iteration }}</td>
                             <td>
                                 <input type="text" wire:model="items.{{ $index }}.item_name" class="form-control form-control-sm @error('items.'.$index.'.item_name') is-invalid @enderror" placeholder="Nama Barang">
                                 @error('items.'.$index.'.item_name') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
                             </td>
                             <td>
-                                <input type="number" step="any" wire:model="items.{{ $index }}.quantity" class="form-control form-control-sm text-center @error('items.'.$index.'.quantity') is-invalid @enderror" min="1">
+                                <input type="number" step="any" wire:model="items.{{ $index }}.quantity" class="form-control form-control-sm text-center @error('items.'.$index.'.quantity') is-invalid @enderror" min="0.01">
                                 @error('items.'.$index.'.quantity') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
                             </td>
                             <td>
@@ -126,7 +131,11 @@
                                 @endif
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-3">Tidak ada barang dalam daftar.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -134,7 +143,7 @@
             {{-- Tombol Aksi Bawah --}}
             <div class="mt-4 d-flex justify-content-between align-items-center border-top pt-3">
                 <a href="{{ route('request-order.show', $order->id) }}" class="btn btn-secondary px-4" wire:navigate>Batal</a>
-                <button type="submit" class="btn btn-warning px-4 fw-bold shadow-sm" wire:loading.attr="disabled">
+                <button type="submit" class="btn btn-warning px-4 fw-bold shadow-sm" wire:loading.attr="disabled" wire:target="update, attachment">
                     <span wire:loading.remove wire:target="update">
                         <i class="bi bi-check-circle me-1"></i> Simpan Revisi
                     </span>

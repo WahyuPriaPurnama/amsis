@@ -32,7 +32,6 @@ class RequestOrderCreate extends Component
     {
         $this->request_date = date('Y-m-d');
 
-        // Inisialisasi baris pertama secara default
         $this->items = [
             [
                 'item_name' => '',
@@ -42,7 +41,6 @@ class RequestOrderCreate extends Component
             ]
         ];
 
-        // Jika ada data plant awal, pilih plant pertama secara otomatis
         $firstSub = Subsidiary::orderBy('name', 'asc')->first();
         if ($firstSub) {
             $this->subsidiary_id = $firstSub->id;
@@ -50,13 +48,11 @@ class RequestOrderCreate extends Component
         }
     }
 
-    // Dipanggil otomatis oleh Livewire 3 saat $subsidiary_id berubah
     public function updatedSubsidiaryId()
     {
         $this->generateRequestNumber();
     }
 
-    // Dipanggil otomatis oleh Livewire 3 saat $request_date berubah
     public function updatedRequestDate()
     {
         $this->generateRequestNumber();
@@ -72,7 +68,6 @@ class RequestOrderCreate extends Component
         $yearMonth = Carbon::parse($this->request_date)->format('Ym');
         $prefix = "{$yearMonth}/";
 
-        // Cari nomor urut terakhir KHUSUS untuk Subsidiary (Plant) yang dipilih
         $lastOrder = RequestOrder::where('subsidiary_id', $this->subsidiary_id)
             ->where('request_number', 'like', $prefix . '%')
             ->orderByRaw('CAST(SUBSTRING_INDEX(request_number, "/", -1) AS UNSIGNED) DESC')
@@ -113,8 +108,6 @@ class RequestOrderCreate extends Component
             'subsidiary_id'      => 'required|exists:subsidiaries,id',
             'division'           => 'required|string|max:255',
             'request_date'       => 'required|date',
-
-            // Validasi unique dikhususkan per subsidiary_id agar format 202609/001 bisa dipakai masing-masing plant
             'request_number'     => [
                 'required',
                 'string',
@@ -123,7 +116,6 @@ class RequestOrderCreate extends Component
                     return $query->where('subsidiary_id', $this->subsidiary_id);
                 }),
             ],
-
             'purpose'            => 'nullable|string',
             'attachment'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
 
@@ -149,13 +141,15 @@ class RequestOrderCreate extends Component
     {
         $validatedData = $this->validate();
 
-        // Simpan file lampiran jika ada
+        // Menyimpan file fisik ke storage/app/public/request-orders 
+        // dan hanya memfungsikan nama filenya (misal: "xyz123.pdf") untuk disimpan di database
         if ($this->attachment) {
-            $path = $this->attachment->store('public/request-orders');
+            $path = $this->attachment->store('request-orders', 'public');
             $validatedData['attachment'] = basename($path);
+        } else {
+            $validatedData['attachment'] = null;
         }
 
-        // Simpan Data Header
         $order = RequestOrder::create([
             'subsidiary_id'  => $validatedData['subsidiary_id'],
             'requested_by'   => auth()->id(),
@@ -163,11 +157,10 @@ class RequestOrderCreate extends Component
             'request_date'   => $validatedData['request_date'],
             'request_number' => $validatedData['request_number'],
             'purpose'        => $validatedData['purpose'] ?? null,
-            'attachment'     => $validatedData['attachment'] ?? null,
+            'attachment'     => $validatedData['attachment'], // Menyimpan nama file saja di DB
             'status'         => 'pending',
         ]);
 
-        // Simpan Data Items Detail
         foreach ($this->items as $item) {
             $order->items()->create([
                 'item_name' => $item['item_name'],

@@ -6,11 +6,11 @@ use App\Models\Purchasing\RequestOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Livewire\WithFileUploads; // 1. Tambahkan Trait ini untuk penanganan upload file
+use Livewire\WithFileUploads;
 
 class RequestOrderShow extends Component
 {
-    use WithFileUploads; // 2. Gunakan Trait
+    use WithFileUploads;
 
     public RequestOrder $order;
     public array $receiveItems = [];
@@ -22,15 +22,17 @@ class RequestOrderShow extends Component
 
     public function loadOrderData(RequestOrder $requestOrder)
     {
+        // Load data relasi secara optimal
         $this->order = $requestOrder->load(['items', 'subsidiary', 'requester', 'divHead', 'plantManager', 'bod']);
 
+        $this->receiveItems = [];
         foreach ($this->order->items as $item) {
             $this->receiveItems[$item->id] = [
                 'qty_received' => $item->qty_received ?? 0,
-                'date_received' => $item->date_received,
-                'po_number' => $item->po_number,
-                'po_date' => $item->po_date,
-                'receipt_attachment' => null, // Untuk upload berkas baru
+                'date_received' => $item->date_received ? \Carbon\Carbon::parse($item->date_received)->format('Y-m-d') : '',
+                'po_number' => $item->po_number ?? '',
+                'po_date' => $item->po_date ? \Carbon\Carbon::parse($item->po_date)->format('Y-m-d') : '',
+                'receipt_attachment' => null, // Berkas baru yang diunggah
                 'old_attachment' => $item->receipt_attachment,
             ];
         }
@@ -38,13 +40,13 @@ class RequestOrderShow extends Component
 
     public function updateReceive()
     {
-        // Check hak akses
+        // Check hak akses penerimaan barang
         $user = auth()->user();
         if (!($user->can('request-order.receive') || $user->hasRole('super-admin'))) {
             abort(403, 'Anda tidak memiliki hak akses untuk menerima barang.');
         }
 
-        // Rules Validasi Input
+        // Rules Validasi Input Dynamic Items
         $rules = [];
         foreach ($this->order->items as $item) {
             $rules["receiveItems.{$item->id}.qty_received"] = 'required|numeric|min:0|max:' . $item->quantity;
@@ -65,33 +67,35 @@ class RequestOrderShow extends Component
                 $itemId = $item->id;
                 $data = $this->receiveItems[$itemId];
 
-                // Upload berkas lampiran jika ada yang baru
+                // Unggah berkas penerimaan/lampiran baru (jika ada)
                 $attachmentPath = $data['old_attachment'];
                 if (isset($data['receipt_attachment']) && $data['receipt_attachment']) {
+                    // Hapus berkas lama jika ada
                     if ($data['old_attachment'] && Storage::disk('public')->exists($data['old_attachment'])) {
                         Storage::disk('public')->delete($data['old_attachment']);
                     }
                     $attachmentPath = $data['receipt_attachment']->store('request-orders/receipts', 'public');
                 }
 
-                $qtyReceived = (int) $data['qty_received'];
+                // Gunakan float agar mendukung kuantitas bertipe pecahan/desimal
+                $qtyReceived = (float) $data['qty_received'];
 
-                // Update Item
+                // Update data item penerimaan
                 $item->update([
                     'qty_received' => $qtyReceived,
-                    'date_received' => $data['date_received'] ?? null,
-                    'po_number' => $data['po_number'] ?? null,
-                    'po_date' => $data['po_date'] ?? null,
+                    'date_received' => $data['date_received'] ?: null,
+                    'po_number' => $data['po_number'] ?: null,
+                    'po_date' => $data['po_date'] ?: null,
                     'receipt_attachment' => $attachmentPath,
                 ]);
 
-                $totalReq += $item->quantity;
+                $totalReq += (float) $item->quantity;
                 $totalRec += $qtyReceived;
             }
 
-            // --- PERBAIKAN LOGIKA STATUS ---
+            // --- LOGIKA STATUS DOKUMEN ---
             // Status dokumen HANYA diubah menjadi completed/partial jika dokumen SUDAH melewati approval BOD
-            if ($this->order->status === 'approved_by_bod' || $this->order->status === 'partial' || $this->order->status === 'completed') {
+            if (in_array($this->order->status, ['approved_by_bod', 'partial', 'completed'])) {
                 if ($totalRec >= $totalReq) {
                     $this->order->update(['status' => 'completed']);
                 } elseif ($totalRec > 0) {
@@ -107,6 +111,7 @@ class RequestOrderShow extends Component
             session()->flash('error', 'Gagal menyimpan penerimaan: ' . $e->getMessage());
         }
     }
+
     // --- APPROVAL ACTIONS ---
 
     public function approveDivHead()
@@ -189,7 +194,54 @@ class RequestOrderShow extends Component
         $this->refreshData('Persetujuan Kadiv berhasil dibatalkan. Status kembali ke Pending.');
     }
 
-    // --- HELPER METHODS ---
+    // --- DELETE ACTION ---
+
+    public function deleteOrder()
+    {
+        // 1. Cek Hak Akses Penghapusan
+        $user = auth()->user();
+        if (!($user->can('request-order.delete') || $user->hasRole('super-admin'))) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus Request Order ini.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 2. Hapus Berkas Lampiran Header (jika hanya simpan nama file: "xyz.pdf")
+            if ($this->order->attachment) {
+                // Tentukan folder tempat file fisik disimpan
+                $headerFilePath = 'request-orders/' . $this->order->attachment;
+
+                if (Storage::disk('public')->exists($headerFilePath)) {
+                    Storage::disk('public')->delete($headerFilePath);
+                }
+            }
+
+            // 3. Hapus Berkas Lampiran Penerimaan pada Item (jika ada)
+            foreach ($this->order->items as $item) {
+                if ($item->receipt_attachment) {
+                    // Tentukan folder penyimpanan penerimaan/receipt
+                    $receiptFilePath = 'request-orders/receipts/' . $item->receipt_attachment;
+
+                    if (Storage::disk('public')->exists($receiptFilePath)) {
+                        Storage::disk('public')->delete($receiptFilePath);
+                    }
+                }
+            }
+
+   
+            $this->order->items()->delete();
+            $this->order->delete();
+
+            DB::commit();
+
+            session()->flash('success', 'Request Order berhasil dihapus!');
+            return redirect()->route('request-order.index');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Gagal menghapus dokumen: ' . $e->getMessage());
+        }
+    }
+
 
     private function authorizeAccess(string $permission)
     {
@@ -203,43 +255,6 @@ class RequestOrderShow extends Component
     {
         $this->loadOrderData($this->order);
         session()->flash('success', $message);
-    }
-    // Tambahkan metode ini di dalam kelas RequestOrderShow
-
-    public function deleteOrder()
-    {
-        // 1. Cek Hak Akses Penghapusan
-        $user = auth()->user();
-        if (!($user->can('request-order.delete') || $user->hasRole('super-admin'))) {
-            abort(403, 'Anda tidak memiliki hak akses untuk menghapus Request Order ini.');
-        }
-
-        DB::beginTransaction();
-        try {
-            // 2. Hapus Berkas Lampiran Header (Jika Ada)
-            if ($this->order->attachment && Storage::disk('public')->exists($this->order->attachment)) {
-                Storage::disk('public')->delete($this->order->attachment);
-            }
-
-            // 3. Hapus Berkas Lampiran Penerimaan pada Item (Jika Ada)
-            foreach ($this->order->items as $item) {
-                if ($item->receipt_attachment && Storage::disk('public')->exists($item->receipt_attachment)) {
-                    Storage::disk('public')->delete($item->receipt_attachment);
-                }
-            }
-
-            // 4. Hapus Item & Header Dokumen (Cascading / Manual)
-            $this->order->items()->delete();
-            $this->order->delete();
-
-            DB::commit();
-
-            session()->flash('success', 'Request Order berhasil dihapus!');
-            return redirect()->route('request-order.index');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            session()->flash('error', 'Gagal menghapus dokumen: ' . $e->getMessage());
-        }
     }
 
     public function render()
