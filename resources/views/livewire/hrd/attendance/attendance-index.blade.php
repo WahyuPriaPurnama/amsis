@@ -82,7 +82,6 @@
                         <div class="fw-bold text-dark">
                             {{ $log->attendanceEmployee->display_name ?? 'Karyawan Baru' }}
                         </div>
-                        <small class="text-muted">PIN: {{ $log->pin }}</small>
                     </td>
                     <td>
                         @if($log->subsidiary)
