@@ -75,15 +75,15 @@ class AttendanceLogTable extends Component
             $subsidiaryId = $this->resolveSubsidiaryId($cloudId);
 
             $totalSynced = 0;
-            $totalDays   = 30;
-            $stepDays    = 2;
 
-            $overallEndDate   = Carbon::now();
-            $overallStartDate = Carbon::now()->subDays($totalDays);
+            // Gunakan filter tanggal dari UI jika diisi, jika kosong tarik 7 hari terakhir saja agar cepat
+            $overallEndDate   = !empty($this->endDate) ? Carbon::parse($this->endDate) : Carbon::now();
+            $overallStartDate = !empty($this->startDate) ? Carbon::parse($this->startDate) : Carbon::now()->subDays(7);
 
+            $stepDays         = 2;
             $currentStartDate = clone $overallStartDate;
 
-            while ($currentStartDate->lt($overallEndDate)) {
+            while ($currentStartDate->lte($overallEndDate)) {
                 $currentEndDate = (clone $currentStartDate)->addDays($stepDays);
 
                 if ($currentEndDate->gt($overallEndDate)) {
@@ -93,11 +93,12 @@ class AttendanceLogTable extends Component
                 $startDateFormatted = $currentStartDate->toDateString();
                 $endDateFormatted   = $currentEndDate->toDateString();
 
-                $response = Http::withHeaders([
+                $response = Http::timeout(30)->withHeaders([
                     'Authorization' => 'Bearer K0WFK7TV51AD7934',
                     'Content-Type'  => 'application/json',
                 ])->post('https://developer.fingerspot.io/api/get_attlog', [
-                    'trans_id'   => (string) time(),
+                    // Gunakan uniqid agar trans_id selalu unik di setiap looping
+                    'trans_id'   => uniqid('sync_', true),
                     'cloud_id'   => $cloudId,
                     'start_date' => $startDateFormatted,
                     'end_date'   => $endDateFormatted,
@@ -113,7 +114,6 @@ class AttendanceLogTable extends Component
                             $scanDate = $log['scan_date'] ?? null;
 
                             if ($pin && $scanDate) {
-                                // 1. Simpan/Daftarkan PIN ke attendance_employees
                                 $attendanceEmployee = AttendanceEmployee::firstOrCreate(
                                     ['pin' => $pin],
                                     [
@@ -122,12 +122,10 @@ class AttendanceLogTable extends Component
                                     ]
                                 );
 
-                                // Jika nama di mesin belum ada, panggil get_userinfo
                                 if (empty($attendanceEmployee->name_in_machine)) {
                                     $this->requestUserInfoFromMachine($cloudId, $pin);
                                 }
 
-                                // 2. Simpan Log Absensi beserta subsidiary_id
                                 AttendanceLog::updateOrCreate(
                                     [
                                         'pin'       => $pin,
@@ -147,16 +145,17 @@ class AttendanceLogTable extends Component
                         }
                     }
                 } else {
-                    Log::warning("Gagal narik data Fingerspot untuk periode: {$startDateFormatted} s/d {$endDateFormatted}");
+                    Log::warning("Gagal narik data Fingerspot ({$startDateFormatted} s/d {$endDateFormatted}): " . $response->body());
                 }
 
-                $currentStartDate->addDays($stepDays);
+                // Maju 1 hari setelah end_date agar tidak tumpang tindih
+                $currentStartDate = (clone $currentEndDate)->addDay();
             }
 
             if ($totalSynced > 0) {
-                session()->flash('message', 'Berhasil menyinkronkan ' . $totalSynced . ' record data absensi dari 30 hari terakhir!');
+                session()->flash('message', "Berhasil menyinkronkan {$totalSynced} record absensi!");
             } else {
-                session()->flash('message', 'Tidak ada data absensi baru ditemukan dalam 30 hari terakhir.');
+                session()->flash('message', 'Tidak ada data absensi ditemukan pada rentang tanggal tersebut (Pastikan mesin sudah online & data tampil di web Fingerspot.io).');
             }
         } catch (\Exception $e) {
             Log::error('Sync Error: ' . $e->getMessage());
