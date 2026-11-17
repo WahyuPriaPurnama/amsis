@@ -4,8 +4,29 @@
     DATA ABSENSI
     @endslot
 
-    <div class="button-action mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+    {{-- Alert Notifikasi Hasil Sync --}}
+    @if (session()->has('message'))
+    <div class="alert alert-success alert-dismissible fade show py-2 small" role="alert">
+        <i class="bi bi-check-circle-fill me-1"></i> {{ session('message') }}
+        <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
 
+    @if (session()->has('warning'))
+    <div class="alert alert-warning alert-dismissible fade show py-2 small" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ session('warning') }}
+        <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    @if (session()->has('error'))
+    <div class="alert alert-danger alert-dismissible fade show py-2 small" role="alert">
+        <i class="bi bi-x-circle-fill me-1"></i> {{ session('error') }}
+        <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
+    <div class="button-action mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
         <div class="d-flex align-items-center gap-2 flex-wrap">
             {{-- Tombol Tarik Data Fingerspot --}}
             <button type="button" wire:click="syncFromFingerspot" wire:loading.attr="disabled" class="btn btn-primary btn-sm">
@@ -34,8 +55,9 @@
                 </span>
             </button>
         </div>
+
         <div class="input-group input-group-sm style-search" style="max-width: 280px;">
-            <input type="text" class="form-control" wire:model.live="search" placeholder="Cari Nama / PIN Karyawan..." />
+            <input type="text" class="form-control" wire:model.live.debounce.300ms="search" placeholder="Cari Nama / PIN Karyawan..." />
             <span class="input-group-text bg-white">
                 <i class="bi bi-search text-muted"></i>
             </span>
@@ -55,15 +77,14 @@
             </thead>
             <tbody>
                 @forelse($logs as $log)
-                <tr class="text-center">
+                <tr class="text-center" wire:key="log-{{ $log->id }}">
                     <td>
                         <div class="fw-bold text-dark">
-                            {{-- Mengambil nama dari relasi attendanceEmployee --}}
                             {{ $log->attendanceEmployee->display_name ?? 'Karyawan Baru' }}
                         </div>
+                        <small class="text-muted">PIN: {{ $log->pin }}</small>
                     </td>
                     <td>
-                        {{-- Mengambil nama subsidiary dari relasi subsidiary --}}
                         @if($log->subsidiary)
                         <span class="badge bg-primary">{{ $log->subsidiary->name }}</span>
                         @else
@@ -71,7 +92,6 @@
                         @endif
                     </td>
                     <td>
-                        {{-- Format Tanggal Ke dd-mm-yyyy HH:ii --}}
                         {{ \Carbon\Carbon::parse($log->scan_date)->format('d-m-Y H:i:s') }}
                     </td>
                     <td>
@@ -83,7 +103,6 @@
                         <span class="badge bg-secondary">{{ $log->verify ?? '-' }}</span>
                         @endif
                     </td>
-                    <!-- Di dalam loop tabel <td> foto scan -->
                     <td>
                         @if($log->photo_url)
                         <button type="button"
@@ -95,31 +114,6 @@
                         <span class="text-muted">-</span>
                         @endif
                     </td>
-
-                    <!-- ================= MODAL PREVIEW FOTO SCAN ================= -->
-                    @if($selectedPhotoUrl)
-                    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);" wire:click.self="closePhotoModal">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header bg-dark text-white py-2">
-                                    <h6 class="modal-title mb-0">
-                                        <i class="bi bi-person-bounding-box me-2"></i>Foto Scan Absensi
-                                    </h6>
-                                    <button type="button" class="btn-close btn-close-white" wire:click="closePhotoModal"></button>
-                                </div>
-                                <div class="modal-body text-center p-3 bg-light">
-                                    <img src="{{ $selectedPhotoUrl }}" class="img-fluid rounded shadow-sm" alt="Foto Scan Absensi" style="max-height: 450px; object-fit: contain;">
-                                </div>
-                                <div class="modal-footer py-2 justify-content-between">
-                                    <a href="{{ $selectedPhotoUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-box-arrow-up-right me-1"></i> Buka di Tab Baru
-                                    </a>
-                                    <button type="button" wire:click="closePhotoModal" class="btn btn-sm btn-secondary">Tutup</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
                 </tr>
                 @empty
                 <tr>
@@ -136,5 +130,30 @@
     <div class="mt-3">
         {{ $logs->links() }}
     </div>
+
+    {{-- ================= MODAL PREVIEW FOTO SCAN (Di Luar Tabel) ================= --}}
+    @if($selectedPhotoUrl)
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);" wire:click.self="closePhotoModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white py-2">
+                    <h6 class="modal-title mb-0">
+                        <i class="bi bi-person-bounding-box me-2"></i>Foto Scan Absensi
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" wire:click="closePhotoModal"></button>
+                </div>
+                <div class="modal-body text-center p-3 bg-light">
+                    <img src="{{ $selectedPhotoUrl }}" class="img-fluid rounded shadow-sm" alt="Foto Scan Absensi" style="max-height: 450px; object-fit: contain;">
+                </div>
+                <div class="modal-footer py-2 justify-content-between">
+                    <a href="{{ $selectedPhotoUrl }}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Buka di Tab Baru
+                    </a>
+                    <button type="button" wire:click="closePhotoModal" class="btn btn-sm btn-secondary">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
     @endcomponent
 </div>
