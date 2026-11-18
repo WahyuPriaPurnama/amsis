@@ -233,7 +233,7 @@
                     wire:click="approveManager"
                     wire:confirm="Apakah Anda yakin ingin menyetujui Request Payment ini?"
                     wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="approveManager"><i class="bi bi-check2-circle me-1"></i> Acc Manager</span>
+                    <span wire:loading.remove wire:target="approveManager"><i class="bi bi-check2-circle me-1"></i> Acc Manager / Plant Manager</span>
                     <span wire:loading wire:target="approveManager"><span class="spinner-border spinner-border-sm me-1"></span>Menyetujui...</span>
                 </button>
                 @endif
@@ -245,7 +245,7 @@
                     wire:click="approveBod"
                     wire:confirm="Apakah Anda yakin ingin menyetujui Request Payment ini?"
                     wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="approveBod"><i class="bi bi-check2-circle me-1"></i> Acc Direktur Op</span>
+                    <span wire:loading.remove wire:target="approveBod"><i class="bi bi-check2-circle me-1"></i> Acc Direktur</span>
                     <span wire:loading wire:target="approveBod"><span class="spinner-border spinner-border-sm me-1"></span>Menyetujui...</span>
                 </button>
                 @endif
