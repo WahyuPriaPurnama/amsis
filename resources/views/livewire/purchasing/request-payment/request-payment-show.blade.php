@@ -16,7 +16,7 @@
                 <div class="alert alert-warning mb-0 d-flex align-items-center shadow-sm" role="alert">
                     <i class="bi bi-hourglass-split fs-4 me-2"></i>
                     <div>
-                        <strong class="d-block">Status: Menunggu Acc Direktur</strong>
+                        <strong class="d-block">Status: Menunggu Acc Manager / Plant Manager</strong>
                         <small class="text-muted">Dokumen sedang menunggu persetujuan tingkat pertama.</small>
                     </div>
                 </div>
@@ -26,8 +26,8 @@
                 <div class="alert alert-info mb-0 d-flex align-items-center shadow-sm" role="alert">
                     <i class="bi bi-hourglass-split fs-4 me-2"></i>
                     <div>
-                        <strong class="d-block">Status: Menunggu Acc Direktur OP</strong>
-                        <small class="text-muted">Telah disetujui Direktur, menunggu persetujuan akhir Direktur Operasional.</small>
+                        <strong class="d-block">Status: Menunggu Acc Direktur</strong>
+                        <small class="text-muted">Telah disetujui Manager / Plant Manager, menunggu persetujuan akhir Direktur.</small>
                     </div>
                 </div>
                 @break
@@ -37,7 +37,7 @@
                     <i class="bi bi-check-circle-fill fs-4 me-2"></i>
                     <div>
                         <strong class="d-block">Status: Approved (Selesai)</strong>
-                        <small>Dokumen telah disetujui sepenuhnya oleh Direksi.</small>
+                        <small>Dokumen telah disetujui sepenuhnya.</small>
                     </div>
                 </div>
                 @break
@@ -169,13 +169,13 @@
             </div>
             <div class="col-md-4">
                 <div class="p-3 border rounded bg-white text-center shadow-sm h-100">
-                    <span class="d-block text-muted small mb-1">Direktur</span>
+                    <span class="d-block text-muted small mb-1">Manager / Plant Manager</span>
                     <strong class="d-block text-dark">{{ $payment->plantManager->name ?? '-' }}</strong>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="p-3 border rounded bg-white text-center shadow-sm h-100">
-                    <span class="d-block text-muted small mb-1">Direktur Operasional</span>
+                    <span class="d-block text-muted small mb-1">Direktur</span>
                     <strong class="d-block text-dark">{{ $payment->bod->name ?? '-' }}</strong>
                 </div>
             </div>
