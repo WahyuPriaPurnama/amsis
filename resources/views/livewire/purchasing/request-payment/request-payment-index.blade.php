@@ -89,10 +89,10 @@
                             <td>
                                 @switch($payment->status)
                                 @case('pending')
-                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Menunggu Acc Direktur</span>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Menunggu Acc Manager / Plant Manager</span>
                                 @break
                                 @case('approved_by_manager')
-                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Menunggu Acc Direktur OP</span>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Menunggu Acc Direktur</span>
                                 @break
                                 @case('approved_by_bod')
                                 <span class="badge bg-success">Disetujui</span>
