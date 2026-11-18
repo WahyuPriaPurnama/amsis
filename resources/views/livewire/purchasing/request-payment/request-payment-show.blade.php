@@ -226,19 +226,19 @@
                 {{-- Button Cetak PDF --}}
                 <x-buttons.pdf href="{{ route('request-payment.pdf', $payment->id) }}"></x-buttons.pdf>
 
-                {{-- Button Approve Direktur --}}
+                {{-- Button Approve Manager/Plant Manager --}}
                 @if ($canApproveManager)
                 <button type="button"
                     class="btn btn-success fw-bold shadow-sm"
                     wire:click="approveManager"
                     wire:confirm="Apakah Anda yakin ingin menyetujui Request Payment ini?"
                     wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="approveManager"><i class="bi bi-check2-circle me-1"></i> Acc Direktur</span>
+                    <span wire:loading.remove wire:target="approveManager"><i class="bi bi-check2-circle me-1"></i> Acc Manager</span>
                     <span wire:loading wire:target="approveManager"><span class="spinner-border spinner-border-sm me-1"></span>Menyetujui...</span>
                 </button>
                 @endif
 
-                {{-- Button Approve Direktur OP --}}
+                {{-- Button Approve Direktur --}}
                 @if ($canApproveBod)
                 <button type="button"
                     class="btn btn-success fw-bold shadow-sm"

@@ -134,12 +134,12 @@
             <td
                 style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
                 {{ $payment->plantManager->name ?? '-' }} <br>
-                <small>{{ $payment->approved_by_manager_at}}<br>Direktur</small>
+                <small>{{ $payment->approved_by_manager_at}}<br>Manager / Plant Manager</small>
             </td>
             <td
                 style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
                 {{ $payment->bod->name ?? '-' }} <br>
-                <small>{{ $payment->approved_by_bod_at  }}<br>Direktur Operasional</small>
+                <small>{{ $payment->approved_by_bod_at  }}<br>Direktur</small>
             </td>
             <td
                 style="border:1px solid #000; border-top:none; border-bottom:none; text-align:center; vertical-align:middle;">
